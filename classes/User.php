@@ -45,8 +45,9 @@ class User
 
         // Insérer le nouvel utilisateur
         $nom = $_POST['nom'] ?? 'Utilisateur';
-        $sql = "INSERT INTO utilisateurs (nom, email, password) VALUES (?, ?, ?)";
-        $this->conn->executerRequete($sql, [$nom, $email, $hashedPassword]);
+        $role = $_POST['role'] ?? 'user'; // role user par défaut
+        $sql = "INSERT INTO utilisateurs (nom, email, password, role) VALUES (?, ?, ?, ?)";
+        $this->conn->executerRequete($sql, [$nom, $email, $hashedPassword, $role]);
         return true;
     }
 
@@ -75,6 +76,7 @@ class User
             // Démarrer la session
             session_regenerate_id(true);
             $_SESSION['user_id'] = $user['id'];
+            $_SESSION['role'] = $user['role'] ?? 'user'; // role user par défaut
             return true;
         }
         return false;
