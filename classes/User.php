@@ -44,8 +44,9 @@ class User
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
         // Insérer le nouvel utilisateur
-        $sql = "INSERT INTO utilisateurs (email, password) VALUES (?, ?)";
-        $this->conn->executerRequete($sql, [$email, $hashedPassword]);
+        $nom = $_POST['nom'] ?? 'Utilisateur';
+        $sql = "INSERT INTO utilisateurs (nom, email, password) VALUES (?, ?, ?)";
+        $this->conn->executerRequete($sql, [$nom, $email, $hashedPassword]);
         return true;
     }
 
