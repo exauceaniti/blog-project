@@ -11,7 +11,6 @@ session_start();
 
 // ========================== INCLUSIONS ==========================
 // Connexion à la base et classes nécessaires
-require_once '../config/database.php';
 require_once '../classes/connexion.php';
 require_once '../classes/commentaire.php';
 
@@ -19,7 +18,7 @@ require_once '../classes/commentaire.php';
 // Connexion à la base de données
 $connexion = new Connexion();
 $conn = $connexion->connecter(); // PDO
-$comment = new Commentaire($connexion);
+$comment = new commentaire($connexion);
 
 // Simulation d'un utilisateur connecté pour tests
 // Dans un vrai projet, $_SESSION['user_id'] est défini après login
@@ -41,13 +40,13 @@ switch ($action) {
 
         // Vérification des champs obligatoires
         if (!$articleId || empty($contenu)) {
-            echo "Article ID ou contenu manquant\n";
+            echo json_encode(["error" => "Article ID ou contenu manquant\n"]);
             exit;
         }
 
         // Appel de la méthode ajouterCommentaire de la classe Commentaire
         $comment->ajouterCommentaire($contenu, $articleId, $_SESSION['user_id']);
-        echo "Commentaire ajouté avec succès\n";
+        echo json_encode(["success" => "Commentaire ajouté avec succès\n"]);
         break;
 
     // ========================= SUPPRIMER UN COMMENTAIRE =========================
@@ -56,13 +55,13 @@ switch ($action) {
 
         // Vérification de l'ID
         if (!$id) {
-            echo "ID manquant\n";
+            echo json_encode(["error" => "ID manquant\n"]);
             exit;
         }
 
         // Appel de la méthode supprimerCommentaire
         $comment->supprimerCommentaire($id);
-        echo "Commentaire supprimé avec succès\n";
+        echo json_encode(["success" => "Commentaire supprimé avec succès\n"]);
         break;
 
     // ========================= VOIR LES COMMENTAIRES D'UN ARTICLE =========================
@@ -71,7 +70,7 @@ switch ($action) {
 
         // Vérification de l'ID de l'article
         if (!$articleId) {
-            echo "Article ID manquant\n";
+            echo json_encode(["error" => "Article ID manquant\n"]);
             exit;
         }
 
@@ -79,12 +78,11 @@ switch ($action) {
         $commentaires = $comment->voirCommentaires($articleId);
 
         // Affichage côté terminal
-        echo "Commentaires pour l'article $articleId :\n";
-        print_r($commentaires);
+        echo json_encode(["success" => true, "commentaires" => $commentaires]);
         break;
 
     // ========================= CAS ACTION INVALIDE =========================
     default:
-        echo "Action non reconnue\n";
+        echo json_encode(["error" => "Action non reconnue\n"]);
         break;
 }

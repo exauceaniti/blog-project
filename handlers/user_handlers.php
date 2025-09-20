@@ -1,9 +1,7 @@
 <?php
-// Démarrage de la session pour gérer l'état de l'utilisateur
-session_start();
 
 // Inclusion des classes nécessaires
-require_once  '../config/database.php';
+require_once  '../classes/connexion.php';
 require_once '../classes/User.php';
 /**
  * Initialisation de la connexion à la base de données
@@ -20,31 +18,13 @@ $user = new User($connexion);
  */
 $action = $_POST['action'] ?? null;
 
-if ($action === 'inscription') {
-    // ========================= INSCRIPTION =========================
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
-
-    if (empty($email) || empty($password)) {
-        echo "Email ou mot de passe manquant !\n";
-        exit;
-    }
-
-    // Appel de la méthode sInscrire de la classe User
-    $result = $user->sInscrire($email, $password);
-
-    if ($result) {
-        echo "Inscription réussie !\n";
-    } else {
-        echo "Cet email est déjà utilisé\n";
-    }
-} elseif ($action === 'connexion') {
+if ($action === 'connexion') {
     // ========================= CONNEXION =========================
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
 
     if (empty($email) || empty($password)) {
-        echo "Email ou mot de passe manquant !\n";
+        echo json_encode(["error" => "Email ou mot de passe manquant !"]);
         exit;
     }
 
@@ -52,15 +32,35 @@ if ($action === 'inscription') {
     $result = $user->seConnecter($email, $password);
 
     if ($result) {
-        echo "connexion réussie !\n";
+        echo json_encode(["success" => "Connexion réussie !"]);
     } else {
-        echo "Email ou mot de passe incorrect\n";
+        echo json_encode(["error" => "Email ou mot de passe incorrect\n"]);
     }
 } elseif ($action === 'deconnexion') {
     // ========================= DECONNEXION =========================
     $user->seDeconnecter();
-    echo "Déconnexion réussie !\n";
+    echo json_encode(["success" => "Déconnexion réussie !"]);
 } else {
     // ========================= ACTION INVALIDE =========================
-    echo "Action non reconnue\n";
+    echo json_encode(["error" => "Action non reconnue\n"]);
+}
+
+// ========================= INSCRIPTION =========================
+if ($action === 'inscription') {
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+
+    if (empty($email) || empty($password)) {
+        echo json_encode(["error" => "Email ou mot de passe manquant !"]);
+        exit;
+    }
+
+    // Appel de la méthode sInscrire de la classe User
+    $result = $user->sInscrire($email, $password);
+
+    if ($result) {
+        echo json_encode(["success" => "Inscription réussie !"]);
+    } else {
+        echo json_encode(["error" => "Email déjà utilisé\n"]);
+    }
 }

@@ -44,8 +44,8 @@ class User
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
         // Insérer le nouvel utilisateur
-        $nom = $_POST['nom'] ?? 'Utilisateur';
-        $role = $_POST['role'] ?? 'user'; // role user par défaut
+        $nom = $this->sInscrire['nom'] ?? 'Utilisateur';
+        $role = $this->sInscrire['role'] ?? 'user'; // role user par défaut
         $sql = "INSERT INTO utilisateurs (nom, email, password, role) VALUES (?, ?, ?, ?)";
         $this->conn->executerRequete($sql, [$nom, $email, $hashedPassword, $role]);
         return true;
