@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Classe Comment
+ * Classe Commentaire
  *
  * Cette classe gère les commentaires des articles du blog :
  * création, suppression et récupération des commentaires.
  */
-class Comment
+class commentaire
 {
     /**
      * @var Connexion $conn Objet de connexion à la base de données
@@ -37,7 +37,7 @@ class Comment
      */
     public function ajouterCommentaire($contenu, $articleId, $auteurId)
     {
-        $sql = "INSERT INTO commentaires (contenu, article_id, auteur_id, dateCommentaire) VALUES (?, ?, ?, NOW())";
+        $sql = "INSERT INTO commentaires (contenu, article_id, auteur_id, date_Commentaire) VALUES (?, ?, ?, NOW())";
         return $this->conn->executerRequete($sql, [$contenu, $articleId, $auteurId]);
     }
 

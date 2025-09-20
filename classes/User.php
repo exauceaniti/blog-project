@@ -2,7 +2,7 @@
 
 /**
  * Classe User
- * 
+ *
  * Cette classe gère les utilisateurs du blog : connexion, déconnexion,
  * création d'articles et création de commentaires.
  */
@@ -26,12 +26,36 @@ class User
     }
 
     /**
+     * Inscription d'un utilisateur
+     * @param string $email Email de l'utilisateur
+     * @param string $password Mot de passe en clair
+     * @return bool True si l'inscription est réussie, False sinon
+     */
+    public function sInscrire($email, $password)
+    {
+        // Vérifier si l'email est déjà utilisé
+        $sql = "SELECT * FROM utilisateurs WHERE email = ?";
+        $stmt = $this->conn->executerRequete($sql, [$email]);
+        if ($stmt->fetch()) {
+            return false; // Email déjà utilisé
+        }
+
+        // Hacher le mot de passe
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+        // Insérer le nouvel utilisateur
+        $sql = "INSERT INTO utilisateurs (email, password) VALUES (?, ?)";
+        $this->conn->executerRequete($sql, [$email, $hashedPassword]);
+        return true;
+    }
+
+    /**
      * Connexion d'un utilisateur
      *
      * Vérifie l'email et le mot de passe et démarre une session si valide.
      *
      * @param string $email Email de l'utilisateur
-     * @param string $password Mot de passe en clair
+     * @param string $password Mot de passe en haché
      * @return bool True si connexion réussie, False sinon
      */
     public function seConnecter($email, $password)
@@ -41,6 +65,14 @@ class User
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password'])) {
+            if (password_needs_rehash($user['password'], PASSWORD_BCRYPT)) {
+                // Re-hacher le mot de passe si nécessaire
+                $newHashedPassword = password_hash($password, PASSWORD_BCRYPT);
+                $updateSql = "UPDATE utilisateurs SET password = ? WHERE id = ?";
+                $this->conn->executerRequete($updateSql, [$newHashedPassword, $user['id']]);
+            }
+            // Démarrer la session
+            session_regenerate_id(true);
             $_SESSION['user_id'] = $user['id'];
             return true;
         }
@@ -48,14 +80,14 @@ class User
     }
 
     /**
-     * Déconnexion de l'utilisateur
-     *
-     * Détruit la session courante.
+     * Vérifier la connexion de l'utilisateur
+     * @return bool True si l'utilisateur est connecté, False sinon
      */
-    public function seDeconnecter()
+    public function estConnecte()
     {
-        session_destroy();
+        return isset($_SESSION['user_id']);
     }
+
 
     /**
      * Création d'un article
@@ -69,7 +101,7 @@ class User
      */
     public function creeArticle($titre, $contenu)
     {
-        $sql = "INSERT INTO articles (titre, contenu, auteur_id, datePublication) VALUES (?, ?, ?, NOW())";
+        $sql = "INSERT INTO articles (titre, contenu, auteur_id, date_Publication) VALUES (?, ?, ?, NOW())";
         return $this->conn->executerRequete($sql, [$titre, $contenu, $_SESSION['user_id']]);
     }
 
@@ -85,7 +117,17 @@ class User
      */
     public function creeCommentaire($contenu, $articleId)
     {
-        $sql = "INSERT INTO commentaires (contenu, article_id, auteur_id, dateCommentaire) VALUES (?, ?, ?, NOW())";
+        $sql = "INSERT INTO commentaires (contenu, article_id, auteur_id, date_Commentaire) VALUES (?, ?, ?, NOW())";
         return $this->conn->executerRequete($sql, [$contenu, $articleId, $_SESSION['user_id']]);
+    }
+
+    /**
+     * Déconnexion de l'utilisateur
+     *
+     * Détruit la session courante.
+     */
+    public function seDeconnecter()
+    {
+        session_destroy();
     }
 }

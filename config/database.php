@@ -2,7 +2,7 @@
 
 /**
  * Classe Connexion
- * 
+ *
  * Cette classe gère la connexion à la base de données MySQL
  * et fournit une méthode pour exécuter des requêtes sécurisées.
  */
@@ -58,7 +58,7 @@ class Connexion
             $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
             // debug : vérifier la connexion
-            var_dump($this->connection);
+            // var_dump($this->connection);
 
             return $this->connection;
         } catch (PDOException $e) {

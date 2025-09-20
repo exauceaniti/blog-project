@@ -67,18 +67,55 @@ class Post
     }
 
     /**
-     * Voir tous les articles
+     * Rechercher des articles par mot-clé (dans le titre ou le contenu).
      *
-     * Récupère tous les articles avec le nom de l'auteur.
-     * Les articles sont triés du plus récent au plus ancien.
-     *
-     * @return array Tableau associatif contenant les articles
+     * @param string $motCle Mot-clé à rechercher
+     * @return array Liste des articles correspondants (peut être vide si aucun résultat)
      */
-    public function voirArticle()
+    public function rechercherArticle($motCle)
     {
-        $sql = "SELECT a.*, u.nom AS auteur FROM articles a
+        $sql = "SELECT a.*, u.nom AS auteur
+                FROM articles a
                 JOIN utilisateurs u ON a.auteur_id = u.id
-                ORDER BY date_Publication DESC";
+                WHERE a.titre LIKE ?
+                   OR a.contenu LIKE ?
+                ORDER BY a.date_publication DESC";
+
+        // Exécution avec deux paramètres identiques (titre et contenu)
+        $stmt = $this->conn->executerRequete($sql, ["%$motCle%", "%$motCle%"]);
+
+        return $stmt->fetchAll() ?: [];
+    }
+
+    /**
+     * Récupérer ou voir tous les articles
+     *
+     * Joint les utilisateurs pour récupérer le nom de l'auteur
+     * et ordonne par date de publication décroissante.
+     *
+     * @return array Tableau associatif des articles
+     */
+    public function voirArticles()
+    {
+        $sql = "SELECT a.*, u.nom AS auteur
+                FROM articles a
+                JOIN utilisateurs u ON a.auteur_id = u.id
+                ORDER BY a.date_publication DESC";
         return $this->conn->executerRequete($sql)->fetchAll();
+    }
+
+    /**
+     * Récupérer un article par son ID
+     *
+     * @param int $id ID de l'article
+     * @return array|null Tableau associatif de l'article ou null si non trouvé
+     */
+    public function getArticleById($id)
+    {
+        $sql = "SELECT a.*, u.nom AS auteur
+                FROM articles a
+                JOIN utilisateurs u ON a.auteur_id = u.id
+                WHERE a.id = ?";
+        return $this->conn->executerRequete($sql, [$id])->fetch() ?: null;
     }
 }
