@@ -133,4 +133,13 @@ class User
     {
         session_destroy();
     }
+
+
+    public function voirUtilisateurs()
+    {
+        $conn = $this->connexion->connecter();
+        $stmt = $conn->prepare("SELECT id, email FROM users");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

@@ -70,7 +70,7 @@ class commentaire
                 FROM commentaires c
                 JOIN utilisateurs u ON c.auteur_id = u.id
                 WHERE article_id = ?
-                ORDER BY dateCommentaire DESC";
+                ORDER BY date_Commentaire DESC";
         return $this->conn->executerRequete($sql, [$articleId])->fetchAll();
     }
 }

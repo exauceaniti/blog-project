@@ -1,5 +1,5 @@
 <?php
-
+session_start();
 // Inclusion des classes nécessaires
 require_once  '../classes/connexion.php';
 require_once '../classes/User.php';

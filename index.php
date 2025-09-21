@@ -11,35 +11,62 @@ require_once 'classes/Post.php';
 $connexion = new Connexion();
 $postManager = new Post($connexion);
 
+// Récupérer les articles
 $articles = $postManager->voirArticles();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accueil de mon blog</title>
+    <link rel="stylesheet" href="public/index.css">
 </head>
 
 <body>
     <main>
-        <h1> Articles les plus recents </h1>
+        <h1 class="page-title">Articles les plus récents</h1>
+
         <?php if (empty($articles)): ?>
-            <p>Aucun article disponible.</p>
-
+            <div class="no-posts">
+                <p>Aucun article disponible pour le moment.</p>
+                <a href="create.php" class="create-post-btn">Créer le premier article</a>
+            </div>
         <?php else: ?>
-            <?php foreach ($articles as $article): ?>
-                <article class="post">
-                    <h2><a href="article.php?id=<?php echo $article['id']; ?>"><?php echo htmlspecialchars($article['titre']); ?></a></h2>
-                    <p class="post-meta">Publie par <?= htmlspecialchars($article['auteur']); ?> le <?= date('d/m/Y', strtotime($article['date_publication'])); ?></p>
-                    <p><?php echo nl2br(htmlspecialchars(mb_substr($article['contenu'], 0, 200))); ?>...</p>
-                    <a href="article.php?id=<?php echo $article['id']; ?>">Lire la suite</a>
-                </article>
-            <?php endforeach; ?>
+            <div class="posts-container">
+                <?php foreach ($articles as $article):
+                    // Générer une couleur d'image de fond aléatoire pour chaque article
+                    $colors = ['#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#e74c3c', '#1abc9c'];
+                    $random_color = $colors[array_rand($colors)];
+                ?>
+                    <article class="post">
+                        <div class="post-image" style="background-color: <?php echo $random_color; ?>;">
+                            <span class="post-category">Article</span>
+                        </div>
+                        <div class="post-content">
+                            <h2 class="post-title">
+                                <a href="article.php?id=<?php echo $article['id']; ?>">
+                                    <?php echo htmlspecialchars($article['titre']); ?>
+                                </a>
+                            </h2>
+                            <div class="post-meta">
+                                <span class="post-author"><?= htmlspecialchars($article['auteur']); ?></span>
+                                <span class="post-date"><?= date('d/m/Y', strtotime($article['date_publication'])); ?></span>
+                            </div>
+                            <p class="post-excerpt">
+                                <?php
+                                $contenu = strip_tags($article['contenu']);
+                                echo nl2br(htmlspecialchars(mb_substr($contenu, 0, 150)));
+                                ?>...
+                            </p>
+                            <a href="article.php?id=<?php echo $article['id']; ?>" class="read-more">Lire la suite</a>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
+            </div>
         <?php endif; ?>
-
     </main>
 
     <?php include 'includes/footer.php'; ?>

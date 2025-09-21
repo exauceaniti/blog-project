@@ -67,25 +67,33 @@ class Connexion
     }
 
     /**
-     * Exécuter une requête SQL préparée
+     * Exécuter une requête SQL préparée et sécurisée
      *
-     * Utilise PDO pour préparer et exécuter une requête SQL avec des paramètres.
+     * @param string $sql    La requête SQL (avec éventuellement des placeholders "?")
+     * @param array  $params Tableau des valeurs à lier aux placeholders
      *
-     * @param string $sql La requête SQL avec des placeholders "?"
-     * @param array $params Tableau des valeurs à lier aux placeholders
-     * @return PDOStatement Objet PDOStatement résultant de l'exécution
-     * @throws Exception Si la connexion n'existe pas ou si la requête échoue
+     * @return PDOStatement  Objet résultant de l'exécution de la requête
+     *
+     * @throws PDOException  Si une erreur survient lors de la préparation ou de l'exécution
      */
     public function executerRequete($sql, $params = [])
     {
+        // Vérifie la connexion, sinon la crée
         if (!$this->connection) {
-            die("Erreur : pas de connexion à la base de données.");
+            $this->connecter();
         }
+
         try {
+            // Prépare la requête
             $stmt = $this->connection->prepare($sql);
+
+            // Exécute la requête avec les paramètres
             $stmt->execute($params);
+
+            // Retourne l'objet PDOStatement
             return $stmt;
         } catch (PDOException $e) {
+            // Arrête le script en cas d'erreur SQL et affiche le message
             die("Erreur lors de l'exécution de la requête : " . $e->getMessage());
         }
     }
