@@ -1,7 +1,7 @@
 # Projet Blog – Gestion d'Articles et Commentaires
 
 ## Description
-Ce projet est une application web de blog permettant de gérer des articles, des commentaires et des utilisateurs avec différents rôles (admin, enseignant, étudiant/utilisateur standard).
+Ce projet est une application web de blog permettant de gérer des articles, des commentaires et des utilisateurs avec différents rôles (admin et user).
 L'objectif principal est de pratiquer le développement full-stack : gestion de la base de données, logique métier côté serveur en PHP, et interface utilisateur responsive.
 
 ---
