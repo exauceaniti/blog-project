@@ -28,17 +28,21 @@ $commentaires = $commentaireManager->voirCommentaires($articleId);
 // Traitement de l'ajout de commentaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'ajouter' && isset($_SESSION['user_id'])) {
     $contenu = trim($_POST['contenu']);
-    $auteur = $_SESSION['username'] ?? 'Utilisateur';
+    $articleId = $_POST['articleId'] ?? null;
 
-    if (!empty($contenu)) {
-        $success = $commentaireManager->ajouterCommentaire($articleId, $auteur, $contenu);
+    if (!empty($contenu) && $articleId) {
+        // Utiliser le bon ordre : contenu, articleId, auteurId
+        $success = $commentaireManager->ajouterCommentaire($contenu, $articleId, $_SESSION['user_id']);
+
         if ($success) {
-            // Recharger la page pour afficher le nouveau commentaire
             header("Location: article.php?id=$articleId");
             exit;
+        } else {
+            echo '<p style="color:red;">Erreur lors de l\'ajout du commentaire.</p>';
         }
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -409,7 +413,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
             <?php if (empty($commentaires)): ?>
                 <div class="no-comments">
-                    <p>Aucun commentaire pour cet article. Soyez le premier à réagir !</p>
+                    <p>Aucun commentaire pour cet article !</p>
                 </div>
             <?php else: ?>
                 <?php foreach ($commentaires as $comment): ?>
@@ -434,11 +438,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             <h3 class="form-title">Votre commentaire</h3>
                             <form action="" method="POST">
                                 <input type="hidden" name="action" value="ajouter">
+                                <input type="hidden" name="articleId" value="<?= $articleId ?>">
                                 <div class="form-group">
                                     <textarea name="contenu" required placeholder="Partagez votre pensée..."></textarea>
                                 </div>
                                 <button type="submit" class="btn">Publier le commentaire</button>
                             </form>
+
                         </div>
                     <?php else: ?>
                         <div class="login-required-message">
@@ -450,6 +456,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         </div>
                     <?php endif; ?>
                 </div>
+            </div>
+
             </div>
         </section>
 

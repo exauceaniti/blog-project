@@ -75,6 +75,7 @@ $nbCommentaires = $conn->executerRequete("SELECT COUNT(*) FROM commentaires")->f
             <a href="manage_posts.php">Gérer Articles</a>
             <a href="manage_users.php">Gérer Utilisateurs</a>
             <a href="../logout.php">Déconnexion</a>
+            <a href="index.php">Accueil public</a>
         </nav>
     </header>
 

@@ -67,10 +67,10 @@ class commentaire
     public function voirCommentaires($articleId)
     {
         $sql = "SELECT c.*, u.nom AS auteur
-                FROM commentaires c
-                JOIN utilisateurs u ON c.auteur_id = u.id
-                WHERE article_id = ?
-                ORDER BY date_Commentaire DESC";
+        FROM commentaires c
+        JOIN utilisateurs u ON c.auteur_id = u.id
+        WHERE c.article_id = ?
+        ORDER BY c.date_Commentaire DESC";
         return $this->conn->executerRequete($sql, [$articleId])->fetchAll();
     }
 }

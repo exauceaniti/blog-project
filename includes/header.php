@@ -62,7 +62,7 @@ session_start();
         }
 
         .nav-links a:hover {
-            background: #64ffda;
+            background: #05b1cff1;
             color: #0a192f;
         }
 

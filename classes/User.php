@@ -27,11 +27,14 @@ class User
 
     /**
      * Inscription d'un utilisateur
+     *
      * @param string $email Email de l'utilisateur
-     * @param string $password Mot de passe en clair
+     * @param string $password Mot de passe en clair (sera haché)
+     * @param string|null $nom Nom de l'utilisateur (par défaut "Utilisateur")
+     * @param string $role Rôle de l'utilisateur (par défaut "user")
      * @return bool True si l'inscription est réussie, False sinon
      */
-    public function sInscrire($email, $password)
+    public function sInscrire($email, $password, $nom = null, $role = 'user')
     {
         // Vérifier si l'email est déjà utilisé
         $sql = "SELECT * FROM utilisateurs WHERE email = ?";
@@ -40,16 +43,19 @@ class User
             return false; // Email déjà utilisé
         }
 
+        // Si le nom n'est pas fourni, mettre "Utilisateur" par défaut
+        $nom = !empty($nom) ? $nom : 'Utilisateur';
+
         // Hacher le mot de passe
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
         // Insérer le nouvel utilisateur
-        $nom = $this->sInscrire['nom'] ?? 'Utilisateur';
-        $role = $this->sInscrire['role'] ?? 'user'; // role user par défaut
         $sql = "INSERT INTO utilisateurs (nom, email, password, role) VALUES (?, ?, ?, ?)";
         $this->conn->executerRequete($sql, [$nom, $email, $hashedPassword, $role]);
+
         return true;
     }
+
 
     /**
      * Connexion d'un utilisateur
@@ -68,7 +74,6 @@ class User
 
         if ($user && password_verify($password, $user['password'])) {
             if (password_needs_rehash($user['password'], PASSWORD_BCRYPT)) {
-                // Re-hacher le mot de passe si nécessaire
                 $newHashedPassword = password_hash($password, PASSWORD_BCRYPT);
                 $updateSql = "UPDATE utilisateurs SET password = ? WHERE id = ?";
                 $this->conn->executerRequete($updateSql, [$newHashedPassword, $user['id']]);
@@ -76,8 +81,10 @@ class User
             // Démarrer la session
             session_regenerate_id(true);
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['role'] = $user['role'] ?? 'user'; // role user par défaut
-            return true;
+            $_SESSION['role'] = $user['role'] ?? 'user';
+
+            // Retourner les infos complètes pour redirection
+            return $user;
         }
         return false;
     }
@@ -132,14 +139,5 @@ class User
     public function seDeconnecter()
     {
         session_destroy();
-    }
-
-
-    public function voirUtilisateurs()
-    {
-        $conn = $this->connexion->connecter();
-        $stmt = $conn->prepare("SELECT id, email FROM users");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
