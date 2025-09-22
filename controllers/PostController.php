@@ -3,9 +3,8 @@
 session_start();
 
 // Inclusion des classes nécessaires
-require_once '../classes/connexion.php';
-require_once '../classes/Post.php';
-require_once '../classes/User.php';
+require_once '../cnfig/connexion.php';
+require_once '../models/Post.php';
 
 // Initialisation de la connexion
 $connexion = new Connexion();

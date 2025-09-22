@@ -1,9 +1,10 @@
 <?php
 session_start();
-require_once 'includes/header.php';
-require_once 'classes/connexion.php';
-require_once 'classes/Post.php';
-require_once 'classes/commentaire.php';
+require_once 'views/includes/header.php';
+require_once 'config/connexion.php';
+require_once 'models/Post.php';
+require_once 'models/commentaire.php';
+
 
 // Connexion à la base de données
 $connexion = new Connexion();

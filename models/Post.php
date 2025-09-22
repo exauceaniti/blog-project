@@ -27,31 +27,76 @@ class Post
     }
 
     /**
-     * Ajouter un nouvel article
+     * Ajouter un nouvel article avec média (image/vidéo optionnel)
      *
-     * @param string $titre Titre de l'article
-     * @param string $contenu Contenu de l'article
-     * @param int $auteurId ID de l'auteur
+     * @param string $titre     Titre de l'article
+     * @param string $contenu   Contenu de l'article
+     * @param int    $auteurId  ID de l'auteur
+     * @param array  $fichier   Tableau $_FILES['media'] (facultatif)
+     *
      * @return PDOStatement Résultat de l'insertion
      */
-    public function ajouterArticle($titre, $contenu, $auteurId)
+    public function ajouterArticle($titre, $contenu, $auteurId, $fichier = null)
     {
-        $sql = "INSERT INTO articles (titre, contenu, auteur_id, date_Publication) VALUES (?, ?, ?, NOW())";
-        return $this->conn->executerRequete($sql, [$titre, $contenu, $auteurId]);
+        $mediaPath = null;
+
+        // Vérifie si un fichier a été uploadé
+        if ($fichier && isset($fichier['tmp_name']) && $fichier['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = "../uploads/";
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            // Sécuriser le nom du fichier
+            $fileName = time() . "_" . preg_replace("/[^a-zA-Z0-9\._-]/", "", basename($fichier['name']));
+            $filePath = $uploadDir . $fileName;
+
+            if (move_uploaded_file($fichier['tmp_name'], $filePath)) {
+                $mediaPath = "uploads/" . $fileName; // chemin relatif
+            }
+        }
+
+        // Insertion SQL avec média
+        $sql = "INSERT INTO articles (titre, contenu, auteur_id, media, date_Publication)
+            VALUES (?, ?, ?, ?, NOW())";
+        return $this->conn->executerRequete($sql, [$titre, $contenu, $auteurId, $mediaPath]);
     }
 
     /**
-     * Modifier un article existant
+     * Modifier un article existant (titre, contenu et éventuellement média)
      *
-     * @param int $id ID de l'article
-     * @param string $titre Nouveau titre
-     * @param string $contenu Nouveau contenu
+     * @param int    $id       ID de l'article
+     * @param string $titre    Nouveau titre
+     * @param string $contenu  Nouveau contenu
+     * @param array  $fichier  Tableau $_FILES['media'] (facultatif)
+     *
      * @return PDOStatement Résultat de la mise à jour
      */
-    public function modifierArticle($id, $titre, $contenu)
+    public function modifierArticle($id, $titre, $contenu, $fichier = null)
     {
-        $sql = "UPDATE articles SET titre = ?, contenu = ? WHERE id = ?";
-        return $this->conn->executerRequete($sql, [$titre, $contenu, $id]);
+        $params = [$titre, $contenu, $id];
+        $sql = "UPDATE articles SET titre = ?, contenu = ?";
+
+        // Vérifie si un nouveau fichier a été uploadé
+        if ($fichier && isset($fichier['tmp_name']) && $fichier['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = "../uploads/";
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            // Sécuriser le nom du fichier
+            $fileName = time() . "_" . preg_replace("/[^a-zA-Z0-9\._-]/", "", basename($fichier['name']));
+            $filePath = $uploadDir . $fileName;
+
+            if (move_uploaded_file($fichier['tmp_name'], $filePath)) {
+                $mediaPath = "uploads/" . $fileName;
+                $sql .= ", media = ?";
+                $params = [$titre, $contenu, $mediaPath, $id];
+            }
+        }
+
+        $sql .= " WHERE id = ?";
+        return $this->conn->executerRequete($sql, $params);
     }
 
     /**

@@ -3,9 +3,9 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once 'includes/header.php';
-require_once 'classes/connexion.php';
-require_once 'classes/Post.php';
+require_once 'views/includes/header.php';
+require_once 'config/connexion.php';
+require_once 'models/Post.php';
 
 // Connexion à la base de données
 $connexion = new Connexion();

@@ -27,36 +27,40 @@ L'objectif principal est de pratiquer le développement full-stack : gestion de 
 
 ## Structure du projet
 <pre>
-.blog-project
 ├── admin
 │   ├── dashboard.php
 │   ├── manage_posts.php
 │   └── manage_users.php
-├── article.php
-├── classes
+├── assets
+│   ├── css
+│   │   ├── footer.css
+│   │   ├── header.css
+│   │   └── index.css
+│   ├── js
+│   └── uploads
+│       └── 1758545229_11.webp
+├── config
+│   └── connexion.php
+├── controllers
+│   ├── CommentController.php
+│   ├── PostController.php
+│   └── UserController.php
+├── includes
+├── index.php
+├── models
 │   ├── commentaire.php
-│   ├── connexion.php
 │   ├── Post.php
 │   └── User.php
-├── cookie.txt
-├── handlers
-│   ├── commentaire_handlers.php
-│   ├── post_handlers.php
-│   └── user_handlers.php
-├── includes
-│   ├── footer.php
-│   ├── functions.php
-│   └── header.php
-├── index.php
-├── login.php
-├── public
-│   ├── footer.css
-│   ├── header.css
-│   ├── index.css
-│   └── js
 ├── README.md
-├── register.php
-└── uploads
+└── views
+    ├── article.php
+    ├── includes
+    │   ├── footer.php
+    │   ├── functions.php
+    │   └── header.php
+    ├── login.php
+    └── register.php
+
 </pre>
 
 ---
@@ -82,7 +86,7 @@ L'objectif principal est de pratiquer le développement full-stack : gestion de 
    git clone https://github.com/exauceaniti/blog-project.git
 
 
-2. Configurer la base de données dans classes/Connexion.php.
+2. Configurer la base de données dans config/Connexion.php.
 - Cree une base de donnee MySQL
 - Importez le fichier SQL fournie (database/shema.sql) ou executer les requettes suivantes:
 ```bash
@@ -142,7 +146,7 @@ VALUES ('Administrateur', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oK
 ```
 
 ## Utilisation
-### Pour les visiteurs 
+### Pour les visiteurs
 
 - Consulter les articles sur la page d'accueil
 

@@ -245,7 +245,7 @@
                 unset($_SESSION['error_message']);
             endif; ?>
 
-            <form action="handlers/user_handlers.php" method="POST">
+            <form action="controller/UserController.php" method="POST">
                 <input type="hidden" name="action" value="connexion">
                 <div class="form-group">
                     <label for="email">Email:</label>

@@ -91,7 +91,7 @@ if (isset($_SESSION['user_id'])) {
 
     <div class="container">
         <h2>Créer un compte</h2>
-        <form action="handlers/user_handlers.php" method="POST">
+        <form action="controller/UserController.php" method="POST">
             <input type="hidden" name="action" value="inscription">
 
             <input type="text" name="nom" placeholder="Votre nom" required>

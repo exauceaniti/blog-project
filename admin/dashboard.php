@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once "../classes/connexion.php";
-require_once "../classes/Post.php";
+require_once "../config/connexion.php";
+require_once "../models/Post.php";
 
 // 🔹 Vérifier que l’utilisateur est admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {

@@ -11,8 +11,8 @@ session_start();
 
 // ========================== INCLUSIONS ==========================
 // Connexion à la base et classes nécessaires
-require_once '../classes/connexion.php';
-require_once '../classes/commentaire.php';
+require_once '../config/connexion.php';
+require_once '../models/commentaire.php';
 
 // ========================== INITIALISATION ==========================
 // Connexion à la base de données

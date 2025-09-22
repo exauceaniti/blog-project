@@ -2,8 +2,8 @@
 session_start();
 
 // Inclusion des classes nécessaires
-require_once '../classes/connexion.php';
-require_once '../classes/User.php';
+require_once '../config/connexion.php';
+require_once '../models/User.php';
 
 /**
  * Initialisation de la connexion à la base de données
