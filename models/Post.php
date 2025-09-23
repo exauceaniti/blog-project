@@ -1,39 +1,95 @@
 <?php
 
 /**
- * Classe Post - Gestion complète des articles du blog
- *
- * Cette classe permet de gérer le CRUD (Create, Read, Update, Delete) des articles
- * avec support de l'upload de médias (images et vidéos)
+ * @file Post.php
+ * @description Modèle de gestion complète des articles blog avec système de médias
+ * @author [Exauce Aniti]
+ * @version 1.0
+ * @date 2024
  *
  * @package Models
+ * @class Post
+ *
+ * @feature CRUD complet articles + upload médias + recherche + statistiques
+ * @security Gestion sécurisée des fichiers et validation des données
+ */
+
+/**
+ * CLASSE POST - MODÈLE MÉTIER DES ARTICLES
+ * @class Post
+ * @description Gère toutes les opérations CRUD sur les articles avec support multimédia
+ *
+ * @property object $conn - Instance de connexion à la base de données
+ * @method ajouterArticle() - Création d'un nouvel article avec média
+ * @method modifierArticle() - Mise à jour d'un article existant
+ * @method supprimerArticle() - Suppression définitive d'un article
+ * @method voirArticles() - Récupération de tous les articles
+ * @method rechercherArticle() - Recherche full-text dans les articles
+ * @method getArticleById() - Récupération d'un article spécifique
+ * @method getArticlesByAuteur() - Filtrage par auteur
+ * @method compterArticles() - Statistiques des articles
  */
 class Post
 {
     /**
-     * @var object $conn Connexion à la base de données
+     * Instance de connexion à la base de données
+     * @var object $conn
+     * @access private
+     * @description Objet PDO ou wrapper pour l'exécution des requêtes
      */
     private $conn;
 
+    // ========================= CONSTRUCTEUR =========================
     /**
-     * Constructeur - Initialise la connexion à la base de données
+     * Constructeur de la classe Post
+     * @constructor
+     * @param object $connexion - Instance injectée de connexion BDD
      *
-     * @param object $connexion Instance de la classe de connexion PDO
+     * @dependency Injection de dépendance pour une meilleure testabilité
+     * @principle Dependency Inversion Principle (SOLID)
+     *
+     * @example $post = new Post($connexion);
+     *
+     * @action Initialise la propriété $conn avec l'objet connexion
      */
     public function __construct($connexion)
     {
         $this->conn = $connexion;
     }
 
-    // MÉTHODES PRIVÉES (UTILITAIRES INTERNES)
+    // ========================= MÉTHODES PRIVÉES (UTILITAIRES INTERNES) =========================
 
     /**
-     * Gère l'upload sécurisé d'un fichier média (image ou vidéo)
+     * Gère l'upload sécurisé d'un fichier média (image/vidéo/audio)
+     * @method uploadMedia
+     * @access private
+     * @param array|null $fichier - Tableau $_FILES['media'] ou null
      *
-     * @param array|null $fichier Tableau $_FILES['media'] ou null si aucun fichier
-     * @return string|null Chemin relatif du fichier uploadé ou null en cas d'erreur
+     * @process
+     * 1. Validation du fichier et vérification d'erreurs
+     * 2. Création du dossier upload si nécessaire
+     * 3. Vérification des extensions autorisées
+     * 4. Génération d'un nom de fichier unique et sécurisé
+     * 5. Déplacement du fichier temporaire
      *
-     * @throws Exception Si le dossier upload ne peut pas être créé
+     * @security
+     * - Vérification des types MIME via extensions
+     * - Nom de fichier unique pour éviter les collisions
+     * - Gestion des erreurs d'upload
+     *
+     * @param array $fichier Structure attendue:
+     * [
+     *     'name' => 'monfichier.jpg',
+     *     'type' => 'image/jpeg',
+     *     'tmp_name' => '/tmp/php1234.tmp',
+     *     'error' => 0,
+     *     'size' => 123456
+     * ]
+     *
+     * @return string|null Chemin relatif du fichier uploadé ou null si erreur
+     * @throws Exception Si impossibilité de créer le dossier d'upload
+     *
+     * @example $chemin = $this->uploadMedia($_FILES['media']);
      */
     private function uploadMedia($fichier)
     {
@@ -45,7 +101,7 @@ class Post
         // Définition du chemin absolu du dossier d'upload
         $uploadDir = __DIR__ . "/../assets/uploads/";
 
-        // Création du dossier s'il n'existe pas
+        // Création récursive du dossier s'il n'existe pas
         if (!is_dir($uploadDir)) {
             if (!mkdir($uploadDir, 0777, true)) {
                 throw new Exception("Impossible de créer le dossier d'upload");
@@ -71,20 +127,96 @@ class Post
             return "assets/uploads/" . $fileName;
         }
 
-        return null; // Échec de l'upload
+        return null; //Échec de l'upload
     }
 
-    // MÉTHODES PUBLIQUES (CRUD - INTERFACE PRINCIPALE)
+    /**
+     * Détermine le type de média basé sur l'extension du fichier
+     * @method determinerTypeMedia
+     * @access private
+     * @param string $mediaPath - Chemin du fichier média
+     *
+     * @return string Type de média ('image', 'video', 'audio', 'none')
+     *
+     * @classification
+     * - Images: jpg, jpeg, png, gif, webp
+     * - Vidéos: mp4, avi, mov, mkv
+     * - Audios: mp3, wav, ogg
+     * - Autres: none
+     */
+    private function determinerTypeMedia($mediaPath)
+    {
+        $extension = strtolower(pathinfo($mediaPath, PATHINFO_EXTENSION));
+
+        $images = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $videos = ['mp4', 'avi', 'mov', 'mkv'];
+        $audios = ['mp3', 'wav', 'ogg'];
+
+        if (in_array($extension, $images)) return 'image';
+        if (in_array($extension, $videos)) return 'video';
+        if (in_array($extension, $audios)) return 'audio';
+
+        return 'none';
+    }
+
+    /**
+     * Supprime l'ancien fichier média lors d'une mise à jour
+     * @method supprimerAncienMedia
+     * @access private
+     * @param int $articleId - ID de l'article à mettre à jour
+     *
+     * @action Récupère l'article et supprime son média associé
+     * @principle Évite l'accumulation de fichiers inutilisés
+     */
+    private function supprimerAncienMedia($articleId)
+    {
+        $article = $this->getArticleById($articleId);
+        if ($article && !empty($article['media_path'])) {
+            $this->supprimerFichierMedia($article['media_path']);
+        }
+    }
+
+    /**
+     * Supprime physiquement un fichier média du serveur
+     * @method supprimerFichierMedia
+     * @access private
+     * @param string $mediaPath - Chemin relatif du fichier à supprimer
+     *
+     * @security Vérifie l'existence du fichier avant suppression
+     * @warning Action irréversible - les données sont perdues
+     */
+    private function supprimerFichierMedia($mediaPath)
+    {
+        if (!empty($mediaPath)) {
+            $filePath = __DIR__ . "/../" . $mediaPath;
+            if (file_exists($filePath) && is_file($filePath)) {
+                unlink($filePath); // Suppression du fichier physique
+            }
+        }
+    }
+
+    // ========================= MÉTHODES PUBLIQUES (CRUD PRINCIPAL) =========================
 
     /**
      * Ajoute un nouvel article dans la base de données
+     * @method ajouterArticle
+     * @access public
+     * @param string $titre - Titre de l'article (255 caractères max)
+     * @param string $contenu - Contenu textuel de l'article (texte long)
+     * @param int $auteurId - ID de l'utilisateur auteur de l'article
+     * @param array|null $fichier - Fichier média optionnel à uploader
      *
-     * @param string $titre Titre de l'article (255 caractères max)
-     * @param string $contenu Contenu textuel de l'article (texte long)
-     * @param int $auteurId ID de l'utilisateur auteur de l'article
-     * @param array|null $fichier Fichier média optionnel à uploader
+     * @sql INSERT INTO articles (titre, contenu, auteur_id, media_path, media_type, date_publication) VALUES (?, ?, ?, ?, ?, NOW())
+     *
+     * @process
+     * 1. Upload du média si fourni
+     * 2. Détermination du type de média
+     * 3. Insertion en base avec tous les champs
      *
      * @return object|false Résultat de la requête SQL ou false en cas d'erreur
+     *
+     * @example
+     * $result = $post->ajouterArticle("Mon Titre", "Mon contenu", 1, $_FILES['media']);
      */
     public function ajouterArticle($titre, $contenu, $auteurId, $fichier = null)
     {
@@ -110,11 +242,17 @@ class Post
 
     /**
      * Modifie un article existant dans la base de données
+     * @method modifierArticle
+     * @access public
+     * @param int $id - ID de l'article à modifier
+     * @param string $titre - Nouveau titre de l'article
+     * @param string $contenu - Nouveau contenu de l'article
+     * @param array|null $fichier - Nouveau fichier média optionnel
      *
-     * @param int $id ID de l'article à modifier
-     * @param string $titre Nouveau titre de l'article
-     * @param string $contenu Nouveau contenu de l'article
-     * @param array|null $fichier Nouveau fichier média optionnel
+     * @process
+     * 1. Upload du nouveau média si fourni
+     * 2. Suppression de l'ancien média
+     * 3. Mise à jour des champs en base
      *
      * @return object|false Résultat de la requête SQL ou false en cas d'erreur
      */
@@ -146,9 +284,16 @@ class Post
 
     /**
      * Supprime définitivement un article et son média associé
+     * @method supprimerArticle
+     * @access public
+     * @param int $id - ID de l'article à supprimer
      *
-     * @param int $id ID de l'article à supprimer
+     * @process
+     * 1. Récupération des informations de l'article
+     * 2. Suppression du fichier média physique
+     * 3. Suppression de l'enregistrement en base
      *
+     * @security Vérifie l'existence de l'article avant suppression
      * @return object|false Résultat de la requête SQL ou false en cas d'erreur
      */
     public function supprimerArticle($id)
@@ -168,8 +313,28 @@ class Post
 
     /**
      * Récupère tous les articles avec les informations de l'auteur
+     * @method voirArticles
+     * @access public
+     *
+     * @sql SELECT a.*, u.nom AS auteur FROM articles a JOIN utilisateurs u ON a.auteur_id = u.id ORDER BY a.date_publication DESC
+     *
+     * @join utilisateurs u - Jointure pour récupérer le nom de l'auteur
+     * @order DESC - Articles les plus récents en premier
      *
      * @return array Tableau associatif de tous les articles ou tableau vide
+     * @format [
+     *     [
+     *         'id' => 1,
+     *         'titre' => 'Titre article',
+     *         'contenu' => 'Contenu article',
+     *         'auteur_id' => 1,
+     *         'media_path' => 'chemin/vers/media.jpg',
+     *         'media_type' => 'image',
+     *         'date_publication' => '2024-01-15 10:30:00',
+     *         'auteur' => 'John Doe'
+     *     ],
+     *     ...
+     * ]
      */
     public function voirArticles()
     {
@@ -184,8 +349,14 @@ class Post
 
     /**
      * Recherche des articles par mot-clé dans le titre ou le contenu
+     * @method rechercherArticle
+     * @access public
+     * @param string $motCle - Mot-clé à rechercher
      *
-     * @param string $motCle Mot-clé à rechercher
+     * @sql SELECT a.*, u.nom AS auteur FROM articles a JOIN utilisateurs u ON a.auteur_id = u.id WHERE a.titre LIKE ? OR a.contenu LIKE ? ORDER BY a.date_publication DESC
+     *
+     * @search Recherche full-text avec opérateur LIKE
+     * @warning Peut être lent sur de grandes bases - envisager FULLTEXT INDEX
      *
      * @return array Tableau des articles correspondants ou tableau vide
      */
@@ -203,8 +374,9 @@ class Post
 
     /**
      * Récupère un article spécifique par son ID
-     *
-     * @param int $id ID de l'article à récupérer
+     * @method getArticleById
+     * @access public
+     * @param int $id - ID de l'article à récupérer
      *
      * @return array|null Tableau associatif de l'article ou null si non trouvé
      */
@@ -219,64 +391,13 @@ class Post
         return $resultat->fetch() ?: null;
     }
 
-    // MÉTHODES PRIVÉES ADDITIONNELLES (SUPPORT)
-
     /**
-     * Détermine le type de média basé sur l'extension du fichier
+     * Récupère les articles par auteur spécifique
+     * @method getArticlesByAuteur
+     * @access public
+     * @param int $auteurId - ID de l'auteur
      *
-     * @param string $mediaPath Chemin du fichier média
-     *
-     * @return string Type de média ('image', 'video', 'audio', 'none')
-     */
-    private function determinerTypeMedia($mediaPath)
-    {
-        $extension = strtolower(pathinfo($mediaPath, PATHINFO_EXTENSION));
-
-        $images = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        $videos = ['mp4', 'avi', 'mov', 'mkv'];
-        $audios = ['mp3', 'wav', 'ogg'];
-
-        if (in_array($extension, $images)) return 'image';
-        if (in_array($extension, $videos)) return 'video';
-        if (in_array($extension, $audios)) return 'audio';
-
-        return 'none';
-    }
-
-    /**
-     * Supprime l'ancien fichier média lors d'une mise à jour
-     *
-     * @param int $articleId ID de l'article
-     */
-    private function supprimerAncienMedia($articleId)
-    {
-        $article = $this->getArticleById($articleId);
-        if ($article && !empty($article['media_path'])) {
-            $this->supprimerFichierMedia($article['media_path']);
-        }
-    }
-
-    /**
-     * Supprime physiquement un fichier média du serveur
-     *
-     * @param string $mediaPath Chemin relatif du fichier à supprimer
-     */
-    private function supprimerFichierMedia($mediaPath)
-    {
-        if (!empty($mediaPath)) {
-            $filePath = __DIR__ . "/../" . $mediaPath;
-            if (file_exists($filePath) && is_file($filePath)) {
-                unlink($filePath); // Suppression du fichier physique
-            }
-        }
-    }
-
-    /**
-     * Récupère les articles par auteur
-     *
-     * @param int $auteurId ID de l'auteur
-     *
-     * @return array Articles de l'auteur spécifié
+     * @return array Articles de l'auteur spécifié triés par date décroissante
      */
     public function getArticlesByAuteur($auteurId)
     {
@@ -291,7 +412,9 @@ class Post
     }
 
     /**
-     * Compte le nombre total d'articles
+     * Compte le nombre total d'articles dans la base
+     * @method compterArticles
+     * @access public
      *
      * @return int Nombre total d'articles
      */
@@ -302,3 +425,44 @@ class Post
         return $resultat->fetch()['total'] ?? 0;
     }
 }
+
+// ========================= NOTES TECHNIQUES =========================
+/**
+ * STRUCTURE DE LA TABLE ARTICLES (Recommandée) :
+ *
+ * CREATE TABLE articles (
+ *     id INT PRIMARY KEY AUTO_INCREMENT,
+ *     titre VARCHAR(255) NOT NULL,
+ *     contenu TEXT NOT NULL,
+ *     auteur_id INT NOT NULL,
+ *     media_path VARCHAR(500) NULL,
+ *     media_type ENUM('none', 'image', 'video', 'audio') DEFAULT 'none',
+ *     date_publication DATETIME DEFAULT CURRENT_TIMESTAMP,
+ *     date_modification DATETIME NULL,
+ *     FOREIGN KEY (auteur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
+ *     INDEX idx_auteur (auteur_id),
+ *     INDEX idx_date (date_publication),
+ *     FULLTEXT idx_recherche (titre, contenu)
+ * );
+ *
+ * AMÉLIORATIONS FUTURES :
+ * - [ ] Ajouter la pagination pour les méthodes de listing
+ * - [ ] Implémenter le système de catégories/tags
+ * - [ ] Ajouter les métadonnées SEO (meta description, keywords)
+ * - [ ] Implémenter le système de brouillon/publication
+ * - [ ] Ajouter les statistiques de vues/likes
+ * - [ ] Implémenter la recherche avancée avec filtres
+ *
+ * CONSIDÉRATIONS SÉCURITÉ :
+ * - [ ] Validation avancée des types MIME des fichiers
+ * - [ ] Limitation de la taille des fichiers par type
+ * - [ ] Sanitization du contenu HTML si autorisé
+ * - [ ] Vérification des droits utilisateur sur les actions
+ * - [ ] Logging des actions sensibles (suppression, modification)
+ *
+ * ⚡ OPTIMISATIONS PERFORMANCE :
+ * - [ ] Cache des résultats des méthodes de listing
+ * - [ ] Indexation FULLTEXT pour la recherche
+ * - [ ] Compression automatique des images uploadées
+ * - [ ] CDN pour le stockage des médias
+ */
