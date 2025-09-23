@@ -1,74 +1,77 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/connexion.php';
+require_once __DIR__ . '/../models/User.php';
 
-// Inclusion des classes nécessaires
-require_once '../config/connexion.php';
-require_once '../models/User.php';
+class UserController
+{
+    private $user;
 
-/**
- * Initialisation de la connexion à la base de données
- */
-$connexion = new Connexion();
-$conn = $connexion->connecter(); // on récupère l'objet PDO
-
-// Création de l'objet User pour utiliser les méthodes utilisateur
-$user = new User($connexion);
-
-// Détection de l'action envoyée
-$action = $_POST['action'] ?? null;
-
-if ($action === 'connexion') {
-    // ========================= CONNEXION =========================
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
-
-    if (empty($email) || empty($password)) {
-        echo json_encode(["error" => "Email ou mot de passe manquant !"]);
-        exit;
+    public function __construct($connexion)
+    {
+        $this->user = new User($connexion);
     }
 
-    $result = $user->seConnecter($email, $password);
+    public function login($email, $password)
+    {
+        $email = trim($email);
+        $password = trim($password);
 
-    if ($result) {
-        $_SESSION['user_id'] = $result['id'];
-        $_SESSION['email']   = $result['email'];
-        $_SESSION['role']    = $result['role'] ?? 'user';
-
-        // Redirection selon le rôle
-        if ($result['role'] === 'admin') {
-            header("Location: ../admin/dashboard.php");
-        } else {
-            header("Location: ../index.php"); // page d'accueil pour les users
+        if (empty($email) || empty($password)) {
+            return ['success' => false, 'message' => 'Email ou mot de passe manquant !'];
         }
-        exit;
-    } else {
-        $_SESSION['error_message'] = "Email ou mot de passe incorrect !";
-        header("Location: ../login.php");
-        exit;
-    }
-} elseif ($action === 'inscription') {
-    // ========================= INSCRIPTION =========================
-    $nom = $_POST['nom'] ?? 'Utilisateur';
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
 
-    if (empty($email) || empty($password)) {
-        echo json_encode(["error" => "Email ou mot de passe manquant !"]);
-        exit;
+        $result = $this->user->seConnecter($email, $password);
+
+        if ($result) {
+            $_SESSION['user_id'] = $result['id'];
+            $_SESSION['email'] = $result['email'];
+            $_SESSION['role'] = $result['role'] ?? 'user';
+            return ['success' => true, 'role' => $_SESSION['role']];
+        }
+
+        return ['success' => false, 'message' => 'Email ou mot de passe incorrect !'];
     }
 
-    $result = $user->sInscrire($email, $password, $nom);
-
-    if ($result) {
-        echo json_encode(["success" => "Inscription réussie !"]);
-    } else {
-        echo json_encode(["error" => "Email déjà utilisé"]);
+    public function logout()
+    {
+        session_unset();
+        session_destroy();
+        header('Location: ../views/login.php');
+        exit;
     }
-} elseif ($action === 'deconnexion') {
-    // ========================= DECONNEXION =========================
-    $user->seDeconnecter();
-    echo json_encode(["success" => "Déconnexion réussie !"]);
-} else {
-    // ========================= ACTION INVALIDE =========================
-    echo json_encode(["error" => "Action non reconnue"]);
+
+    public function handleRequest()
+    {
+        $action = $_POST['action'] ?? null;
+
+        switch ($action) {
+            case 'connexion':
+                $login = $this->login($_POST['email'], $_POST['password']);
+                if ($login['success']) {
+                    header('Location: ' . ($login['role'] === 'admin' ? '../admin/dashboard.php' : '../index.php'));
+                } else {
+                    $_SESSION['error_message'] = $login['message'];
+                    $_SESSION['form_data']['email'] = $_POST['email'];
+                    header('Location: ../views/login.php?error=1');
+                }
+                exit;
+
+            case 'deconnexion':
+                $this->logout();
+                break;
+
+            default:
+                $_SESSION['error_message'] = 'Action non reconnue';
+                header('Location: ../views/login.php');
+                exit;
+        }
+    }
+}
+
+// Si on poste depuis login.php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $connexion = new Connexion();
+    $controller = new UserController($connexion);
+    $controller->handleRequest();
 }

@@ -1,6 +1,7 @@
 CREATE DATABASE blog_db;
 USE blog_db;
 
+-- Table des utilisateurs
 CREATE TABLE utilisateurs (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nom VARCHAR(100) NOT NULL,
@@ -10,15 +11,19 @@ CREATE TABLE utilisateurs (
   date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Table des articles avec support média
 CREATE TABLE articles (
   id INT AUTO_INCREMENT PRIMARY KEY,
   titre VARCHAR(255) NOT NULL,
   contenu TEXT NOT NULL,
   auteur_id INT NOT NULL,
   date_publication TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  media_path VARCHAR(255) DEFAULT NULL,
+  media_type ENUM('image', 'video') DEFAULT NULL,
   FOREIGN KEY (auteur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
 );
 
+-- Table des commentaires
 CREATE TABLE commentaires (
   id INT AUTO_INCREMENT PRIMARY KEY,
   contenu TEXT NOT NULL,

@@ -77,17 +77,17 @@ session_start();
     <header>
         <nav class="navbar">
             <div class="logo">
-                <a href="/index.php">Mon Blog</a>
+                <a href="../index.php">Mon Blog</a>
             </div>
             <ul class="nav-links">
-                <li><a href="/index.php">Accueil</a></li>
-                <li><a href="/admin/dashboard.php">Admin</a></li>
+                <li><a href="../index.php">Accueil</a></li>
+                <li><a href="../admin/dashboard.php">Admin</a></li>
 
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <li><a href="/handlers/user_handlers.php?action=logout">Déconnexion</a></li>
+                    <li><a href="../controllers/UserControllers.php?action=logout">Déconnexion</a></li>
                 <?php else: ?>
-                    <li><a href="/login.php">Connexion</a></li>
-                    <li><a href="/register.php">Inscription</a></li>
+                    <li><a href="../views/login.php">Connexion</a></li>
+                    <li><a href="../views/register.php">Inscription</a></li>
                 <?php endif; ?>
             </ul>
         </nav>

@@ -1,6 +1,7 @@
 # Projet Blog – Gestion d'Articles et Commentaires
 
 ## Description
+
 Ce projet est une application web de blog permettant de gérer des articles, des commentaires et des utilisateurs avec différents rôles (admin et user).
 L'objectif principal est de pratiquer le développement full-stack : gestion de la base de données, logique métier côté serveur en PHP, et interface utilisateur responsive.
 
@@ -9,16 +10,19 @@ L'objectif principal est de pratiquer le développement full-stack : gestion de 
 ## Fonctionnalités
 
 ### Gestion des articles
+
 - Les administrateurs peuvent **créer**, **modifier** et **supprimer** des articles.
 - Les articles contiennent un **titre**, un **contenu**, un **auteur** et une **date de publication**.
 
 ### Gestion des utilisateurs
+
 - Les utilisateurs peuvent se **connecter** et **s'inscrire**.
 - Les rôles gérés :
   - **Admin** : accès complet à la gestion des articles.
   - **Utilisateur standard** : peut lire les articles et commenter.
 
 ### Gestion des commentaires
+
 - Les utilisateurs connectés peuvent **ajouter des commentaires** à un article.
 - Chaque commentaire contient le **contenu**, l’**auteur** et la **date de publication**.
 - Les commentaires sont liés à l’article correspondant (`article_id`) et à l’utilisateur (`auteur_id`).
@@ -26,7 +30,9 @@ L'objectif principal est de pratiquer le développement full-stack : gestion de 
 ---
 
 ## Structure du projet
+
 <pre>
+
 ├── admin
 │   ├── dashboard.php
 │   ├── manage_posts.php
@@ -66,6 +72,7 @@ L'objectif principal est de pratiquer le développement full-stack : gestion de 
 ---
 
 ## Technologies utilisées
+
 - **PHP** : logique serveur, gestion des sessions, interactions avec la base de données.
 - **MySQL** : base de données relationnelle pour les articles, utilisateurs et commentaires.
 - **HTML / CSS** : interface utilisateur responsive et moderne.
@@ -74,21 +81,28 @@ L'objectif principal est de pratiquer le développement full-stack : gestion de 
 ---
 
 ## Installation et configuration
+
 ### Prérequis
+
 - Serveur web (Apache. Nginx)
 - PHP 7.4
 - MySQL
 - Composer mais Optionelle
 
 ### Étapes d'installation
+
 1. Cloner le projet :
+
    ```bash
    git clone https://github.com/exauceaniti/blog-project.git
 
 
 2. Configurer la base de données dans config/Connexion.php.
+
 - Cree une base de donnee MySQL
+
 - Importez le fichier SQL fournie (database/shema.sql) ou executer les requettes suivantes:
+
 ```bash
 CREATE DATABASE blog_db;
 USE blog_db;
@@ -121,8 +135,11 @@ CREATE TABLE commentaires (
   FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE
 );
 ```
+
 3. Configurer les paramètres de connexion :
+
 - Éditer le fichier classes/Connexion.php avec vos paramètres de base de données :
+
 ```bash
 private $host = 'localhost';
 private $dbname = 'blog_db';
@@ -140,12 +157,14 @@ private $password = 'votre_mot_de_passe';
 
 - Créer le premier utilisateur admin :
 Exécuter cette requête SQL pour créer un administrateur (mot de passe: "admin123") :
+
 ```bash
-INSERT INTO utilisateurs (nom, email, password, role) 
+INSERT INTO utilisateurs (nom, email, password, role)
 VALUES ('Administrateur', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
 ```
 
 ## Utilisation
+
 ### Pour les visiteurs
 
 - Consulter les articles sur la page d'accueil
@@ -163,6 +182,7 @@ VALUES ('Administrateur', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oK
 - Modifier leur profil (si implémenté)
 
 ### Pour les administrateurs
+
 - Accéder au dashboard administrateur
 
 - Créer, modifier et supprimer des articles
@@ -170,7 +190,6 @@ VALUES ('Administrateur', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oK
 - Gérer les utilisateurs (changer les rôles, supprimer)
 
 - Modérer les commentaires
-
 
 ## Améliorations futures
 
@@ -192,8 +211,6 @@ VALUES ('Administrateur', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oK
 
 - Intégration avec les réseaux sociaux
 
-- Système de cache pour améliorer les performances
-
 ### Sécurité
 
 - Protection contre les injections SQL avec les requêtes préparées
@@ -206,11 +223,10 @@ VALUES ('Administrateur', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oK
 
 - Gestion des sessions sécurisées
 
-
 ### Auteur
-Exauce Aniti
+
+Exauce Aniti M
 
 Email: [exauceaniti@gmail.com]
 
 GitHub: [https://github.com/exauceaniti]
-

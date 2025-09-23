@@ -28,7 +28,8 @@ if (isset($_POST['ajouter'])) {
 //     header("Location: manage_users.php");
 //     exit;
 // }
-// //lire les utilisateurs
+
+//lire les utilisateurs
 // $users = $user->voirUtilisateurs();
 ?>
 <!DOCTYPE html>

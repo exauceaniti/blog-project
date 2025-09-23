@@ -1,8 +1,9 @@
 <?php
-//index.php page d'accueil pour tout ce que les mondes.
+// index.php page d'accueil pour tout le monde.
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
 require_once 'views/includes/header.php';
 require_once 'config/connexion.php';
 require_once 'models/Post.php';
@@ -36,15 +37,31 @@ $articles = $postManager->voirArticles();
             </div>
         <?php else: ?>
             <div class="posts-container">
-                <?php foreach ($articles as $article):
-                    // Générer une couleur d'image de fond aléatoire pour chaque article
-                    $colors = ['#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#e74c3c', '#1abc9c'];
-                    $random_color = $colors[array_rand($colors)];
-                ?>
+                <?php foreach ($articles as $article): ?>
                     <article class="post">
-                        <div class="post-image" style="background-color: <?php echo $random_color; ?>;">
-                            <span class="post-category">Article</span>
+                        <div class="post-media">
+                            <?php if (!empty($article['media_path'])): ?>
+                                <?php if ($article['media_type'] === 'image'): ?>
+                                    <img src="uploads/<?php echo htmlspecialchars($article['media_path']); ?>"
+                                        alt="Image de l'article" class="post-image">
+                                <?php elseif ($article['media_type'] === 'video'): ?>
+                                    <video class="post-video" controls>
+                                        <source src="uploads/<?php echo htmlspecialchars($article['media_path']); ?>" type="video/mp4">
+                                        Votre navigateur ne supporte pas la lecture vidéo.
+                                    </video>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <!-- Si pas de média : couleur aléatoire -->
+                                <?php
+                                $colors = ['#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#e74c3c', '#1abc9c'];
+                                $random_color = $colors[array_rand($colors)];
+                                ?>
+                                <div class="post-placeholder" style="background-color: <?php echo $random_color; ?>;">
+                                    <span class="post-category">Article</span>
+                                </div>
+                            <?php endif; ?>
                         </div>
+
                         <div class="post-content">
                             <h2 class="post-title">
                                 <a href="article.php?id=<?php echo $article['id']; ?>">
