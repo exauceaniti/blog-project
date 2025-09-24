@@ -7,14 +7,16 @@ if (session_status() === PHP_SESSION_NONE) {
 // Définir les variables pour le header
 $pageTitle = "Accueil - MonBlog";
 $additionalCSS = "/assets/css/index.css";
+$additionalJS = "/assets/js/animations.js";
 
 require_once 'config/connexion.php';
 require_once 'models/Post.php';
+require_once 'views/includes/functions.php'; // <-- Ajouter le helper media_url()
 
 // Connexion à la base de données
 $connexion = new Connexion();
-$postManager = new Post($connexion);
 $pdo = $connexion->connecter();
+
 // Récupérer les articles récents (limite à 6 pour la page d'accueil)
 $articlesRecents = $pdo->query("
     SELECT a.*, u.nom AS auteur
@@ -24,13 +26,10 @@ $articlesRecents = $pdo->query("
     LIMIT 6
 ")->fetchAll();
 
-
-
 // Inclure le header
 require_once 'views/includes/header.php';
 ?>
 
-<link rel="stylsheet" href="/assets/css/index.css">
 <!-- Section Hero -->
 <section class="hero">
     <div class="hero-content">
@@ -41,13 +40,6 @@ require_once 'views/includes/header.php';
             <?php if (!isset($_SESSION['user_id'])): ?>
                 <a href="/views/register.php" class="btn btn-secondary">Créer un compte</a>
             <?php endif; ?>
-        </div>
-    </div>
-    <div class="hero-visual">
-        <div class="floating-elements">
-            <div class="floating-element element-1">📚</div>
-            <div class="floating-element element-2">✍️</div>
-            <div class="floating-element element-3">🌟</div>
         </div>
     </div>
 </section>
@@ -70,26 +62,28 @@ require_once 'views/includes/header.php';
                     <article class="article-card">
                         <div class="article-media">
                             <?php if (!empty($article['media_path'])): ?>
+                                <?php $mediaUrl = media_url($article['media_path']); ?>
                                 <?php if ($article['media_type'] === 'image'): ?>
-                                    <img src="/<?php echo htmlspecialchars($article['media_path']); ?>"
-                                        alt="<?php echo htmlspecialchars($article['titre']); ?>"
-                                        class="article-image">
-                                    </img>
-
+                                    <img src="<?= htmlspecialchars($mediaUrl) ?>" alt="<?= htmlspecialchars($article['titre']) ?>" class="article-image">
                                 <?php elseif ($article['media_type'] === 'video'): ?>
                                     <div class="video-container">
                                         <video class="article-video" controls>
-                                            <source src="/assets/uploads/<?php echo htmlspecialchars($article['media_path']); ?>" type="video/mp4">
+                                            <source src="<?= htmlspecialchars($mediaUrl) ?>" type="video/mp4">
+                                            Votre navigateur ne supporte pas la lecture vidéo.
                                         </video>
                                     </div>
+                                <?php elseif ($article['media_type'] === 'audio'): ?>
+                                    <audio controls>
+                                        <source src="<?= htmlspecialchars($mediaUrl) ?>" type="audio/mpeg">
+                                        Votre navigateur ne supporte pas la lecture audio.
+                                    </audio>
                                 <?php endif; ?>
                             <?php else: ?>
-                                <!-- Placeholder avec couleur aléatoire -->
                                 <?php
                                 $colors = ['#2563eb', '#7c3aed', '#dc2626', '#16a34a', '#ea580c'];
                                 $random_color = $colors[array_rand($colors)];
                                 ?>
-                                <div class="article-placeholder" style="background: linear-gradient(135deg, <?php echo $random_color; ?>, #00000050);">
+                                <div class="article-placeholder" style="background: linear-gradient(135deg, <?= $random_color ?>, #00000050);">
                                     <span class="placeholder-icon">📄</span>
                                 </div>
                             <?php endif; ?>
@@ -102,27 +96,20 @@ require_once 'views/includes/header.php';
                             </div>
 
                             <h3 class="article-title">
-                                <a href="/views/article.php?id=<?php echo $article['id']; ?>">
-                                    <?php echo htmlspecialchars($article['titre']); ?>
+                                <a href="/views/article.php?id=<?= $article['id'] ?>">
+                                    <?= htmlspecialchars($article['titre']) ?>
                                 </a>
                             </h3>
 
                             <p class="article-excerpt">
-                                <?php
-                                $contenu = strip_tags($article['contenu']);
-                                echo htmlspecialchars(mb_substr($contenu, 0, 120)) . '...';
-                                ?>
+                                <?= htmlspecialchars(mb_substr(strip_tags($article['contenu']), 0, 120)) ?>...
                             </p>
 
                             <div class="article-footer">
                                 <span class="article-author">
                                     Par <?= isset($article['auteur']) ? htmlspecialchars($article['auteur']) : "Auteur inconnu"; ?>
                                 </span>
-
-                                <a href="views/article.php?id=<?php echo $article['id']; ?>" class="read-more">
-                                    Lire la suite →
-                                </a>
-
+                                <a href="/views/article.php?id=<?= $article['id'] ?>" class="read-more">Lire la suite →</a>
                             </div>
                         </div>
                     </article>
@@ -130,7 +117,7 @@ require_once 'views/includes/header.php';
             </div>
 
             <div class="view-all-container">
-                <a href="/index.php?action=articles" class="btn btn-outline">Voir tous les articles</a>
+                <a href="/views/article.php" class="btn btn-outline">Voir tous les articles</a>
             </div>
         <?php endif; ?>
     </div>
@@ -154,12 +141,7 @@ require_once 'views/includes/header.php';
             </div>
         </div>
     </div>
-
-
-
 </section>
-
-
 
 <?php
 // Inclure le footer

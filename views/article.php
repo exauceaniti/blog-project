@@ -51,20 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($article['titre'] ?? 'Article'); ?></title>
-    <link rel="stylesheet" href="/assets/css/index.css">
-    <style>
-        .post-media {
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
+    <link rel="stylesheet" href="/assets/css/article.css">
 
-        .post-media img,
-        .post-media video {
-            max-width: 100%;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-        }
-    </style>
 </head>
 
 <body>

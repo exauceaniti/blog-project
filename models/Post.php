@@ -93,42 +93,59 @@ class Post
      */
     private function uploadMedia($fichier)
     {
-        // Vérification de l'existence et de l'absence d'erreurs du fichier
         if (!$fichier || $fichier['error'] !== UPLOAD_ERR_OK) {
             return null;
         }
 
-        // Définition du chemin absolu du dossier d'upload
+        // Sécurité : vérifier que c'est un upload HTTP valide
+        if (!is_uploaded_file($fichier['tmp_name'])) {
+            return null;
+        }
+
+        // Chemin du dossier d'uploads (physique)
         $uploadDir = __DIR__ . "/../assets/uploads/";
 
-        // Création récursive du dossier s'il n'existe pas
         if (!is_dir($uploadDir)) {
-            if (!mkdir($uploadDir, 0777, true)) {
+            if (!mkdir($uploadDir, 0775, true)) {
                 throw new Exception("Impossible de créer le dossier d'upload");
             }
         }
 
-        // Vérification des extensions autorisées
-        $extensionsAutorisees = ["jpg", "jpeg", "png", "gif", "webp", "mp4", "avi", "mov"];
+        // Extension + détection MIME
         $fileExt = strtolower(pathinfo($fichier['name'], PATHINFO_EXTENSION));
 
-        // Validation de l'extension du fichier
-        if (!in_array($fileExt, $extensionsAutorisees)) {
-            return null; // Type de fichier non autorisé
+        // extensions autorisées (images + vidéos)
+        $allowedExt = ["jpg", "jpeg", "png", "gif", "webp", "mp4", "avi", "mov", "webm", "mkv"];
+        if (!in_array($fileExt, $allowedExt)) {
+            return null;
         }
 
-        // Génération d'un nom de fichier unique et sécurisé
+        // Vérifier le MIME réel (finfo)
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $fichier['tmp_name']);
+        finfo_close($finfo);
+
+        // accepter images et video mime
+        if (strpos($mime, 'image/') !== 0 && strpos($mime, 'video/') !== 0 && strpos($mime, 'audio/') !== 0) {
+            return null;
+        }
+
+        // nom sécurisé + unique
         $fileName = time() . "_" . bin2hex(random_bytes(5)) . "." . $fileExt;
-        $filePath = $uploadDir . $fileName;
+        $dest = $uploadDir . $fileName;
 
-        // Déplacement du fichier temporaire vers le dossier d'upload
-        if (move_uploaded_file($fichier['tmp_name'], $filePath)) {
-            // Retourne le chemin relatif pour l'affichage dans les vues HTML
-            return "assets/uploads/" . $fileName;
+        if (!move_uploaded_file($fichier['tmp_name'], $dest)) {
+            error_log("uploadMedia: move_uploaded_file failed for " . $fichier['name']);
+            return null;
         }
 
-        return null; //Échec de l'upload
+        // permissions correctes
+        @chmod($dest, 0644);
+
+        // **RETURNS FILE NAME ONLY** (on stockera en DB juste le nom)
+        return $fileName;
     }
+
 
     /**
      * Détermine le type de média basé sur l'extension du fichier
@@ -152,11 +169,18 @@ class Post
         $videos = ['mp4', 'avi', 'mov', 'mkv'];
         $audios = ['mp3', 'wav', 'ogg'];
 
-        if (in_array($extension, $images)) return 'image';
-        if (in_array($extension, $videos)) return 'video';
-        if (in_array($extension, $audios)) return 'audio';
+        if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            $mediaType = 'image';
+        } elseif (in_array($extension, ['mp4', 'avi', 'mov', 'webm'])) {
+            $mediaType = 'video';
+        } elseif (in_array($extension, ['mp3', 'wav', 'ogg'])) {
+            $mediaType = 'audio';
+        } else {
+            $mediaType = 'none';
+        }
 
-        return 'none';
+
+        // return 'none';
     }
 
     /**
@@ -220,25 +244,32 @@ class Post
      */
     public function ajouterArticle($titre, $contenu, $auteurId, $fichier = null)
     {
-        // Upload du média si fourni
-        $mediaPath = $this->uploadMedia($fichier);
+        $mediaFileName = null;
+        $mediaType = 'none';
 
-        // Préparation de la requête SQL avec des paramètres sécurisés
+        if ($fichier && $fichier['error'] === UPLOAD_ERR_OK) {
+            $mediaFileName = $this->uploadMedia($fichier);
+            if ($mediaFileName) {
+                $mediaType = $this->determinerTypeMedia($mediaFileName); // renvoie 'image'|'video'|'audio'|'none'
+                if (!in_array($mediaType, ['image', 'video', 'audio', 'none'])) {
+                    $mediaType = 'none';
+                }
+            }
+        }
+
         $sql = "INSERT INTO articles (titre, contenu, auteur_id, media_path, media_type, date_publication)
-                VALUES (?, ?, ?, ?, ?, NOW())";
+            VALUES (?, ?, ?, ?, ?, NOW())";
 
-        // Détermination du type de média
-        $mediaType = $mediaPath ? $this->determinerTypeMedia($mediaPath) : 'none';
-
-        // Exécution de la requête avec les paramètres
+        // ici on stocke le filename seulement (ex: 1758632090_xxx.png)
         return $this->conn->executerRequete($sql, [
             $titre,
             $contenu,
             $auteurId,
-            $mediaPath,
+            $mediaFileName,
             $mediaType
         ]);
     }
+
 
     /**
      * Modifie un article existant dans la base de données
