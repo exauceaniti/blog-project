@@ -30,6 +30,7 @@ $articlesRecents = $pdo->query("
 require_once 'views/includes/header.php';
 ?>
 
+<link rel="stylsheet" href="/assets/css/index.css">
 <!-- Section Hero -->
 <section class="hero">
     <div class="hero-content">
@@ -153,7 +154,12 @@ require_once 'views/includes/header.php';
             </div>
         </div>
     </div>
+
+
+
 </section>
+
+
 
 <?php
 // Inclure le footer
