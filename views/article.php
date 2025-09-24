@@ -1,9 +1,10 @@
 <?php
 session_start();
-require_once 'views/includes/header.php';
-require_once 'config/connexion.php';
-require_once 'models/Post.php';
-require_once 'models/commentaire.php';
+
+require_once __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/../config/connexion.php';
+require_once __DIR__ . '/../models/Post.php';
+require_once __DIR__ . '/../models/commentaire.php';
 
 // Connexion à la base de données
 $connexion = new Connexion();

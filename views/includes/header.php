@@ -1,95 +1,95 @@
 <?php
-// includes/header.php
-session_start();
+// Démarrer la session si pas déjà fait
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Vérifier le thème dans la session, sinon défaut clair
+$currentTheme = $_SESSION['theme'] ?? 'light';
 ?>
+
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="<?php echo $currentTheme; ?>">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Project</title>
-    <style>
-        /* Reset rapide */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <title><?php echo $pageTitle ?? 'Mon Blog'; ?></title>
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f8;
-            color: #333;
-        }
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/header.css">
+    <?php if (isset($additionalCSS)): ?>
+        <link rel="stylesheet" href="<?php echo $additionalCSS; ?>">
+    <?php endif; ?>
 
-        /* HEADER */
-        header {
-            background: #0a192f;
-            color: white;
-            padding: 15px 20px;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo a {
-            text-decoration: none;
-            color: #64ffda;
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        .nav-links {
-            list-style: none;
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav-links li {
-            display: inline-block;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-
-        .nav-links a:hover {
-            background: #05b1cff1;
-            color: #0a192f;
-        }
-
-        /* MAIN */
-        main {
-            padding: 20px;
-        }
-    </style>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/assets/uploads/favicon.ico">
 </head>
 
 <body>
-    <header>
-        <nav class="navbar">
+    <header class="header">
+        <nav class="nav container">
+            <!-- Logo -->
             <div class="logo">
-                <a href="../index.php">Mon Blog</a>
+                <a href="/index.php" class="logo-link">
+                    <span class="logo-text">MonBlog</span>
+                </a>
             </div>
-            <ul class="nav-links">
-                <li><a href="../index.php">Accueil</a></li>
-                <li><a href="../admin/dashboard.php">Admin</a></li>
+
+            <!-- Navigation principale -->
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item">
+                    <a href="/index.php" class="nav-link">Accueil</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/index.php?action=articles" class="nav-link">Articles</a>
+                </li>
 
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <li><a href="../controllers/UserControllers.php?action=logout">Déconnexion</a></li>
+                    <!-- Utilisateur connecté - VERSION SIMPLIFIÉE -->
+                    <li class="nav-item">
+                        <a href="/admin/dashboard.php" class="nav-link">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/admin/manage_posts.php" class="nav-link">Mes Articles</a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link user-name">
+                            👋 <?= isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : "Invité"; ?>
+                        </span>
+
+                    </li>
+                    <li class="nav-item">
+                        <a href="/controllers/UserController.php?action=logout" class="nav-link">Déconnexion</a>
+                    </li>
                 <?php else: ?>
-                    <li><a href="../views/login.php">Connexion</a></li>
-                    <li><a href="../views/register.php">Inscription</a></li>
+                    <!-- Utilisateur non connecté -->
+                    <li class="nav-item">
+                        <a href="/views/login.php" class="nav-link">Connexion</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/views/register.php" class="nav-link register-btn">Inscription</a>
+                    </li>
                 <?php endif; ?>
+
+                <!-- Bouton thème -->
+                <li class="nav-item">
+                    <button class="theme-toggle" id="theme-toggle" aria-label="Changer le thème">
+                        <span class="theme-icon">
+                            <?php echo $currentTheme === 'dark' ? '☀️' : '🌙'; ?>
+                        </span>
+                    </button>
+                </li>
             </ul>
+
+            <!-- Menu hamburger (mobile) -->
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
         </nav>
     </header>
-    <main>
+    <script src="/assets/js/theme.js"></script>
+
+    <main class="main-content">
