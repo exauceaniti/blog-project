@@ -19,7 +19,7 @@ $article = $postManager->getArticleById($articleId);
 
 if (!$article) {
     header('HTTP/1.0 404 Not Found');
-    include '404.php';
+    include __DIR__ . '/404.php';
     exit;
 }
 
@@ -29,13 +29,13 @@ $commentaires = $commentaireManager->voirCommentaires($articleId);
 // Traitement de l'ajout de commentaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'ajouter' && isset($_SESSION['user_id'])) {
     $contenu = trim($_POST['contenu']);
-    $articleId = $_POST['articleId'] ?? null;
+    $articleIdPost = $_POST['articleId'] ?? null;
 
-    if (!empty($contenu) && $articleId) {
-        $success = $commentaireManager->ajouterCommentaire($contenu, $articleId, $_SESSION['user_id']);
+    if (!empty($contenu) && $articleIdPost) {
+        $success = $commentaireManager->ajouterCommentaire($contenu, $articleIdPost, $_SESSION['user_id']);
 
         if ($success) {
-            header("Location: article.php?id=$articleId");
+            header("Location: article.php?id=$articleIdPost");
             exit;
         } else {
             echo '<p style="color:red;">Erreur lors de l\'ajout du commentaire.</p>';
@@ -50,24 +50,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($article['titre']); ?></title>
+    <title><?= htmlspecialchars($article['titre'] ?? 'Article'); ?></title>
+    <link rel="stylesheet" href="/assets/css/index.css">
     <style>
-        /* ... ton style déjà existant reste inchangé ... */
-
         .post-media {
             margin-bottom: 1.5rem;
             text-align: center;
         }
 
-        .post-media img {
-            max-width: 100%;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-        }
-
+        .post-media img,
         .post-media video {
-            width: 100%;
-            max-height: 400px;
+            max-width: 100%;
             border-radius: 8px;
             box-shadow: var(--shadow);
         }
@@ -77,20 +70,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 <body>
     <main>
         <article class="post">
-            <h1 class="post-title"><?php echo htmlspecialchars($article['titre']); ?></h1>
+            <h1 class="post-title"><?= htmlspecialchars($article['titre'] ?? ''); ?></h1>
             <div class="post-meta">
-                <span class="post-author"><?= htmlspecialchars($article['auteur']); ?></span>
-                <span class="post-date"><?= date('d/m/Y à H:i', strtotime($article['date_publication'])); ?></span>
+                <span class="post-author"><?= htmlspecialchars($article['auteur'] ?? 'Inconnu'); ?></span>
+                <span class="post-date"><?= date('d/m/Y à H:i', strtotime($article['date_publication'] ?? 'now')); ?></span>
             </div>
 
-            <!-- Ajout du bloc média -->
-            <?php if (!empty($article['media_path'])): ?>
+            <!-- Bloc média -->
+            <?php if (!empty($article['media_path']) && !empty($article['media_type'])): ?>
                 <div class="post-media">
                     <?php if ($article['media_type'] === 'image'): ?>
-                        <img src="uploads/<?php echo htmlspecialchars($article['media_path']); ?>" alt="Image de l'article">
+                        <img src="/<?php echo htmlspecialchars($article['media_path']); ?>"
+                            alt="<?php echo htmlspecialchars($article['titre']); ?>"
+                            class="article-image">
+                        </img>
                     <?php elseif ($article['media_type'] === 'video'): ?>
                         <video controls>
-                            <source src="uploads/<?php echo htmlspecialchars($article['media_path']); ?>" type="video/mp4">
+                            <source src="/assets/uploads/<?php echo htmlspecialchars($article['media_path']); ?>" type="video/mp4">
                             Votre navigateur ne supporte pas la lecture de cette vidéo.
                         </video>
                     <?php endif; ?>
@@ -98,56 +94,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <?php endif; ?>
 
             <div class="post-content">
-                <?php echo nl2br(htmlspecialchars($article['contenu'])); ?>
+                <?= nl2br(htmlspecialchars($article['contenu'] ?? '')); ?>
             </div>
         </article>
 
-        <!-- Section Commentaires (inchangée sauf si tu veux design amélioré) -->
+        <!-- Commentaires -->
         <section class="comments-section">
             <h2 class="comments-title">Commentaires</h2>
 
             <?php if (empty($commentaires)): ?>
-                <div class="no-comments">
-                    <p>Aucun commentaire pour cet article !</p>
-                </div>
+                <p>Aucun commentaire pour cet article !</p>
             <?php else: ?>
                 <?php foreach ($commentaires as $comment): ?>
                     <div class="comment">
                         <div class="comment-header">
-                            <span class="comment-author"><?= htmlspecialchars($comment['auteur']); ?></span>
-                            <span class="comment-date"><?= date('d/m/Y à H:i', strtotime($comment['date_Commentaire'])); ?></span>
+                            <span class="comment-author"><?= htmlspecialchars($comment['auteur'] ?? 'Anonyme'); ?></span>
+                            <span class="comment-date"><?= date('d/m/Y à H:i', strtotime($comment['date_Commentaire'] ?? 'now')); ?></span>
                         </div>
-                        <div class="comment-content">
-                            <?= nl2br(htmlspecialchars($comment['contenu'])); ?>
-                        </div>
+                        <div class="comment-content"><?= nl2br(htmlspecialchars($comment['contenu'] ?? '')); ?></div>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
 
             <div class="add-comment-container">
                 <button id="add-comment-btn" class="btn btn-primary">Ajouter un commentaire</button>
-
-                <div id="comment-form-container" style="display: none;">
+                <div id="comment-form-container" style="display:none;">
                     <?php if (isset($_SESSION['user_id'])): ?>
-                        <div class="comment-form">
-                            <h3 class="form-title">Votre commentaire</h3>
-                            <form action="" method="POST">
-                                <input type="hidden" name="action" value="ajouter">
-                                <input type="hidden" name="articleId" value="<?= $articleId ?>">
-                                <div class="form-group">
-                                    <textarea name="contenu" required placeholder="Partagez votre pensée..."></textarea>
-                                </div>
-                                <button type="submit" class="btn">Publier le commentaire</button>
-                            </form>
-                        </div>
+                        <form action="" method="POST" class="comment-form">
+                            <input type="hidden" name="action" value="ajouter">
+                            <input type="hidden" name="articleId" value="<?= $articleId; ?>">
+                            <textarea name="contenu" required placeholder="Partagez votre pensée..."></textarea>
+                            <button type="submit" class="btn">Publier le commentaire</button>
+                        </form>
                     <?php else: ?>
-                        <div class="login-required-message">
-                            <p>Vous devez être connecté pour ajouter un commentaire.</p>
-                            <div class="auth-buttons">
-                                <a href="login.php" class="btn btn-login">Se connecter</a>
-                                <a href="register.php" class="btn btn-register">Créer un compte</a>
-                            </div>
-                        </div>
+                        <p>Vous devez être connecté pour ajouter un commentaire.</p>
+                        <a href="/views/login.php" class="btn btn-login">Se connecter</a>
+                        <a href="/views/register.php" class="btn btn-register">Créer un compte</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -156,25 +138,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const addCommentBtn = document.getElementById('add-comment-btn');
-            const commentFormContainer = document.getElementById('comment-form-container');
+            const btn = document.getElementById('add-comment-btn');
+            const form = document.getElementById('comment-form-container');
 
-            addCommentBtn.addEventListener('click', function() {
-                if (commentFormContainer.style.display === 'none') {
-                    commentFormContainer.style.display = 'block';
-                    addCommentBtn.textContent = 'Masquer le formulaire';
+            btn.addEventListener('click', function() {
+                if (form.style.display === 'none') {
+                    form.style.display = 'block';
+                    btn.textContent = 'Masquer le formulaire';
                 } else {
-                    commentFormContainer.style.display = 'none';
-                    addCommentBtn.textContent = 'Ajouter un commentaire';
+                    form.style.display = 'none';
+                    btn.textContent = 'Ajouter un commentaire';
                 }
             });
-
-            <?php if (isset($_SESSION['user_id']) && $_SERVER['REQUEST_METHOD'] === 'POST'): ?>
-                commentFormContainer.style.display = 'block';
-                addCommentBtn.textContent = 'Masquer le formulaire';
-            <?php endif; ?>
         });
     </script>
+
 </body>
 
 </html>
