@@ -2,456 +2,317 @@
 // admin/dashboard.php
 session_start();
 
-require_once "../views/includes/header.php";
 require_once "../config/connexion.php";
 require_once "../models/Post.php";
 
-// 🔹 Vérifier que l'utilisateur est admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+// Vérifier que l'utilisateur est admin
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     header("Location: ../views/login.php");
     exit;
 }
 
-// 🔹 Créer la connexion
+// Connexion & manager
 $connexion = new Connexion();
 $postManager = new Post($connexion);
 
-// 🔹 Gestion des actions POST
+// Gestion POST (ajouter / modifier / supprimer)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
-    switch ($action) {
-        case 'ajouter':
-            $titre = trim($_POST['titre']);
-            $contenu = trim($_POST['contenu']);
-            if ($titre && $contenu) {
-                $postManager->ajouterArticle(
-                    $titre,
-                    $contenu,
-                    $_SESSION['user_id'],
-                    $_FILES['media'] ?? null
-                );
-                $_SESSION['toast'] = ['type' => 'success', 'message' => 'Article ajouté avec succès!'];
-            }
-            break;
+    try {
+        switch ($action) {
+            case 'ajouter':
+                $titre = trim($_POST['titre'] ?? '');
+                $contenu = trim($_POST['contenu'] ?? '');
+                if ($titre && $contenu) {
+                    $postManager->ajouterArticle(
+                        $titre,
+                        $contenu,
+                        $_SESSION['user_id'],
+                        $_FILES['media'] ?? null
+                    );
+                    $_SESSION['toast'] = ['type' => 'success', 'message' => 'Article ajouté avec succès !'];
+                } else {
+                    $_SESSION['toast'] = ['type' => 'error', 'message' => 'Titre et contenu requis.'];
+                }
+                break;
 
-        case 'modifier':
-            $id = (int)$_POST['id'];
-            $titre = trim($_POST['titre']);
-            $contenu = trim($_POST['contenu']);
-            if ($id && $titre && $contenu) {
-                $postManager->modifierArticle(
-                    $id,
-                    $titre,
-                    $contenu,
-                    $_FILES['media'] ?? null
-                );
-                $_SESSION['toast'] = ['type' => 'success', 'message' => 'Article modifié avec succès!'];
-            }
-            break;
+            case 'modifier':
+                $id = (int)($_POST['id'] ?? 0);
+                $titre = trim($_POST['titre'] ?? '');
+                $contenu = trim($_POST['contenu'] ?? '');
+                if ($id && $titre && $contenu) {
+                    $postManager->modifierArticle($id, $titre, $contenu, $_FILES['media'] ?? null);
+                    $_SESSION['toast'] = ['type' => 'success', 'message' => 'Article modifié !'];
+                } else {
+                    $_SESSION['toast'] = ['type' => 'error', 'message' => 'Données de modification invalides.'];
+                }
+                break;
 
-        case 'supprimer':
-            $id = (int)$_POST['id'];
-            if ($id) {
-                $postManager->supprimerArticle($id);
-                $_SESSION['toast'] = ['type' => 'success', 'message' => 'Article supprimé avec succès!'];
-            }
-            break;
+            case 'supprimer':
+                $id = (int)($_POST['id'] ?? 0);
+                if ($id) {
+                    $postManager->supprimerArticle($id);
+                    $_SESSION['toast'] = ['type' => 'success', 'message' => 'Article supprimé.'];
+                }
+                break;
+        }
+    } catch (Exception $e) {
+        $_SESSION['toast'] = ['type' => 'error', 'message' => 'Erreur serveur : ' . $e->getMessage()];
     }
 
-    // Recharger la page après action
     header("Location: dashboard.php");
     exit;
 }
 
-// 🔹 Récupérer stats rapides et articles
-$nbArticles = $connexion->executerRequete("SELECT COUNT(*) FROM articles")->fetchColumn();
-$nbUsers = $connexion->executerRequete("SELECT COUNT(*) FROM utilisateurs")->fetchColumn();
-$nbCommentaires = $connexion->executerRequete("SELECT COUNT(*) FROM commentaires")->fetchColumn();
+// Récupérer données
+$nbArticles = (int)$connexion->executerRequete("SELECT COUNT(*) FROM articles")->fetchColumn();
+$nbUsers = (int)$connexion->executerRequete("SELECT COUNT(*) FROM utilisateurs")->fetchColumn();
+$nbCommentaires = (int)$connexion->executerRequete("SELECT COUNT(*) FROM commentaires")->fetchColumn();
 $articles = $postManager->voirArticles();
 
-// Récupérer le toast s'il existe
+// Toast
 $toast = $_SESSION['toast'] ?? null;
 unset($_SESSION['toast']);
 ?>
-
 <!DOCTYPE html>
 <html lang="fr" data-theme="light">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard Admin - GraphicArt Style</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Admin • Dashboard</title>
     <link rel="stylesheet" href="/assets/css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
-    <!-- Header Admin -->
-    <header class="admin-header">
-        <div class="header-content">
-            <div class="admin-title">
-                <i class="fas fa-tachometer-alt"></i>
-                <h1>Dashboard Admin</h1>
-            </div>
-            <div class="admin-actions">
-                <span>Bienvenue, <?= htmlspecialchars($_SESSION['username'] ?? 'Admin') ?></span>
-                <button class="theme-toggle" onclick="toggleTheme()">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <a href="../views/logout.php" class="btn btn-secondary">
-                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+    <div class="admin-wrapper">
+
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <a href="dashboard.php">
+                    <img src="/assets/uploads/1758785033_df11f7361b.png" alt="logo" class="sidebar-logo">
+                    <span>GraphicArt Admin</span>
                 </a>
             </div>
-        </div>
-    </header>
 
-    <div class="container">
-        <!-- Toast Notification -->
-        <?php if ($toast): ?>
-            <div class="toast <?= $toast['type'] === 'error' ? 'error' : '' ?>" id="toast">
-                <i class="fas fa-<?= $toast['type'] === 'error' ? 'exclamation-circle' : 'check-circle' ?>"></i>
-                <?= htmlspecialchars($toast['message']) ?>
+            <nav class="sidebar-nav">
+                <a href="dashboard.php" class="active"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a>
+                <a href="manage_posts.php"><i class="fas fa-newspaper"></i> Articles</a>
+                <a href="manage_users.php"><i class="fas fa-users"></i> Utilisateurs</a>
+                <a href="#"><i class="fas fa-comments"></i> Commentaires</a>
+                <a href="../index.php"><i class="fas fa-home"></i> Voir le site</a>
+                <a href="../views/logout.php"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="sidebarToggle" class="btn-icon" title="Réduire le menu"><i class="fas fa-angle-double-left"></i></button>
             </div>
-        <?php endif; ?>
+        </aside>
 
-        <!-- Section Statistiques -->
-        <h2 class="section-title">
-            <i class="fas fa-chart-bar"></i>
-            Tableau de Bord
-        </h2>
-        <div class="stats-container">
-            <div class="stat-card">
-                <i class="fas fa-newspaper fa-2x" style="color: var(--accent-1); margin-bottom: 0.5rem;"></i>
-                <h2><?= $nbArticles ?></h2>
-                <p>Articles Publiés</p>
-            </div>
-            <div class="stat-card">
-                <i class="fas fa-users fa-2x" style="color: var(--accent-2); margin-bottom: 0.5rem;"></i>
-                <h2><?= $nbUsers ?></h2>
-                <p>Utilisateurs Inscrits</p>
-            </div>
-            <div class="stat-card">
-                <i class="fas fa-comments fa-2x" style="color: var(--accent-3); margin-bottom: 0.5rem;"></i>
-                <h2><?= $nbCommentaires ?></h2>
-                <p>Commentaires</p>
-            </div>
-        </div>
-
-        <!-- Section Ajout d'Article -->
-        <h2 class="section-title">
-            <i class="fas fa-plus-circle"></i>
-            Ajouter un Nouvel Article
-        </h2>
-        <div class="form-container">
-            <form method="POST" action="" enctype="multipart/form-data" id="article-form">
-                <input type="hidden" name="action" value="ajouter">
-
-                <div class="form-group">
-                    <label for="titre">
-                        <i class="fas fa-heading"></i> Titre de l'article
-                    </label>
-                    <input type="text" id="titre" name="titre" placeholder="Entrez un titre accrocheur..." required>
+        <!-- MAIN -->
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div class="topbar-left">
+                    <h1>Tableau de bord</h1>
                 </div>
 
-                <div class="form-group">
-                    <label for="contenu">
-                        <i class="fas fa-edit"></i> Contenu de l'article
-                    </label>
-                    <textarea id="contenu" name="contenu" placeholder="Rédigez votre contenu ici..." required></textarea>
-                    <small style="color: var(--text-secondary);">
-                        <i class="fas fa-info-circle"></i> Supporte le formatage basique
-                    </small>
+                <div class="topbar-right">
+                    <div class="user-welcome">Bienvenue, <strong><?= htmlspecialchars($_SESSION['username'] ?? 'Admin') ?></strong></div>
+                    <button class="theme-toggle btn-icon" id="themeToggle" title="Changer le thème"><i class="fas fa-moon"></i></button>
+                </div>
+            </header>
+
+            <!-- Toast -->
+            <?php if ($toast): ?>
+                <div id="toast" class="toast <?= $toast['type'] === 'error' ? 'error' : 'success' ?>">
+                    <i class="fas fa-<?= $toast['type'] === 'error' ? 'exclamation-circle' : 'check-circle' ?>"></i>
+                    <span><?= htmlspecialchars($toast['message']) ?></span>
+                </div>
+            <?php endif; ?>
+
+            <!-- STATS -->
+            <section class="stats-grid">
+                <div class="stat">
+                    <div class="stat-icon"><i class="fas fa-newspaper"></i></div>
+                    <div class="stat-body">
+                        <div class="stat-number"><?= $nbArticles ?></div>
+                        <div class="stat-label">Articles</div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="media">
-                        <i class="fas fa-file-upload"></i> Média (image/vidéo/audio)
-                    </label>
-                    <input type="file" name="media" id="media" accept="image/*,video/*,audio/*"
-                        onchange="previewMedia(this)">
-                    <small style="color: var(--text-secondary);">
-                        <i class="fas fa-info-circle"></i> Formats supportés: JPG, PNG, MP4, MP3, etc.
-                    </small>
+                <div class="stat">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-body">
+                        <div class="stat-number"><?= $nbUsers ?></div>
+                        <div class="stat-label">Utilisateurs</div>
+                    </div>
                 </div>
 
-                <div id="media-preview" class="media-preview" style="display: none; margin-top: 1rem;">
-                    <div id="preview-content"></div>
-                    <button type="button" class="btn btn-secondary" onclick="clearPreview()" style="margin-top: 0.5rem;">
-                        <i class="fas fa-times"></i> Supprimer la prévisualisation
-                    </button>
+                <div class="stat">
+                    <div class="stat-icon"><i class="fas fa-comments"></i></div>
+                    <div class="stat-body">
+                        <div class="stat-number"><?= $nbCommentaires ?></div>
+                        <div class="stat-label">Commentaires</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ADD ARTICLE FORM (collapsible) -->
+            <section class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-plus-circle"></i> Ajouter un article</h2>
+                    <button class="btn-outline" id="toggleAddForm">Afficher / Masquer</button>
                 </div>
 
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-paper-plane"></i> Publier l'Article
-                </button>
-            </form>
-        </div>
+                <div class="card-body" id="addForm" style="display:none;">
+                    <form id="articleForm" method="POST" action="" enctype="multipart/form-data">
+                        <input type="hidden" name="action" value="ajouter">
+                        <div class="form-row">
+                            <label>Titre</label>
+                            <input type="text" name="titre" required placeholder="Titre de l'article">
+                        </div>
 
-        <!-- Section Liste des Articles -->
-        <h2 class="section-title">
-            <i class="fas fa-list-alt"></i>
-            Gestion des Articles (<?= count($articles) ?>)
-        </h2>
-        <div class="articles-grid">
-            <?php if (empty($articles)): ?>
-                <div class="article-card" style="text-align: center; padding: 3rem;">
-                    <i class="fas fa-newspaper fa-3x" style="color: var(--text-secondary); margin-bottom: 1rem;"></i>
-                    <p style="color: var(--text-secondary); font-size: 1.1rem;">Aucun article publié pour le moment.</p>
-                    <p style="color: var(--text-secondary);">Commencez par créer votre premier article !</p>
+                        <div class="form-row">
+                            <label>Contenu</label>
+                            <textarea name="contenu" rows="6" required placeholder="Contenu..."></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <label>Média (image/vidéo/audio)</label>
+                            <input type="file" name="media" id="mediaInput" accept="image/*,video/*,audio/*" onchange="previewMedia(this)">
+                            <small class="muted">Formats: jpg, png, webp, mp4, mp3...</small>
+
+                            <div id="mediaPreview" class="media-preview" style="display:none;">
+                                <div id="previewInner"></div>
+                                <button type="button" class="btn-outline" onclick="clearPreview()">Supprimer la prévisualisation</button>
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="display:flex; gap:.5rem;">
+                            <button type="submit" class="btn-primary"><i class="fas fa-paper-plane"></i> Publier</button>
+                            <button type="reset" class="btn" onclick="clearPreview()">Réinitialiser</button>
+                        </div>
+                    </form>
                 </div>
-            <?php else: ?>
-                <?php foreach ($articles as $article): ?>
-                    <div class="article-card" data-article-id="<?= $article['id'] ?>">
-                        <div class="article-header">
-                            <div style="flex: 1;">
-                                <h3 class="article-title">
-                                    <i class="fas fa-file-alt" style="color: var(--primary-color);"></i>
-                                    <?= htmlspecialchars($article['titre']) ?>
-                                </h3>
-                                <div class="article-date">
-                                    <i class="fas fa-user"></i> Par <?= htmlspecialchars($article['auteur']) ?> •
-                                    <i class="fas fa-calendar"></i> <?= date('d/m/Y à H:i', strtotime($article['date_publication'])) ?>
+            </section>
+
+            <!-- ARTICLES LIST -->
+            <section class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-list-alt"></i> Articles (<?= count($articles) ?>)</h2>
+                    <div class="card-actions">
+                        <input type="search" id="searchInput" placeholder="Rechercher un titre..." oninput="filterArticles(this.value)">
+                    </div>
+                </div>
+
+                <div class="card-body articles-grid" id="articlesGrid">
+                    <?php if (empty($articles)): ?>
+                        <div class="empty">Aucun article publié pour le moment.</div>
+                    <?php else: ?>
+                        <?php foreach ($articles as $article): ?>
+                            <div class="article-card" data-title="<?= htmlspecialchars(strtolower($article['titre'])) ?>" data-article-id="<?= $article['id'] ?>">
+                                <div class="article-top">
+                                    <div class="article-meta">
+                                        <h3><?= htmlspecialchars($article['titre']) ?></h3>
+                                        <div class="meta-sub">Par <?= htmlspecialchars($article['auteur']) ?> • <?= date('d/m/Y', strtotime($article['date_publication'])) ?></div>
+                                    </div>
+
+                                    <!-- status badge -->
+                                    <div class="article-badge"><i class="fas fa-check"></i> Publié</div>
                                 </div>
-                            </div>
-                            <div class="article-status">
-                                <span class="status-badge" style="background: var(--accent-3); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">
-                                    <i class="fas fa-check"></i> Publié
-                                </span>
-                            </div>
-                        </div>
 
-                        <div class="article-content">
-                            <?= nl2br(htmlspecialchars(mb_strimwidth($article['contenu'], 0, 300, '...'))) ?>
-                        </div>
+                                <div class="article-body">
+                                    <div class="article-excerpt"><?= nl2br(htmlspecialchars(mb_strimwidth($article['contenu'], 0, 250, '...'))) ?></div>
 
-                        <!-- Affichage du Média avec fonctionnalité de zoom -->
-                        <?php if (!empty($article['media_path'])): ?>
-                            <div class="article-media">
-                                <?php
-                                $mediaPath = strpos($article['media_path'], 'assets/uploads/') === 0
-                                    ? "../" . $article['media_path']
-                                    : "../assets/uploads/" . $article['media_path'];
-                                ?>
+                                    <?php if (!empty($article['media_path'])): ?>
+                                        <?php
+                                        // Construire chemin robuste (admin file is in admin/)
+                                        if (strpos($article['media_path'], 'assets/uploads/') === 0) {
+                                            $mediaPath = "../" . $article['media_path']; // already relative path in DB
+                                        } else {
+                                            $mediaPath = "../assets/uploads/" . $article['media_path'];
+                                        }
+                                        ?>
+                                        <div class="article-media">
+                                            <div class="media-thumb" onclick="toggleZoom('<?= htmlspecialchars($mediaPath, ENT_QUOTES) ?>')">
+                                                <?php if ($article['media_type'] === 'image'): ?>
+                                                    <img src="<?= htmlspecialchars($mediaPath) ?>" alt="media" onerror="this.style.display='none'">
+                                                <?php elseif ($article['media_type'] === 'video'): ?>
+                                                    <video src="<?= htmlspecialchars($mediaPath) ?>" muted loop playsinline></video>
+                                                <?php elseif ($article['media_type'] === 'audio'): ?>
+                                                    <div class="audio-placeholder"><i class="fas fa-music"></i></div>
+                                                <?php endif; ?>
 
-                                <div class="media-container" onclick="toggleZoom(this)">
-                                    <?php if ($article['media_type'] === 'image'): ?>
-                                        <img src="<?= htmlspecialchars($mediaPath) ?>"
-                                            alt="Image de l'article"
-                                            onerror="this.style.display='none'">
-                                        <div class="media-overlay">
-                                            <i class="fas fa-search-plus"></i> Cliquer pour zoomer
-                                        </div>
-                                    <?php elseif ($article['media_type'] === 'video'): ?>
-                                        <video width="100%" controls>
-                                            <source src="<?= htmlspecialchars($mediaPath) ?>" type="video/mp4">
-                                            Votre navigateur ne supporte pas la vidéo.
-                                        </video>
-                                        <div class="media-overlay">
-                                            <i class="fas fa-play"></i> Vidéo
-                                        </div>
-                                    <?php elseif ($article['media_type'] === 'audio'): ?>
-                                        <audio controls style="width: 100%">
-                                            <source src="<?= htmlspecialchars($mediaPath) ?>" type="audio/mpeg">
-                                            Votre navigateur ne supporte pas l'audio.
-                                        </audio>
-                                        <div class="media-overlay">
-                                            <i class="fas fa-music"></i> Audio
+                                                <div class="media-overlay"><i class="fas fa-search-plus"></i></div>
+                                            </div>
                                         </div>
                                     <?php endif; ?>
                                 </div>
+
+                                <div class="article-actions">
+                                    <button class="btn-warning" onclick="toggleEditForm(<?= $article['id'] ?>)" type="button"><i class="fas fa-edit"></i> Modifier</button>
+
+                                    <form method="POST" action="" onsubmit="return confirm('Supprimer cet article ?');" style="display:inline;">
+                                        <input type="hidden" name="action" value="supprimer">
+                                        <input type="hidden" name="id" value="<?= $article['id'] ?>">
+                                        <button class="btn-danger" type="submit"><i class="fas fa-trash"></i> Supprimer</button>
+                                    </form>
+
+                                    <button class="btn" type="button" onclick="toggleArticleContent(<?= $article['id'] ?>)"><i class="fas fa-eye"></i> Voir plus</button>
+                                </div>
+
+                                <!-- EDIT FORM (hidden) -->
+                                <div class="edit-form" id="edit-form-<?= $article['id'] ?>">
+                                    <form method="POST" action="" enctype="multipart/form-data">
+                                        <input type="hidden" name="action" value="modifier">
+                                        <input type="hidden" name="id" value="<?= $article['id'] ?>">
+
+                                        <div class="form-row">
+                                            <label>Titre</label>
+                                            <input type="text" name="titre" value="<?= htmlspecialchars($article['titre']) ?>" required>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label>Contenu</label>
+                                            <textarea name="contenu" rows="6" required><?= htmlspecialchars($article['contenu']) ?></textarea>
+                                        </div>
+
+                                        <div class="form-row">
+                                            <label>Nouveau média (optionnel)</label>
+                                            <input type="file" name="media" accept="image/*,video/*,audio/*">
+                                            <small class="muted">Laisser vide pour conserver l'ancien média</small>
+                                        </div>
+
+                                        <div style="display:flex; gap:.5rem; margin-top:.5rem;">
+                                            <button class="btn-primary" type="submit"><i class="fas fa-save"></i> Enregistrer</button>
+                                            <button class="btn" type="button" onclick="toggleEditForm(<?= $article['id'] ?>)"><i class="fas fa-times"></i> Annuler</button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
-                        <?php endif; ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </section>
 
-                        <!-- Actions -->
-                        <div class="article-actions">
-                            <button type="button" class="btn btn-warning"
-                                onclick="toggleEditForm(<?= $article['id'] ?>)">
-                                <i class="fas fa-edit"></i> Modifier
-                            </button>
+            <footer class="admin-footer">
+                <small>&copy; <?= date('Y') ?> GraphicArt • Dashboard</small>
+            </footer>
+        </main>
+    </div>
 
-                            <form method="POST" action="" style="display: inline;">
-                                <input type="hidden" name="action" value="supprimer">
-                                <input type="hidden" name="id" value="<?= $article['id'] ?>">
-                                <button type="submit" class="btn btn-danger"
-                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible.')">
-                                    <i class="fas fa-trash"></i> Supprimer
-                                </button>
-                            </form>
-
-                            <button type="button" class="btn btn-secondary"
-                                onclick="toggleArticleContent(<?= $article['id'] ?>)">
-                                <i class="fas fa-eye"></i> Voir plus
-                            </button>
-                        </div>
-
-                        <!-- Formulaire de Modification (caché par défaut) -->
-                        <div id="edit-form-<?= $article['id'] ?>" class="edit-form">
-                            <form method="POST" action="" enctype="multipart/form-data">
-                                <input type="hidden" name="action" value="modifier">
-                                <input type="hidden" name="id" value="<?= $article['id'] ?>">
-
-                                <div class="form-group">
-                                    <label><i class="fas fa-heading"></i> Titre</label>
-                                    <input type="text" name="titre" value="<?= htmlspecialchars($article['titre']) ?>" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label><i class="fas fa-edit"></i> Contenu</label>
-                                    <textarea name="contenu" required style="min-height: 200px;"><?= htmlspecialchars($article['contenu']) ?></textarea>
-                                </div>
-
-                                <div class="form-group">
-                                    <label><i class="fas fa-file-upload"></i> Nouveau média (optionnel)</label>
-                                    <input type="file" name="media" accept="image/*,video/*,audio/*">
-                                    <small style="color: var(--text-secondary);">
-                                        Laisser vide pour conserver le média actuel
-                                    </small>
-                                </div>
-
-                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save"></i> Enregistrer
-                                    </button>
-                                    <button type="button" class="btn btn-secondary"
-                                        onclick="toggleEditForm(<?= $article['id'] ?>)">
-                                        <i class="fas fa-times"></i> Annuler
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
+    <!-- Modal zoom -->
+    <div id="modalOverlay" class="modal-overlay" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <div id="modalInner"></div>
         </div>
     </div>
 
-    <!-- Modal pour zoom -->
-    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()">
-                <i class="fas fa-times"></i>
-            </button>
-            <img id="modalImage" src="" alt="" style="max-width: 100%; max-height: 100%;">
-        </div>
-    </div>
-
-    <script>
-        // Gestion du thème
-        function toggleTheme() {
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-
-            // Changer l'icône
-            const icon = document.querySelector('.theme-toggle i');
-            icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-        }
-
-        // Appliquer le thème sauvegardé au chargement
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-
-            const icon = document.querySelector('.theme-toggle i');
-            icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-
-            // Afficher le toast si présent
-            const toast = document.getElementById('toast');
-            if (toast) {
-                toast.classList.add('show');
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 3000);
-            }
-        });
-
-        // Fonction pour afficher/masquer le formulaire de modification
-        function toggleEditForm(articleId) {
-            const form = document.getElementById('edit-form-' + articleId);
-            form.classList.toggle('active');
-        }
-
-        // Fonction pour voir plus/moins de contenu
-        function toggleArticleContent(articleId) {
-            const articleCard = document.querySelector(`[data-article-id="${articleId}"]`);
-            const content = articleCard.querySelector('.article-content');
-            const fullContent = articleCard.dataset.fullContent;
-
-            if (!fullContent) {
-                // Stocker le contenu complet
-                articleCard.dataset.fullContent = content.innerHTML;
-                // Récupérer le contenu complet via AJAX ou afficher tout
-                content.innerHTML = content.innerHTML.replace('...', '') +
-                    '<div style="margin-top: 0.5rem;"><button class="btn btn-secondary" onclick="toggleArticleContent(' + articleId + ')">Voir moins</button></div>';
-            } else {
-                content.innerHTML = fullContent;
-                delete articleCard.dataset.fullContent;
-            }
-        }
-
-        // Fonctionnalité de zoom pour les images
-        function toggleZoom(element) {
-            const img = element.querySelector('img');
-            if (img) {
-                const modal = document.getElementById('modalOverlay');
-                const modalImg = document.getElementById('modalImage');
-
-                modalImg.src = img.src;
-                modal.classList.add('active');
-            }
-        }
-
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.remove('active');
-        }
-
-        // Prévisualisation des médias avant upload
-        function previewMedia(input) {
-            const preview = document.getElementById('media-preview');
-            const previewContent = document.getElementById('preview-content');
-
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    if (file.type.startsWith('image/')) {
-                        previewContent.innerHTML = `<img src="${e.target.result}" style="max-width: 300px; border-radius: 8px;">`;
-                    } else if (file.type.startsWith('video/')) {
-                        previewContent.innerHTML = `<video controls src="${e.target.result}" style="max-width: 300px;"></video>`;
-                    } else if (file.type.startsWith('audio/')) {
-                        previewContent.innerHTML = `<audio controls src="${e.target.result}"></audio>`;
-                    } else {
-                        previewContent.innerHTML = `<p>Fichier: ${file.name}</p>`;
-                    }
-                    preview.style.display = 'block';
-                }
-
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function clearPreview() {
-            document.getElementById('media-preview').style.display = 'none';
-            document.getElementById('media').value = '';
-        }
-
-        // Masquer tous les formulaires de modification au chargement
-        document.addEventListener('DOMContentLoaded', function() {
-            const editForms = document.querySelectorAll('.edit-form');
-            editForms.forEach(form => form.classList.remove('active'));
-        });
-
-        // Fermer le modal avec ESC
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        });
-    </script>
+    <script src="/assets/js/admin.js"></script>
 </body>
 
 </html>
