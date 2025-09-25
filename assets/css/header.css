@@ -1,32 +1,30 @@
 :root {
-  /* THÈME CLAIR - Inspiré GraphiCart mais plus vibrant */
-  --primary-color: #7c3aed;    /* Violet GraphiCart moderne */
+  --primary-color: #7c3aed;
   --primary-hover: #6d28d9;
-  --background-color: #f8fafc;  /* Très léger gris/bleu */
+  --background-color: #f8fafc;
   --surface-color: #ffffff;
   --text-primary: #1e293b;
   --text-secondary: #64748b;
   --border-color: #e2e8f0;
-  --shadow: 0 4px 14px rgba(124, 58, 237, 0.1); /* Ombre violet douce */
+  --shadow: 0 4px 14px rgba(124, 58, 237, 0.1);
   
   /* COULEURS GRAPHICART STYLE */
-  --accent-1: #ec4899;         /* Rose vif GraphiCart */
-  --accent-2: #8b5cf6;         /* Violet secondaire */
-  --accent-3: #10b981;         /* Vert succès */
+  --accent-1: #ec4899;
+  --accent-2: #8b5cf6;
+  --accent-3: #10b981;
   --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
   
   /* Espacements */
   --spacing-sm: 1rem;
   --spacing-md: 1.5rem;
-  --border-radius: 12px;       /* Plus arrondi comme GraphiCart */
+  --border-radius: 12px;
 }
 
 [data-theme="dark"] {
-  /* THÈME SOMBRE - Élégant comme GraphiCart */
-  --primary-color: #8b5cf6;     /* Violet plus lumineux */
+  --primary-color: #8b5cf6;
   --primary-hover: #a78bfa;
-  --background-color: #0f0f23;  /* Noir bleuté profond */
-  --surface-color: #1a1a2e;     /* Surface riche */
+  --background-color: #0f0f23;
+  --surface-color: #1a1a2e;
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --border-color: #2d3748;
