@@ -165,23 +165,17 @@ class Post
     {
         $extension = strtolower(pathinfo($mediaPath, PATHINFO_EXTENSION));
 
-        $images = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        $videos = ['mp4', 'avi', 'mov', 'mkv'];
-        $audios = ['mp3', 'wav', 'ogg'];
-
         if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
-            $mediaType = 'image';
-        } elseif (in_array($extension, ['mp4', 'avi', 'mov', 'webm'])) {
-            $mediaType = 'video';
+            return 'image';
+        } elseif (in_array($extension, ['mp4', 'avi', 'mov', 'webm', 'mkv'])) {
+            return 'video';
         } elseif (in_array($extension, ['mp3', 'wav', 'ogg'])) {
-            $mediaType = 'audio';
+            return 'audio';
         } else {
-            $mediaType = 'none';
+            return 'none';
         }
-
-
-        // return 'none';
     }
+
 
     /**
      * Supprime l'ancien fichier média lors d'une mise à jour

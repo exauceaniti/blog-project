@@ -58,36 +58,45 @@ require_once 'views/includes/header.php';
             </div>
         <?php else: ?>
             <div class="articles-grid">
+
                 <?php foreach ($articlesRecents as $article): ?>
                     <article class="article-card">
                         <div class="article-media">
                             <?php if (!empty($article['media_path'])): ?>
-                                <?php $mediaUrl = media_url($article['media_path']); ?>
+                                <?php
+                                // Vérifie si media_path contient déjà 'assets/uploads/' pour éviter doublon
+                                $mediaUrl = strpos($article['media_path'], 'assets/uploads/') === 0
+                                    ? "/" . $article['media_path']   // déjà présent
+                                    : "/assets/uploads/" . $article['media_path'];
+                                ?>
+
                                 <?php if ($article['media_type'] === 'image'): ?>
-                                    <img src="<?= htmlspecialchars($mediaUrl) ?>" alt="<?= htmlspecialchars($article['titre']) ?>" class="article-image">
+                                    <img src="<?= htmlspecialchars($mediaUrl) ?>"
+                                        alt="<?= htmlspecialchars($article['titre']) ?>"
+                                        class="article-image"
+                                        onerror="this.style.display='none'">
+
                                 <?php elseif ($article['media_type'] === 'video'): ?>
                                     <div class="video-container">
                                         <video class="article-video" controls>
-                                            <source src="<?= htmlspecialchars($mediaUrl) ?>" type="video/mp4">
+                                            <source src="<?= htmlspecialchars($mediaUrl) ?>">
                                             Votre navigateur ne supporte pas la lecture vidéo.
                                         </video>
                                     </div>
+
                                 <?php elseif ($article['media_type'] === 'audio'): ?>
                                     <audio controls>
-                                        <source src="<?= htmlspecialchars($mediaUrl) ?>" type="audio/mpeg">
+                                        <source src="<?= htmlspecialchars($mediaUrl) ?>">
                                         Votre navigateur ne supporte pas la lecture audio.
                                     </audio>
                                 <?php endif; ?>
+
                             <?php else: ?>
-                                <?php
-                                $colors = ['#2563eb', '#7c3aed', '#dc2626', '#16a34a', '#ea580c'];
-                                $random_color = $colors[array_rand($colors)];
-                                ?>
-                                <div class="article-placeholder" style="background: linear-gradient(135deg, <?= $random_color ?>, #00000050);">
-                                    <span class="placeholder-icon">📄</span>
-                                </div>
+                                <!-- Placeholder si pas de média -->
+                                <div class="article-placeholder">📄</div>
                             <?php endif; ?>
                         </div>
+
 
                         <div class="article-content">
                             <div class="article-meta">
