@@ -80,13 +80,16 @@ require_once 'views/includes/header.php';
 
                                     <?php elseif ($article['media_type'] === 'video'): ?>
                                         <div class="video-container">
-                                            <video class="article-video"
-                                                controls
-                                                preload="metadata"
-                                                poster="/assets/video-placeholder.jpg">
-                                                <source src="<?= htmlspecialchars($mediaUrl) ?>#t=0.1" type="video/mp4">
-                                                Votre navigateur ne supporte pas la lecture vidéo.
+                                            <video controls>
+                                                <video class="article-video"
+                                                    controls
+                                                    preload="metadata"
+                                                    poster="/assets/video-placeholder.jpg">
+                                                    <source src="<?= htmlspecialchars($mediaUrl) ?>#t=0.1" type="video/mp4">
+                                                    Votre navigateur ne supporte pas la lecture vidéo.
+                                                </video>
                                             </video>
+
                                         </div>
 
                                     <?php elseif ($article['media_type'] === 'audio'): ?>
@@ -99,7 +102,7 @@ require_once 'views/includes/header.php';
                                     <?php endif; ?>
 
                                 <?php else: ?>
-                                    <div class="article-placeholder">📄</div>
+                                    <div class="article-placeholder"> 😂 </div>
                                 <?php endif; ?>
                             </div>
 

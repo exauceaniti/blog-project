@@ -51,11 +51,10 @@
                 <div class="footer-col">
                     <h4>Liens Rapides</h4>
                     <ul class="footer-links">
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Accueil</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Services</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Portfolio</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> À propos</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Contact</a></li>
+                        <li><a href="index.php"><i class="fas fa-chevron-right"></i> Accueil</a></li>
+                        <li><a href="/views/article.php"><i class="fas fa-chevron-right"></i>Articles</a></li>
+                        <li><a href="/views/login.php"><i class="fas fa-chevron-right"></i> connexion</a></li>
+                        <li><a href="/views/logout.php"><i class="fas fa-chevron-right"></i> Deconnexion</a></li>
                     </ul>
                 </div>
 

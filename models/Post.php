@@ -239,14 +239,14 @@ class Post
     public function ajouterArticle($titre, $contenu, $auteurId, $fichier = null)
     {
         $mediaFileName = null;
-        $mediaType = 'none';
+        $mediaType = 'video';
 
         if ($fichier && $fichier['error'] === UPLOAD_ERR_OK) {
             $mediaFileName = $this->uploadMedia($fichier);
             if ($mediaFileName) {
                 $mediaType = $this->determinerTypeMedia($mediaFileName); // renvoie 'image'|'video'|'audio'|'none'
                 if (!in_array($mediaType, ['image', 'video', 'audio', 'none'])) {
-                    $mediaType = 'none';
+                    $mediaType = 'video';
                 }
             }
         }
