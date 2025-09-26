@@ -62,65 +62,70 @@ require_once 'views/includes/header.php';
                 <?php foreach ($articlesRecents as $article): ?>
                     <article class="article-card">
                         <div class="article-media">
-                            <?php if (!empty($article['media_path'])): ?>
-                                <?php
-                                // Vérifie si media_path contient déjà 'assets/uploads/' pour éviter doublon
-                                $mediaUrl = strpos($article['media_path'], 'assets/uploads/') === 0
-                                    ? "/" . $article['media_path']   // déjà présent
-                                    : "/assets/uploads/" . $article['media_path'];
-                                ?>
+                            <!-- Dans votre boucle d'articles, remplacez la section media par : -->
+                            <div class="article-media">
+                                <?php if (!empty($article['media_path'])): ?>
+                                    <?php
+                                    $mediaUrl = strpos($article['media_path'], 'assets/uploads/') === 0
+                                        ? "/" . $article['media_path']
+                                        : "/assets/uploads/" . $article['media_path'];
+                                    ?>
 
-                                <?php if ($article['media_type'] === 'image'): ?>
-                                    <img src="<?= htmlspecialchars($mediaUrl) ?>"
-                                        alt="<?= htmlspecialchars($article['titre']) ?>"
-                                        class="article-image"
-                                        onerror="this.style.display='none'">
+                                    <?php if ($article['media_type'] === 'image'): ?>
+                                        <img src="<?= htmlspecialchars($mediaUrl) ?>"
+                                            alt="<?= htmlspecialchars($article['titre']) ?>"
+                                            class="article-image"
+                                            loading="lazy"
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
 
-                                <?php elseif ($article['media_type'] === 'video'): ?>
-                                    <div class="video-container">
-                                        <video class="article-video" controls>
-                                            <source src="<?= htmlspecialchars($mediaUrl) ?>">
-                                            Votre navigateur ne supporte pas la lecture vidéo.
-                                        </video>
-                                    </div>
+                                    <?php elseif ($article['media_type'] === 'video'): ?>
+                                        <div class="video-container">
+                                            <video class="article-video"
+                                                controls
+                                                preload="metadata"
+                                                poster="/assets/video-placeholder.jpg">
+                                                <source src="<?= htmlspecialchars($mediaUrl) ?>#t=0.1" type="video/mp4">
+                                                Votre navigateur ne supporte pas la lecture vidéo.
+                                            </video>
+                                        </div>
 
-                                <?php elseif ($article['media_type'] === 'audio'): ?>
-                                    <audio controls>
-                                        <source src="<?= htmlspecialchars($mediaUrl) ?>">
-                                        Votre navigateur ne supporte pas la lecture audio.
-                                    </audio>
+                                    <?php elseif ($article['media_type'] === 'audio'): ?>
+                                        <div class="audio-container">
+                                            <audio controls preload="none">
+                                                <source src="<?= htmlspecialchars($mediaUrl) ?>" type="audio/mpeg">
+                                                Votre navigateur ne supporte pas la lecture audio.
+                                            </audio>
+                                        </div>
+                                    <?php endif; ?>
+
+                                <?php else: ?>
+                                    <div class="article-placeholder">📄</div>
                                 <?php endif; ?>
-
-                            <?php else: ?>
-                                <!-- Placeholder si pas de média -->
-                                <div class="article-placeholder">📄</div>
-                            <?php endif; ?>
-                        </div>
-
-
-                        <div class="article-content">
-                            <div class="article-meta">
-                                <span class="article-category">Article</span>
-                                <span class="article-date"><?= date('d/m/Y', strtotime($article['date_publication'])); ?></span>
                             </div>
 
-                            <h3 class="article-title">
-                                <a href="/views/article.php?id=<?= $article['id'] ?>">
-                                    <?= htmlspecialchars($article['titre']) ?>
-                                </a>
-                            </h3>
+                            <div class="article-content">
+                                <div class="article-meta">
+                                    <span class="article-category">Article</span>
+                                    <span class="article-date"><?= date('d/m/Y', strtotime($article['date_publication'])); ?></span>
+                                </div>
 
-                            <p class="article-excerpt">
-                                <?= htmlspecialchars(mb_substr(strip_tags($article['contenu']), 0, 120)) ?>...
-                            </p>
+                                <h3 class="article-title">
+                                    <a href="/views/article.php?id=<?= $article['id'] ?>">
+                                        <?= htmlspecialchars($article['titre']) ?>
+                                    </a>
+                                </h3>
 
-                            <div class="article-footer">
-                                <span class="article-author">
-                                    Par <?= isset($article['auteur']) ? htmlspecialchars($article['auteur']) : "Auteur inconnu"; ?>
-                                </span>
-                                <a href="/views/article.php?id=<?= $article['id'] ?>" class="read-more">Lire la suite →</a>
+                                <p class="article-excerpt">
+                                    <?= htmlspecialchars(mb_substr(strip_tags($article['contenu']), 0, 120)) ?>...
+                                </p>
+
+                                <div class="article-footer">
+                                    <span class="article-author">
+                                        Par <?= isset($article['auteur']) ? htmlspecialchars($article['auteur']) : "Auteur inconnu"; ?>
+                                    </span>
+                                    <a href="/views/article.php?id=<?= $article['id'] ?>" class="read-more">Lire la suite →</a>
+                                </div>
                             </div>
-                        </div>
                     </article>
                 <?php endforeach; ?>
             </div>

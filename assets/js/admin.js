@@ -1,146 +1,177 @@
-// admin.js
-
-// Toggle add form
-document.addEventListener('DOMContentLoaded', function(){
-    const addBtn = document.getElementById('toggleAddForm');
-    if(addBtn){
-        addBtn.addEventListener('click', function(){
-            const addForm = document.getElementById('addForm');
-            addForm.style.display = (addForm.style.display === 'none' || addForm.style.display === '') ? 'block' : 'none';
-        });
-    }
-
-    // Sidebar toggle
-    const sbToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-    if(sbToggle && sidebar){
-        sbToggle.addEventListener('click', function(){
-            sidebar.classList.toggle('collapsed');
-            // change icon
-            sbToggle.querySelector('i').classList.toggle('fa-angle-double-right');
-        });
-    }
-
-    // Theme toggle
+// assets/js/admin.js
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion du thème
     const themeToggle = document.getElementById('themeToggle');
-    if(themeToggle){
-        themeToggle.addEventListener('click', function(){
-            const root = document.documentElement;
-            const cur = root.getAttribute('data-theme') || 'light';
-            const next = cur === 'dark' ? 'light' : 'dark';
-            root.setAttribute('data-theme', next);
-            localStorage.setItem('adminTheme', next);
-            themeToggle.querySelector('i').className = next === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    
+    themeToggle.addEventListener('click', function() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+    });
+    
+    function updateThemeIcon(theme) {
+        const icon = themeToggle.querySelector('i');
+        icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    
+    // Sidebar toggle
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('collapsed');
+        const icon = sidebarToggle.querySelector('i');
+        icon.className = sidebar.classList.contains('collapsed') ? 
+            'fas fa-angle-double-right' : 'fas fa-angle-double-left';
+    });
+    
+    // Gestion des formulaires
+    const toggleAddForm = document.getElementById('toggleAddForm');
+    const addForm = document.getElementById('addForm');
+    
+    if (toggleAddForm && addForm) {
+        toggleAddForm.addEventListener('click', function() {
+            const isVisible = addForm.style.display === 'block';
+            addForm.style.display = isVisible ? 'none' : 'block';
+            toggleAddForm.textContent = isVisible ? 'Afficher le formulaire' : 'Masquer le formulaire';
         });
     }
-
-    // apply saved theme
-    const saved = localStorage.getItem('adminTheme');
-    if(saved) document.documentElement.setAttribute('data-theme', saved);
-
-    // hide toasts after few seconds
+    
+    // Auto-hide toast
     const toast = document.getElementById('toast');
-    if(toast){
-        setTimeout(()=> {
-            toast.classList.add('fadeout');
-            setTimeout(()=> toast.remove(), 400);
-        }, 3000);
+    if (toast) {
+        setTimeout(() => {
+            toast.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
     }
 });
 
-// Preview media before upload
-function previewMedia(input){
+// Fonctions globales
+function toggleEditForm(articleId) {
+    const form = document.getElementById(`edit-form-${articleId}`);
+    form.classList.toggle('active');
+}
+
+function toggleArticleContent(articleId) {
+    const excerpt = document.querySelector(`[data-article-id="${articleId}"] .article-excerpt`);
+    const fullContent = document.querySelector(`[data-article-id="${articleId}"] .article-full-content`);
+    
+    if (excerpt && fullContent) {
+        const isVisible = fullContent.style.display === 'block';
+        excerpt.style.display = isVisible ? '-webkit-box' : 'none';
+        fullContent.style.display = isVisible ? 'none' : 'block';
+    }
+}
+
+function filterArticles(searchTerm) {
+    const articles = document.querySelectorAll('.article-card');
+    const term = searchTerm.toLowerCase();
+    
+    articles.forEach(article => {
+        const title = article.getAttribute('data-title');
+        const isVisible = title.includes(term);
+        article.style.display = isVisible ? 'block' : 'none';
+    });
+}
+
+function previewMedia(input) {
     const preview = document.getElementById('mediaPreview');
-    const inner = document.getElementById('previewInner');
-    if(input.files && input.files[0]){
+    const previewInner = document.getElementById('previewInner');
+    
+    if (input.files && input.files[0]) {
         const file = input.files[0];
         const reader = new FileReader();
-        reader.onload = function(e){
-            if(file.type.startsWith('image/')){
-                inner.innerHTML = `<img src="${e.target.result}" style="max-width:320px;border-radius:8px">`;
-            } else if(file.type.startsWith('video/')){
-                inner.innerHTML = `<video controls src="${e.target.result}" style="max-width:320px;border-radius:8px"></video>`;
-            } else if(file.type.startsWith('audio/')){
-                inner.innerHTML = `<audio controls src="${e.target.result}"></audio>`;
+        
+        reader.onload = function(e) {
+            previewInner.innerHTML = '';
+            
+            if (file.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '200px';
+                previewInner.appendChild(img);
+            } else if (file.type.startsWith('video/')) {
+                const video = document.createElement('video');
+                video.src = e.target.result;
+                video.controls = true;
+                video.style.maxWidth = '100%';
+                video.style.maxHeight = '200px';
+                previewInner.appendChild(video);
             } else {
-                inner.innerHTML = `<div>Fichier: ${file.name}</div>`;
+                previewInner.innerHTML = `<div class="audio-placeholder"><i class="fas fa-music"></i> Fichier audio</div>`;
             }
+            
             preview.style.display = 'block';
         };
+        
         reader.readAsDataURL(file);
     }
 }
 
-function clearPreview(){
+function clearPreview() {
     const preview = document.getElementById('mediaPreview');
-    const inner = document.getElementById('previewInner');
     const input = document.getElementById('mediaInput');
-    if(input) input.value = '';
-    if(inner) inner.innerHTML = '';
-    if(preview) preview.style.display = 'none';
+    
+    preview.style.display = 'none';
+    preview.innerHTML = '<div id="previewInner"></div>';
+    if (input) input.value = '';
 }
 
-// Toggle edit form
-function toggleEditForm(id){
-    const el = document.getElementById('edit-form-' + id);
-    if(!el) return;
-    el.classList.toggle('active');
-    el.scrollIntoView({behavior:'smooth', block:'center'});
-}
-
-// Toggle show full content (simple)
-function toggleArticleContent(id){
-    const card = document.querySelector(`[data-article-id='${id}']`);
-    if(!card) return;
-    const excerpt = card.querySelector('.article-excerpt');
-    const full = card.dataset.full || null;
-    if(!full){
-        // fetch full content? We already have it in the hidden form textarea - as fallback just expand
-        const textarea = card.querySelector('textarea');
-        if(textarea){
-            excerpt.innerHTML = textarea.value.replace(/\n/g, '<br>');
-        } else {
-            // fallback: remove ellipsis
-            excerpt.innerHTML = excerpt.innerHTML.replace('...', '');
-        }
-        card.dataset.full = excerpt.innerHTML;
+function toggleZoom(mediaSrc) {
+    const modal = document.getElementById('modalOverlay');
+    const modalInner = document.getElementById('modalInner');
+    
+    modalInner.innerHTML = '';
+    
+    if (mediaSrc.endsWith('.mp4') || mediaSrc.endsWith('.webm') || mediaSrc.includes('video')) {
+        const video = document.createElement('video');
+        video.src = mediaSrc;
+        video.controls = true;
+        video.autoplay = true;
+        video.style.maxWidth = '100%';
+        video.style.maxHeight = '80vh';
+        modalInner.appendChild(video);
     } else {
-        excerpt.innerHTML = full;
-        delete card.dataset.full;
+        const img = document.createElement('img');
+        img.src = mediaSrc;
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '80vh';
+        img.style.objectFit = 'contain';
+        modalInner.appendChild(img);
+    }
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    const modal = document.getElementById('modalOverlay');
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+    
+    // Pause video when closing
+    const video = modal.querySelector('video');
+    if (video) {
+        video.pause();
+        video.currentTime = 0;
     }
 }
 
-// Filter articles client-side
-function filterArticles(q){
-    q = (q || '').toLowerCase();
-    const cards = document.querySelectorAll('.article-card');
-    cards.forEach(c => {
-        const title = c.getAttribute('data-title') || '';
-        c.style.display = title.includes(q) ? '' : 'none';
-    });
-}
+// Fermer modal avec ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+});
 
-// Modal zoom handling (receives full media path)
-function toggleZoom(mediaSrc){
-    const overlay = document.getElementById('modalOverlay');
-    const inner = document.getElementById('modalInner');
-    if(!overlay || !inner) return;
-    inner.innerHTML = '';
-
-    if(/\.(jpe?g|png|webp|gif)$/i.test(mediaSrc) || mediaSrc.includes('image/')){
-        inner.innerHTML = `<img src="${mediaSrc}" style="max-width:100%;max-height:80vh;border-radius:8px">`;
-    } else if(/\.(mp4|webm|mov|mkv)$/i.test(mediaSrc) || mediaSrc.includes('video/')){
-        inner.innerHTML = `<video controls src="${mediaSrc}" style="width:100%;max-height:80vh;border-radius:8px"></video>`;
-    } else if(/\.(mp3|wav|ogg)$/i.test(mediaSrc) || mediaSrc.includes('audio/')){
-        inner.innerHTML = `<audio controls src="${mediaSrc}"></audio>`;
-    } else {
-        inner.innerHTML = `<div>Impossible d'afficher ce média</div>`;
-    }
-
-    overlay.classList.add('active');
-}
-
-function closeModal(){
-    const overlay = document.getElementById('modalOverlay');
-    if(overlay) overlay.classList.remove('active');
-}
+// Fermer modal en cliquant à l'extérieur
+document.getElementById('modalOverlay')?.addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});

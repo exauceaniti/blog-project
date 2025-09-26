@@ -71,6 +71,7 @@ class User
         return true;
     }
 
+
     /**
      * Connexion d'un utilisateur
      *

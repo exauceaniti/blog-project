@@ -49,12 +49,14 @@ body {
   color: var(--text-primary);
   line-height: 1.7;
   transition: all 0.3s ease;
+  overflow-x: hidden; /* Empêcher le débordement horizontal */
 }
 
 main {
   max-width: 800px;
   margin: 0 auto;
   padding: var(--spacing-md);
+  width: 100%;
 }
 
 /* Article principal */
@@ -65,16 +67,21 @@ main {
   padding: var(--spacing-md);
   margin-bottom: var(--spacing-md);
   border: 1px solid var(--border-color);
+  width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .post-title {
-  font-size: 2.5rem;
+  font-size: clamp(1.8rem, 4vw, 2.5rem); /* Responsive font size */
   font-weight: 800;
   margin-bottom: 1rem;
   background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1.2;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .post-meta {
@@ -85,6 +92,7 @@ main {
   border-bottom: 1px solid var(--border-color);
   color: var(--text-secondary);
   font-size: 0.9rem;
+  flex-wrap: wrap;
 }
 
 .post-author {
@@ -104,6 +112,7 @@ main {
 .post-media {
   margin: 2rem 0;
   text-align: center;
+  max-width: 100%;
 }
 
 .media-container {
@@ -170,22 +179,37 @@ main {
 .post-media audio {
   width: 100%;
   margin: 1rem 0;
+  max-width: 100%;
 }
 
-/* Contenu de l'article */
+/* === CORRECTION CRITIQUE DU CONTENU DE L'ARTICLE === */
 .post-content {
-  font-size: 1.1rem;
-  line-height: 1.8;
+  font-size: clamp(1rem, 2.5vw, 1.1rem); /* Taille de police responsive */
+  line-height: 1.7;
   color: var(--text-primary);
+  width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Garantir que tous les éléments du contenu respectent les limites */
+.post-content * {
+  max-width: 100%;
 }
 
 .post-content p {
   margin-bottom: 1.5rem;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .post-content h2, .post-content h3 {
   margin: 2rem 0 1rem 0;
   color: var(--primary-color);
+  word-break: break-word;
+  font-size: clamp(1.3rem, 3vw, 1.5rem);
 }
 
 .post-content blockquote {
@@ -194,6 +218,8 @@ main {
   margin: 1.5rem 0;
   font-style: italic;
   color: var(--text-secondary);
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Section commentaires */
@@ -203,16 +229,20 @@ main {
   box-shadow: var(--shadow);
   padding: var(--spacing-md);
   border: 1px solid var(--border-color);
+  width: 100%;
+  overflow-wrap: break-word;
 }
 
 .comments-title {
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--primary-color);
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
+  word-break: break-word;
 }
 
 /* Commentaires individuels */
@@ -223,6 +253,9 @@ main {
   margin-bottom: 1rem;
   border-left: 4px solid var(--accent-2);
   transition: transform 0.2s ease;
+  width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .comment:hover {
@@ -235,6 +268,8 @@ main {
   align-items: center;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .comment-author {
@@ -243,16 +278,21 @@ main {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  word-break: break-word;
 }
 
 .comment-date {
   color: var(--text-secondary);
   font-size: 0.8rem;
+  white-space: nowrap;
 }
 
 .comment-content {
   line-height: 1.6;
   color: var(--text-primary);
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 /* Formulaire commentaire */
@@ -260,6 +300,7 @@ main {
   margin-top: 2rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--border-color);
+  width: 100%;
 }
 
 #add-comment-btn {
@@ -272,6 +313,7 @@ main {
 .comment-form {
   margin-top: 1rem;
   animation: slideDown 0.3s ease;
+  width: 100%;
 }
 
 .comment-form textarea {
@@ -286,6 +328,9 @@ main {
   resize: vertical;
   transition: border-color 0.3s ease;
   margin-bottom: 1rem;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
 }
 
 .comment-form textarea:focus {
@@ -307,6 +352,8 @@ main {
   gap: 0.5rem;
   text-decoration: none;
   font-size: 1rem;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .btn-primary {
@@ -455,19 +502,37 @@ main {
   font-style: italic;
 }
 
-/* Responsive */
+/* === CORRECTIONS RESPONSIVE CRITIQUES === */
 @media (max-width: 768px) {
   main {
     padding: var(--spacing-sm);
+    max-width: 100%;
+  }
+  
+  .post {
+    padding: 1rem;
+    margin: 0.5rem;
+    width: calc(100% - 1rem);
   }
   
   .post-title {
-    font-size: 2rem;
+    font-size: 1.5rem;
+    line-height: 1.3;
   }
   
   .post-meta {
     flex-direction: column;
     gap: 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .post-content {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  
+  .post-content p {
+    margin-bottom: 1rem;
   }
   
   .comment-header {
@@ -488,16 +553,52 @@ main {
     max-width: 98vw;
     max-height: 98vh;
   }
+  
+  .comments-section {
+    padding: 1rem;
+    margin: 0.5rem;
+    width: calc(100% - 1rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .post {
+    padding: 0.75rem;
+    margin: 0.25rem;
+    width: calc(100% - 0.5rem);
+  }
+  
+  .post-title {
+    font-size: 1.3rem;
+  }
+  
+  .post-content {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  
+  .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .comment-form textarea {
+    font-size: 16px; /* Éviter le zoom sur iOS */
+  }
 }
 
 /* Styles pour le contenu enrichi */
 .post-content ul, .post-content ol {
   margin: 1rem 0;
-  padding-left: 2rem;
+  padding-left: 1.5rem;
+  overflow-wrap: break-word;
 }
 
 .post-content li {
   margin-bottom: 0.5rem;
+  word-break: break-word;
 }
 
 .post-content code {
@@ -506,6 +607,8 @@ main {
   border-radius: 4px;
   font-family: 'Courier New', monospace;
   font-size: 0.9em;
+  word-break: break-all;
+  overflow-wrap: break-word;
 }
 
 .post-content pre {
@@ -514,6 +617,17 @@ main {
   border-radius: var(--border-radius);
   overflow-x: auto;
   margin: 1.5rem 0;
+  max-width: 100%;
+}
+
+/* Empêcher les débordements horizontaux */
+.post-content img,
+.post-content video,
+.post-content iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem auto;
 }
 
 /* Effets de focus pour accessibilité */
@@ -541,9 +655,25 @@ main {
   box-shadow: var(--shadow);
   z-index: 1000;
   display: none;
+  max-width: 90%;
+  word-break: break-word;
+  text-align: center;
 }
 
 .notification.show {
   display: block;
   animation: slideDown 0.3s ease;
+}
+
+/* Garantir que les longs mots cassent */
+.force-break {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Prévenir les débordements sur tous les éléments textuels */
+h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
 }
