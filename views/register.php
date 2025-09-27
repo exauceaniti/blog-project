@@ -3,11 +3,17 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Si déjà connecté, on redirige vers dashboard
+// Redirection si déjà connecté
 if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
+    header("Location: /admin/dashboard.php");
     exit;
 }
+
+// Messages & données précédentes
+$errorMessage = $_SESSION['error_message'] ?? null;
+$successMessage = $_SESSION['success_message'] ?? null;
+$formData = $_SESSION['form_data'] ?? [];
+unset($_SESSION['error_message'], $_SESSION['success_message'], $_SESSION['form_data']);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -22,53 +28,51 @@ if (isset($_SESSION['user_id'])) {
 
 <body>
     <div class="register-container">
+
+        <!-- Toggle thème -->
         <button class="theme-toggle" id="themeToggle" aria-label="Changer le thème">
             <i class="fas fa-moon"></i>
         </button>
 
         <h2><i class="fas fa-user-plus"></i> Inscription</h2>
 
-        <?php if (isset($_GET['error'])): ?>
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <span><?= htmlspecialchars($_SESSION['error_message'] ?? 'Erreur lors de l\'inscription') ?></span>
-            </div>
-            <?php unset($_SESSION['error_message']); ?>
+        <!-- Messages -->
+        <?php if ($errorMessage): ?>
+            <div class="error-message"><i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($errorMessage) ?></div>
+        <?php endif; ?>
+        <?php if ($successMessage): ?>
+            <div class="success-message"><i class="fas fa-check-circle"></i> <?= htmlspecialchars($successMessage) ?></div>
         <?php endif; ?>
 
-        <?php if (isset($_GET['success'])): ?>
-            <div class="success-message">
-                <i class="fas fa-check-circle"></i>
-                <span>Inscription réussie ! Vous pouvez maintenant vous connecter.</span>
-            </div>
-        <?php endif; ?>
-
+        <!-- Formulaire -->
         <form id="registerForm" action="../controllers/UserController.php" method="POST">
             <input type="hidden" name="action" value="inscription">
 
+            <!-- Nom complet -->
             <div class="form-group">
                 <label for="nom"><i class="fas fa-user"></i> Nom complet</label>
                 <div class="input-container">
                     <input type="text" id="nom" name="nom" placeholder="Votre nom complet" required
-                        value="<?= htmlspecialchars($_SESSION['form_data']['nom'] ?? '') ?>">
+                        value="<?= htmlspecialchars($formData['nom'] ?? '') ?>">
                     <i class="fas fa-user input-icon"></i>
                 </div>
             </div>
 
+            <!-- Email -->
             <div class="form-group">
                 <label for="email"><i class="fas fa-envelope"></i> Email</label>
                 <div class="input-container">
                     <input type="email" id="email" name="email" placeholder="votre@email.com" required
-                        value="<?= htmlspecialchars($_SESSION['form_data']['email'] ?? '') ?>">
+                        value="<?= htmlspecialchars($formData['email'] ?? '') ?>">
                     <i class="fas fa-envelope input-icon"></i>
                 </div>
             </div>
 
+            <!-- Mot de passe -->
             <div class="form-group">
                 <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
                 <div class="password-container">
-                    <input type="password" id="password" name="password" placeholder="Votre mot de passe" required
-                        minlength="8">
+                    <input type="password" id="password" name="password" placeholder="Votre mot de passe" required minlength="8">
                     <i class="fas fa-lock input-icon"></i>
                     <button type="button" class="toggle-password" id="togglePassword" aria-label="Afficher le mot de passe">
                         <i class="fas fa-eye"></i>
@@ -82,6 +86,7 @@ if (isset($_SESSION['user_id'])) {
                 </div>
             </div>
 
+            <!-- Termes -->
             <div class="terms">
                 <input type="checkbox" id="terms" name="terms" required>
                 <label for="terms">
@@ -90,9 +95,7 @@ if (isset($_SESSION['user_id'])) {
                 </label>
             </div>
 
-            <button type="submit" id="submitBtn">
-                <i class="fas fa-user-plus"></i> Créer mon compte
-            </button>
+            <button type="submit" id="submitBtn"><i class="fas fa-user-plus"></i> Créer mon compte</button>
         </form>
 
         <div class="login-link">
@@ -101,130 +104,102 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
     <script>
-        // Gestion du thème sombre
-        const themeToggle = document.getElementById('themeToggle');
-        const currentTheme = localStorage.getItem('theme') || 'light';
-
-        // Appliquer le thème au chargement
-        if (currentTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-        }
-
-        // Basculer le thème
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-
+        document.addEventListener('DOMContentLoaded', function() {
+            // Thème clair/sombre
+            const themeToggle = document.getElementById('themeToggle');
+            const currentTheme = localStorage.getItem('theme') || 'light';
             if (currentTheme === 'dark') {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'light');
-                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-            } else {
                 document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
                 themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
             }
-        });
-
-        // Toggle mot de passe
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('password');
-
-        if (togglePassword && passwordInput) {
-            togglePassword.addEventListener('click', function() {
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-
-                const icon = this.querySelector('i');
-                icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
-
-                // Animation
-                this.style.transform = 'translateY(-50%) scale(0.9)';
-                setTimeout(() => {
-                    this.style.transform = 'translateY(-50%) scale(1)';
-                }, 150);
+            themeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                if (isDark) {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                }
             });
-        }
 
-        // Indicateur de force du mot de passe
-        passwordInput.addEventListener('input', function() {
-            const password = this.value;
-            const strengthFill = document.getElementById('strengthFill');
-            const strengthText = document.getElementById('strengthText');
+            // Toggle mot de passe
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                this.querySelector('i').className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+                passwordInput.focus();
+            });
 
-            let strength = 0;
+            // Force du mot de passe
+            passwordInput.addEventListener('input', function() {
+                const pwd = this.value;
+                const fill = document.getElementById('strengthFill');
+                const text = document.getElementById('strengthText');
+                let strength = 0;
+                if (pwd.length >= 8) strength++;
+                if (/[A-Z]/.test(pwd)) strength++;
+                if (/[0-9]/.test(pwd)) strength++;
+                if (/[^A-Za-z0-9]/.test(pwd)) strength++;
+                fill.className = 'strength-fill';
+                if (!pwd) {
+                    fill.style.width = '0%';
+                    text.textContent = 'Force du mot de passe';
+                } else if (strength <= 1) {
+                    fill.style.width = '33%';
+                    fill.classList.add('strength-weak');
+                    text.textContent = 'Faible';
+                } else if (strength <= 2) {
+                    fill.style.width = '66%';
+                    fill.classList.add('strength-medium');
+                    text.textContent = 'Moyen';
+                } else {
+                    fill.style.width = '100%';
+                    fill.classList.add('strength-strong');
+                    text.textContent = 'Fort';
+                }
+            });
 
-            // Critères de force
-            if (password.length >= 8) strength += 1;
-            if (/[A-Z]/.test(password)) strength += 1;
-            if (/[0-9]/.test(password)) strength += 1;
-            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-
-            // Mettre à jour l'affichage
-            strengthFill.className = 'strength-fill';
-
-            if (password.length === 0) {
-                strengthFill.style.width = '0%';
-                strengthText.textContent = 'Force du mot de passe';
-            } else if (strength <= 1) {
-                strengthFill.style.width = '33%';
-                strengthFill.classList.add('strength-weak');
-                strengthText.textContent = 'Faible';
-            } else if (strength <= 2) {
-                strengthFill.style.width = '66%';
-                strengthFill.classList.add('strength-medium');
-                strengthText.textContent = 'Moyen';
-            } else {
-                strengthFill.style.width = '100%';
-                strengthFill.classList.add('strength-strong');
-                strengthText.textContent = 'Fort';
-            }
-        });
-
-        // Validation du formulaire
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            const terms = document.getElementById('terms');
+            // Soumission formulaire
+            const form = document.getElementById('registerForm');
             const submitBtn = document.getElementById('submitBtn');
+            form.addEventListener('submit', function(e) {
+                const terms = document.getElementById('terms');
+                if (!terms.checked) {
+                    e.preventDefault();
+                    alert('Veuillez accepter les conditions d\'utilisation');
+                    terms.focus();
+                    return;
+                }
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création en cours...';
+                submitBtn.disabled = true;
+            });
 
-            if (!terms.checked) {
-                e.preventDefault();
-                alert('Veuillez accepter les conditions d\'utilisation');
-                terms.focus();
-                return;
-            }
-
-            // Animation de chargement
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création en cours...';
-            submitBtn.disabled = true;
-        });
-
-        // Animation d'entrée des éléments
-        document.addEventListener('DOMContentLoaded', function() {
-            const formElements = document.querySelectorAll('.form-group, .terms, button');
-            formElements.forEach((el, index) => {
-                el.style.opacity = '0';
+            // Animation champs
+            const elements = document.querySelectorAll('.form-group, .terms, button');
+            elements.forEach((el, i) => {
+                el.style.opacity = 0;
                 el.style.transform = 'translateY(20px)';
-
                 setTimeout(() => {
                     el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                    el.style.opacity = '1';
+                    el.style.opacity = 1;
                     el.style.transform = 'translateY(0)';
-                }, 100 + (index * 100));
+                }, 100 + i * 100);
             });
-        });
 
-        // Raccourci clavier : Entrée pour soumettre le formulaire
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-                const submitBtn = document.getElementById('submitBtn');
-                if (!submitBtn.disabled) {
-                    document.getElementById('registerForm').requestSubmit();
+            // Entrée = submit
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && !submitBtn.disabled) {
+                    form.requestSubmit();
                 }
-            }
+            });
         });
     </script>
 
-    <?php unset($_SESSION['form_data']); ?>
 </body>
 
 </html>

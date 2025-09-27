@@ -1,14 +1,10 @@
 <?php
-function media_url($mediaPath)
+function media_url($path)
 {
-    if (empty($mediaPath)) return '';
-    // if mediaPath already contains assets/uploads/ or starts with /assets/uploads/
-    $p = ltrim($mediaPath, '/');
-
-    if (strpos($p, 'assets/uploads/') === 0) {
-        return '/' . $p; // /assets/uploads/xxx
+    if (empty($path)) {
+        return null;
     }
-
-    // otherwise assume it's filename only
-    return '/assets/uploads/' . $p;
+    return strpos($path, 'assets/uploads/') === 0
+        ? "/" . $path
+        : "/assets/uploads/" . $path;
 }

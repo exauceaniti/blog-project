@@ -239,17 +239,15 @@ class Post
     public function ajouterArticle($titre, $contenu, $auteurId, $fichier = null)
     {
         $mediaFileName = null;
-        $mediaType = 'video';
+        $mediaType = 'none';
 
         if ($fichier && $fichier['error'] === UPLOAD_ERR_OK) {
             $mediaFileName = $this->uploadMedia($fichier);
             if ($mediaFileName) {
-                $mediaType = $this->determinerTypeMedia($mediaFileName); // renvoie 'image'|'video'|'audio'|'none'
-                if (!in_array($mediaType, ['image', 'video', 'audio', 'none'])) {
-                    $mediaType = 'video';
-                }
+                $mediaType = $this->determinerTypeMedia($mediaFileName);
             }
         }
+
 
         $sql = "INSERT INTO articles (titre, contenu, auteur_id, media_path, media_type, date_publication)
             VALUES (?, ?, ?, ?, ?, NOW())";
@@ -284,6 +282,7 @@ class Post
     public function modifierArticle($id, $titre, $contenu, $fichier = null)
     {
         // Initialisation des paramètres de base
+        $mediaType = 'none';
         $params = [$titre, $contenu];
         $sql = "UPDATE articles SET titre = ?, contenu = ?";
 

@@ -101,8 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 <div class="post-media">
                     <?php
                     $mediaPath = strpos($article['media_path'], 'assets/uploads/') === 0
-                        ? $article['media_path']
-                        : '/assets/uploads/' . $article['media_path'];
+                        ? "/" . $article['media_path']
+                        : "/assets/uploads/" . $article['media_path'];
+
                     ?>
 
                     <div class="media-container" onclick="toggleZoom(this)">

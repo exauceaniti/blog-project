@@ -129,7 +129,7 @@
         input[type="email"],
         input[type="password"] {
             width: 100%;
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            padding: 0.75rem 3rem 0.75rem 2.5rem;
             border: 2px solid var(--border-color);
             border-radius: var(--border-radius);
             font-size: 1rem;
@@ -151,6 +151,7 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-secondary);
+            z-index: 2;
         }
 
         .password-container {
@@ -169,9 +170,17 @@
             font-size: 1rem;
             padding: 0.5rem;
             transition: var(--transition);
+            z-index: 2;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
         }
 
         .toggle-password:hover {
+            background-color: rgba(124, 58, 237, 0.1);
             color: var(--primary-color);
         }
 
@@ -180,6 +189,8 @@
             justify-content: space-between;
             align-items: center;
             margin: 1.5rem 0;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .remember-me {
@@ -190,12 +201,15 @@
 
         .remember-me input[type="checkbox"] {
             accent-color: var(--primary-color);
+            width: 16px;
+            height: 16px;
         }
 
         .forgot-password {
             color: var(--primary-color);
             text-decoration: none;
             font-size: 0.9rem;
+            white-space: nowrap;
         }
 
         .forgot-password:hover {
@@ -227,6 +241,7 @@
         button[type="submit"]:disabled {
             opacity: 0.7;
             cursor: not-allowed;
+            transform: none;
         }
 
         .register-link {
@@ -273,4 +288,21 @@
 
         .login-container {
             animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1.5rem;
+            }
+
+            .remember-forgot {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
         }

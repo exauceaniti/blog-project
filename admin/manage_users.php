@@ -2,8 +2,8 @@
 // La classe ici gere la page d'administration des utilisateurs
 // Elle gere tout ce qui cadre avec les utilisateurs voir : ajout
 session_start();
-require_once '../classes/connexion.php';
-require_once '../classes/User.php';
+require_once '../config/connexion.php';
+require_once '../models/User.php';
 //connexion a la base de donnees
 
 $connexion = new Connexion();

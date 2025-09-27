@@ -3,7 +3,7 @@
 ## Description
 
 Ce projet est une application web de blog permettant de gérer des articles, des commentaires et des utilisateurs avec différents rôles (admin et user).
-L'objectif principal est de pratiquer le développement full-stack : gestion de la base de données, logique métier côté serveur en PHP, et interface utilisateur responsive.
+L'objectif principal est de pratiquer le développement complet en PHP: gestion de la base de données, logique métier côté serveur en PHP, et interface utilisateur responsive.
 
 ---
 
@@ -33,39 +33,39 @@ L'objectif principal est de pratiquer le développement full-stack : gestion de 
 
 <pre>
 
-├── admin
-│   ├── dashboard.php
-│   ├── manage_posts.php
-│   └── manage_users.php
-├── assets
-│   ├── css
-│   │   ├── footer.css
-│   │   ├── header.css
-│   │   └── index.css
-│   ├── js
-│   └── uploads
-│       └── 1758545229_11.webp
-├── config
-│   └── connexion.php
-├── controllers
-│   ├── CommentController.php
-│   ├── PostController.php
-│   └── UserController.php
-├── includes
+blog-project/
+├── admin/
+│   ├── dashboard.php
+│   ├── manage_posts.php
+│   └── manage_users.php
+├── assets/
+│   ├── css/
+│   │   ├── footer.css
+│   │   ├── header.css
+│   │   └── index.css
+│   ├── js/
+│   └── uploads/
+├── config/
+│   └── connexion.php
+├── controllers/
+│   ├── CommentController.php
+│   ├── PostController.php
+│   └── UserController.php
+├── includes/
 ├── index.php
-├── models
-│   ├── commentaire.php
-│   ├── Post.php
-│   └── User.php
-├── README.md
-└── views
-    ├── article.php
-    ├── includes
-    │   ├── footer.php
-    │   ├── functions.php
-    │   └── header.php
-    ├── login.php
-    └── register.php
+├── models/
+│   ├── Commentaire.php
+│   ├── Post.php
+│   └── User.php
+├── views/
+│   ├── article.php
+│   ├── includes/
+│   │   ├── footer.php
+│   │   ├── functions.php
+│   │   └── header.php
+│   ├── login.php
+│   └── register.php
+└── README.md
 
 </pre>
 
@@ -76,7 +76,8 @@ L'objectif principal est de pratiquer le développement full-stack : gestion de 
 - **PHP** : logique serveur, gestion des sessions, interactions avec la base de données.
 - **MySQL** : base de données relationnelle pour les articles, utilisateurs et commentaires.
 - **HTML / CSS** : interface utilisateur responsive et moderne.
-- **JavaScript** : interactions dynamiques (affichage formulaire commentaires).
+- **JavaScript** : interactions dynamiques (toggle mot de passe, force du mot de passe, animations)
+- **Font Awesome** : icônes modernes
 
 ---
 
@@ -85,9 +86,9 @@ L'objectif principal est de pratiquer le développement full-stack : gestion de 
 ### Prérequis
 
 - Serveur web (Apache. Nginx)
-- PHP 7.4
+- PHP ≥ 7.4
 - MySQL
-- Composer mais Optionelle
+- Composer mais (Optionelle)
 
 ### Étapes d'installation
 
@@ -162,6 +163,16 @@ Exécuter cette requête SQL pour créer un administrateur (mot de passe: "admin
 INSERT INTO utilisateurs (nom, email, password, role)
 VALUES ('Administrateur', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
 ```
+
+- (Mot de passe : admin123 – déjà hashé avec bcrypt)
+
+5. Démarrer le projet :
+
+- Placer le projet dans le dossier web (ex: htdocs pour XAMPP)
+
+- Lancer Apache et MySQL
+
+- Accéder à http://localhost/blog-project
 
 ## Utilisation
 
