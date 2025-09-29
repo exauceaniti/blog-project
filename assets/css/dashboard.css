@@ -918,3 +918,29 @@ textarea {
 .btn:hover {
     transform: translateY(-2px);
 }
+
+/* Ajoute dans ton CSS global ou dashboard.css */
+#articleModal,
+#modalOverlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.6);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+#articleModal.show,
+#modalOverlay.show {
+    display: flex;
+}
+.modal-content {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}

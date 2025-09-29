@@ -91,6 +91,13 @@ function sanitizeMediaPath($path)
 </head>
 
 <body>
+    <!-- Modal pour l'aperçu complet d'article -->
+    <div id="articleModal" class="modal-overlay" style="display:none;">
+        <div class="modal-content" id="articleModalContent">
+            <!-- Le contenu complet de l'article sera injecté ici -->
+            <button class="btn btn-secondary" onclick="closeArticleModal()" style="float:right;">Fermer</button>
+        </div>
+    </div>
     <div class="admin-wrapper">
 
         <!-- SIDEBAR -->
@@ -105,7 +112,7 @@ function sanitizeMediaPath($path)
                 <a href="/admin/dashboard.php" class="active"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a>
                 <a href="/admin/manage_posts.php"><i class="fas fa-newspaper"></i> Articles</a>
                 <a href="/admin/manage_users.php"><i class="fas fa-users"></i> Utilisateurs</a>
-                <a href="#"><i class="fas fa-comments"></i> Commentaires</a>
+                <a href="/admin/manage_comments.php"><i class="fas fa-comments"></i> Commentaires</a>
                 <a href="../index.php"><i class="fas fa-home"></i> Voir le site</a>
                 <a href="../views/logout.php"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
             </nav>
@@ -190,6 +197,7 @@ function sanitizeMediaPath($path)
             </section>
 
             <!-- ARTICLES LIST -->
+
             <section class="card">
                 <div class="card-header">
                     <h2><i class="fas fa-list-alt"></i> Articles (<?= count($articles) ?>)</h2>
@@ -232,13 +240,54 @@ function sanitizeMediaPath($path)
                                         <input type="hidden" name="id" value="<?= $article['id'] ?>">
                                         <button class="btn-danger" type="submit"><i class="fas fa-trash"></i> Supprimer</button>
                                     </form>
-                                    <button class="btn" type="button" onclick="toggleArticleContent(<?= $article['id'] ?>)"><i class="fas fa-eye"></i> Voir plus</button>
+                                    <button class="btn" type="button"
+                                        onclick="showArticleModal(
+                                <?= $article['id'] ?>,
+                                <?= json_encode($article['titre']) ?>,
+                                <?= json_encode($article['contenu']) ?>,
+                                <?= json_encode($article['media_type']) ?>,
+                                <?= json_encode($mediaPath) ?>
+                            )">
+                                        <i class="fas fa-eye"></i> Voir plus
+                                    </button>
                                 </div>
+
+                                <!-- Formulaire de modification caché -->
+                                <form class="edit-article-form" id="editForm-<?= $article['id'] ?>" action="" method="POST" enctype="multipart/form-data" style="display:none; margin-top:10px;">
+                                    <input type="hidden" name="action" value="modifier">
+                                    <input type="hidden" name="id" value="<?= $article['id'] ?>">
+                                    <div class="form-group">
+                                        <label for="titre-<?= $article['id'] ?>">Titre</label>
+                                        <input type="text" id="titre-<?= $article['id'] ?>" name="titre" value="<?= htmlspecialchars($article['titre']) ?>" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="contenu-<?= $article['id'] ?>">Contenu</label>
+                                        <textarea id="contenu-<?= $article['id'] ?>" name="contenu" rows="4" required><?= htmlspecialchars($article['contenu']) ?></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="media-<?= $article['id'] ?>">Changer le média (optionnel)</label>
+                                        <input type="file" id="media-<?= $article['id'] ?>" name="media" accept="image/*,video/*,audio/*">
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                        <button type="button" class="btn btn-secondary" onclick="toggleEditForm(<?= $article['id'] ?>)">Annuler</button>
+                                    </div>
+                                </form>
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
             </section>
+
+            <!-- Modale pour l'aperçu complet d'article -->
+            <div id="articleModal" class="modal-overlay" style="display:none;">
+                <div class="modal-content" id="articleModalContent">
+                    <!-- Le contenu complet de l'article sera injecté ici -->
+                    <button class="btn btn-secondary" onclick="closeArticleModal()" style="float:right;">Fermer</button>
+                </div>
+            </div>
+
+
 
             <footer class="admin-footer">
                 <small>&copy; <?= date('Y') ?> Exauce aniti • Dashboard</small>

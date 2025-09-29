@@ -175,3 +175,39 @@ document.addEventListener('keydown', function(e) {
 document.getElementById('modalOverlay')?.addEventListener('click', function(e) {
     if (e.target === this) closeModal();
 });
+
+// Aperçu complet d'article en modale
+function showArticleModal(id, titre, contenu, mediaType, mediaPath) {
+    const modal = document.getElementById('articleModal');
+    const modalContent = document.getElementById('articleModalContent');
+    let html = `<h3>${titre}</h3><div style="margin-bottom:1em;">${contenu.replace(/\n/g, '<br>')}</div>`;
+    if (mediaPath) {
+        if (mediaType === 'image') {
+            html += `<img src="${mediaPath}" alt="media" style="max-width:100%;margin-bottom:1em;">`;
+        } else if (mediaType === 'video') {
+            html += `<video src="${mediaPath}" controls style="max-width:100%;margin-bottom:1em;"></video>`;
+        } else if (mediaType === 'audio') {
+            html += `<audio src="${mediaPath}" controls style="width:100%;margin-bottom:1em;"></audio>`;
+        }
+    }
+    html += `<button class="btn btn-secondary" onclick="closeArticleModal()" style="float:right;">Fermer</button>`;
+    modalContent.innerHTML = html;
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeArticleModal() {
+    const modal = document.getElementById('articleModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Fermer la modale article avec ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeArticleModal();
+});
+
+// Fermer la modale article en cliquant à l'extérieur
+document.getElementById('articleModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeArticleModal();
+});

@@ -197,4 +197,28 @@ class User
     {
         session_destroy();
     }
+
+    //Methode pour modifier le role d'un utilisateur
+    // ...existing code...
+
+    public function changerRole($id, $nouveauRole)
+    {
+        $sql = "UPDATE utilisateurs SET role = ? WHERE id = ?";
+        $this->conn->executerRequete($sql, [$nouveauRole, $id]);
+    }
+
+
+    //Methode pour voir tout les Utilisateur
+    public function voirUtilisateurs()
+    {
+        $sql = "SELECT id, email, role FROM utilisateurs";
+        return $this->conn->executerRequete($sql)->fetchAll();
+    }
+
+    //Methode pour supprimer un utilisateur
+    public function supprimerUtilisateur($id)
+    {
+        $sql = "DELETE FROM utilisateurs WHERE id = ?";
+        $this->conn->executerRequete($sql, [$id]);
+    }
 }
