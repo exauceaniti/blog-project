@@ -181,11 +181,12 @@ class Post
      * @return object|false
      */
 
-    public function pagination($page)
+    public function getArticlesPagines($limit, $offset)
     {
-        $sql = "SELECT * FROM articles LIMIT ?, ?";
-        return $this->conn->executerRequete($sql, [($page - 1) * 5, 5]);
+        $sql = "SELECT * FROM articles ORDER BY publication_date DESC LIMIT ? OFFSET ?";
+        return $this->conn->executerRequete($sql, [$limit, $offset])->fetchAll();
     }
+
 
 
 

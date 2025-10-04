@@ -211,3 +211,10 @@ document.addEventListener('keydown', function(e) {
 document.getElementById('articleModal')?.addEventListener('click', function(e) {
     if (e.target === this) closeArticleModal();
 });
+
+function toggleEditForm(articleId) {
+    const form = document.getElementById(`editForm-${articleId}`);
+    if (form) {
+        form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+    }
+}

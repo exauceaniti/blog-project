@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
 
             case 'modifier':
-                $id = (int)($_POST['id'] ?? 0);
+                $id = (int) ($_POST['id'] ?? 0);
                 $titre = trim($_POST['titre'] ?? '');
                 $contenu = trim($_POST['contenu'] ?? '');
                 if ($id && $titre && $contenu) {
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
 
             case 'supprimer':
-                $id = (int)($_POST['id'] ?? 0);
+                $id = (int) ($_POST['id'] ?? 0);
                 if ($id) {
                     $postManager->supprimerArticle($id);
                     $toast = ['type' => 'success', 'message' => 'Article supprimé.'];
@@ -63,9 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ========================= RÉCUPÉRATION DES DONNÉES =========================
-$nbArticles = (int)$connexion->executerRequete("SELECT COUNT(*) FROM articles")->fetchColumn();
-$nbUsers = (int)$connexion->executerRequete("SELECT COUNT(*) FROM utilisateurs")->fetchColumn();
-$nbCommentaires = (int)$connexion->executerRequete("SELECT COUNT(*) FROM commentaires")->fetchColumn();
+$nbArticles = (int) $connexion->executerRequete("SELECT COUNT(*) FROM articles")->fetchColumn();
+$nbUsers = (int) $connexion->executerRequete("SELECT COUNT(*) FROM utilisateurs")->fetchColumn();
+$nbCommentaires = (int) $connexion->executerRequete("SELECT COUNT(*) FROM commentaires")->fetchColumn();
 $articles = $postManager->voirArticles();
 
 // Toast
@@ -74,7 +74,8 @@ unset($_SESSION['toast']);
 
 function sanitizeMediaPath($path)
 {
-    if (!$path) return '';
+    if (!$path)
+        return '';
     return (strpos($path, 'assets/uploads/') === 0) ? "../$path" : "../assets/uploads/$path";
 }
 
@@ -117,7 +118,8 @@ function sanitizeMediaPath($path)
                 <a href="../views/logout.php"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
             </nav>
             <div class="sidebar-footer">
-                <button id="sidebarToggle" class="btn-icon" title="Réduire le menu"><i class="fas fa-angle-double-left"></i></button>
+                <button id="sidebarToggle" class="btn-icon" title="Réduire le menu"><i
+                        class="fas fa-angle-double-left"></i></button>
             </div>
         </aside>
 
@@ -128,8 +130,10 @@ function sanitizeMediaPath($path)
                     <h1>Tableau de bord</h1>
                 </div>
                 <div class="topbar-right">
-                    <div class="user-welcome">Bienvenue, <strong><?= htmlspecialchars($_SESSION['username'] ?? 'Admin') ?></strong></div>
-                    <button class="theme-toggle btn-icon" id="themeToggle" title="Changer le thème"><i class="fas fa-moon"></i></button>
+                    <div class="user-welcome">Bienvenue,
+                        <strong><?= htmlspecialchars($_SESSION['username'] ?? 'Admin') ?></strong></div>
+                    <button class="theme-toggle btn-icon" id="themeToggle" title="Changer le thème"><i
+                            class="fas fa-moon"></i></button>
                 </div>
             </header>
 
@@ -177,11 +181,13 @@ function sanitizeMediaPath($path)
                         <input type="hidden" name="action" value="ajouter">
                         <div class="form-group">
                             <label for="titre">Titre</label>
-                            <input type="text" id="titre" name="titre" required maxlength="255" placeholder="Titre de votre article">
+                            <input type="text" id="titre" name="titre" maxlength="255"
+                                placeholder="Titre de votre article">
                         </div>
                         <div class="form-group">
                             <label for="contenu">Contenu</label>
-                            <textarea id="contenu" name="contenu" rows="6" required placeholder="Écrivez ici..."></textarea>
+                            <textarea id="contenu" name="contenu" rows="6" required
+                                placeholder="Écrivez ici..."></textarea>
                         </div>
                         <div class="form-group">
                             <label for="media">Ajouter un média</label>
@@ -202,7 +208,8 @@ function sanitizeMediaPath($path)
                 <div class="card-header">
                     <h2><i class="fas fa-list-alt"></i> Articles (<?= count($articles) ?>)</h2>
                     <div class="card-actions">
-                        <input type="search" id="searchInput" placeholder="Rechercher un titre..." oninput="filterArticles(this.value)">
+                        <input type="search" id="searchInput" placeholder="Rechercher un titre..."
+                            oninput="filterArticles(this.value)">
                     </div>
                 </div>
                 <div class="card-body articles-grid" id="articlesGrid">
@@ -211,18 +218,22 @@ function sanitizeMediaPath($path)
                     <?php else: ?>
                         <?php foreach ($articles as $article):
                             $mediaPath = sanitizeMediaPath($article['media_path']);
-                        ?>
-                            <div class="article-card" data-title="<?= htmlspecialchars(strtolower($article['titre'])) ?>" data-article-id="<?= $article['id'] ?>">
+                            ?>
+                            <div class="article-card" data-title="<?= htmlspecialchars(strtolower($article['titre'])) ?>"
+                                data-article-id="<?= $article['id'] ?>">
                                 <div class="article-top">
                                     <h3><?= htmlspecialchars($article['titre']) ?></h3>
-                                    <div class="meta-sub">Par <?= htmlspecialchars($article['auteur']) ?> • <?= date('d/m/Y', strtotime($article['date_publication'])) ?></div>
+                                    <div class="meta-sub">Par <?= htmlspecialchars($article['auteur']) ?> •
+                                        <?= date('d/m/Y', strtotime($article['date_publication'])) ?></div>
                                 </div>
 
                                 <?php if ($mediaPath): ?>
                                     <div class="article-media">
-                                        <div class="media-thumb" onclick="toggleZoom('<?= htmlspecialchars($mediaPath, ENT_QUOTES) ?>')">
+                                        <div class="media-thumb"
+                                            onclick="toggleZoom('<?= htmlspecialchars($mediaPath, ENT_QUOTES) ?>')">
                                             <?php if ($article['media_type'] === 'image'): ?>
-                                                <img src="<?= htmlspecialchars($mediaPath) ?>" alt="media" onerror="this.style.display='none'">
+                                                <img src="<?= htmlspecialchars($mediaPath) ?>" alt="media"
+                                                    onerror="this.style.display='none'">
                                             <?php elseif ($article['media_type'] === 'video'): ?>
                                                 <video src="<?= htmlspecialchars($mediaPath) ?>" muted loop playsinline></video>
                                             <?php elseif ($article['media_type'] === 'audio'): ?>
@@ -234,14 +245,15 @@ function sanitizeMediaPath($path)
                                 <?php endif; ?>
 
                                 <div class="article-actions">
-                                    <button class="btn-warning" onclick="toggleEditForm(<?= $article['id'] ?>)"><i class="fas fa-edit"></i> Modifier</button>
-                                    <form method="POST" onsubmit="return confirm('Supprimer cet article ?');" style="display:inline;">
+                                    <button class="btn-warning" onclick="toggleEditForm(<?= $article['id'] ?>)"><i
+                                            class="fas fa-edit"></i> Modifier</button>
+                                    <form method="POST" onsubmit="return confirm('Supprimer cet article ?');"
+                                        style="display:inline;">
                                         <input type="hidden" name="action" value="supprimer">
                                         <input type="hidden" name="id" value="<?= $article['id'] ?>">
                                         <button class="btn-danger" type="submit"><i class="fas fa-trash"></i> Supprimer</button>
                                     </form>
-                                    <button class="btn" type="button"
-                                        onclick="showArticleModal(
+                                    <button class="btn" type="button" onclick="showArticleModal(
                                 <?= $article['id'] ?>,
                                 <?= json_encode($article['titre']) ?>,
                                 <?= json_encode($article['contenu']) ?>,
@@ -253,24 +265,29 @@ function sanitizeMediaPath($path)
                                 </div>
 
                                 <!-- Formulaire de modification caché -->
-                                <form class="edit-article-form" id="editForm-<?= $article['id'] ?>" action="" method="POST" enctype="multipart/form-data" style="display:none; margin-top:10px;">
+                                <form class="edit-article-form" id="editForm-<?= $article['id'] ?>" action="" method="POST"
+                                    enctype="multipart/form-data" style="display:none; margin-top:10px;">
                                     <input type="hidden" name="action" value="modifier">
                                     <input type="hidden" name="id" value="<?= $article['id'] ?>">
                                     <div class="form-group">
                                         <label for="titre-<?= $article['id'] ?>">Titre</label>
-                                        <input type="text" id="titre-<?= $article['id'] ?>" name="titre" value="<?= htmlspecialchars($article['titre']) ?>" required>
+                                        <input type="text" id="titre-<?= $article['id'] ?>" name="titre"
+                                            value="<?= htmlspecialchars($article['titre']) ?>" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="contenu-<?= $article['id'] ?>">Contenu</label>
-                                        <textarea id="contenu-<?= $article['id'] ?>" name="contenu" rows="4" required><?= htmlspecialchars($article['contenu']) ?></textarea>
+                                        <textarea id="contenu-<?= $article['id'] ?>" name="contenu" rows="4"
+                                            required><?= htmlspecialchars($article['contenu']) ?></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label for="media-<?= $article['id'] ?>">Changer le média (optionnel)</label>
-                                        <input type="file" id="media-<?= $article['id'] ?>" name="media" accept="image/*,video/*,audio/*">
+                                        <input type="file" id="media-<?= $article['id'] ?>" name="media"
+                                            accept="image/*,video/*,audio/*">
                                     </div>
                                     <div class="form-actions">
                                         <button type="submit" class="btn btn-primary">Enregistrer</button>
-                                        <button type="button" class="btn btn-secondary" onclick="toggleEditForm(<?= $article['id'] ?>)">Annuler</button>
+                                        <button type="button" class="btn btn-secondary"
+                                            onclick="toggleEditForm(<?= $article['id'] ?>)">Annuler</button>
                                     </div>
                                 </form>
                             </div>

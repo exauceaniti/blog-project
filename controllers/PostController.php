@@ -1,177 +1,166 @@
 <?php
-session_start();
 
 require_once '../config/connexion.php';
 require_once '../models/Post.php';
-require_once '../models/User.php';
+require_once '../models/commentaire.php';
+require_once '..config/validator.php';
 
-$connexion = new Connexion();
-$post = new Post($connexion);
-$user = new User($connexion);
+class PostController
+{
+    private $postModel;
+    private $commentModel;
+    private $validator;
 
-// Vérification authentification
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(["error" => "Utilisateur non connecté"]);
-    exit;
-}
+    public function __construct($connexion)
+    {
+        $this->postModel = new Post($connexion);
+        $this->commentModel = new Commentaire($connexion);
+        $this->validator = new Validator();
+    }
 
-$action = $_POST['action'] ?? $_GET['action'] ?? null;
-
-switch ($action) {
-
-    case 'ajouter':
-        $titre = trim($_POST['titre'] ?? '');
-        $contenu = trim($_POST['contenu'] ?? '');
-        $fichierMedia = $_FILES['media'] ?? null;
-
-        if (empty($titre) || empty($contenu)) {
-            echo json_encode(["error" => "Titre ou contenu manquant"]);
-            exit;
+    /**
+     * Fonction de création d'article avec validation des données
+     */
+    public function create()
+    {
+        // Vérifier que l'utilisateur est connecté
+        if (!isset($_SESSION['user_id'])) {
+            // Redirection ou message d'erreur
+            echo "Vous devez être connecté pour publier un article.";
+            return;
         }
 
-        // Validation du fichier si présent
-        if ($fichierMedia && $fichierMedia['error'] !== UPLOAD_ERR_NO_FILE) {
-            if ($fichierMedia['error'] !== UPLOAD_ERR_OK) {
-                echo json_encode(["error" => "Erreur lors de l'upload du fichier"]);
-                exit;
-            }
+        // Récupérer les données du formulaire
+        $titre = $_POST['titre'] ?? '';
+        $contenu = $_POST['contenu'] ?? '';
+        $auteurId = $_SESSION['user_id'];
+        $mediaPath = null;
+        $mediaType = null;
 
-            // Taille max dynamique
-            $maxSize = 10 * 1024 * 1024; // 10MB par défaut
-            if (strpos($fichierMedia['type'], 'video') !== false) {
-                $maxSize = 50 * 1024 * 1024;
-            } elseif (strpos($fichierMedia['type'], 'audio') !== false) {
-                $maxSize = 15 * 1024 * 1024;
-            }
-
-            if ($fichierMedia['size'] > $maxSize) {
-                echo json_encode(["error" => "Fichier trop volumineux"]);
-                exit;
-            }
+        // Valider les champs texte
+        $errors = [];
+        if (!$this->validator->hasMinLength($titre, 5)) {
+            $errors[] = "Le titre doit contenir au moins 5 caractères.";
+        }
+        if (!$this->validator->hasMinLength($contenu, 20)) {
+            $errors[] = "Le contenu est trop court.";
         }
 
-        try {
-            $result = $post->ajouterArticle($titre, $contenu, $_SESSION['user_id'], $fichierMedia);
+        // Vérifier le média si présent
+        if (isset($_FILES['media']) && $_FILES['media']['error'] === UPLOAD_ERR_OK) {
+            $file = $_FILES['media'];
 
-            if ($result) {
-                // Si le formulaire a un flag "from_form", on redirige
-                if (!empty($_POST['from_form'])) {
-                    header("Location: ../index.php?success=1");
-                    exit;
+            if (!$this->validator->isValidFileType($file, ['image/jpeg', 'image/png', 'video/mp4'])) {
+                $errors[] = "Type de fichier non autorisé.";
+            }
+
+            if (!$this->validator->isValidFileSize($file, 5 * 1024 * 1024)) {
+                $errors[] = "Fichier trop volumineux (max 5 Mo).";
+            }
+
+            if (empty($errors)) {
+                $safeName = $this->validator->generateUniqueFileName($file['name']);
+                $destination = '../assets/uploads' . $safeName;
+
+                if (move_uploaded_file($file['tmp_name'], $destination)) {
+                    $mediaPath = 'uploads/' . $safeName;
+                    $mediaType = $file['type'];
+                } else {
+                    $errors[] = "Échec du téléchargement du fichier.";
                 }
-                echo json_encode(["success" => "Article ajouté avec succès"]);
-            } else {
-                echo json_encode(["error" => "Erreur lors de l'ajout de l'article"]);
-            }
-        } catch (Exception $e) {
-            echo json_encode(["error" => "Erreur: " . $e->getMessage()]);
-        }
-        break;
-
-    case 'modifier':
-        $id = $_POST['id'] ?? null;
-        $titre = trim($_POST['titre'] ?? '');
-        $contenu = trim($_POST['contenu'] ?? '');
-        $fichierMedia = $_FILES['media'] ?? null;
-
-        if (!$id || empty($titre) || empty($contenu)) {
-            echo json_encode(["error" => "ID, titre ou contenu manquant"]);
-            exit;
-        }
-
-        // Vérifier que l'article existe et appartient à l'utilisateur
-        $article = $post->getArticleById($id);
-        if (!$article || $article['auteur_id'] != $_SESSION['user_id']) {
-            echo json_encode(["error" => "Vous n'avez pas les droits pour modifier cet article"]);
-            exit;
-        }
-
-        if ($fichierMedia && $fichierMedia['error'] !== UPLOAD_ERR_NO_FILE) {
-            if ($fichierMedia['error'] !== UPLOAD_ERR_OK) {
-                echo json_encode(["error" => "Erreur lors de l'upload du fichier"]);
-                exit;
-            }
-
-            $maxSize = 10 * 1024 * 1024;
-            if (strpos($fichierMedia['type'], 'video') !== false) {
-                $maxSize = 50 * 1024 * 1024;
-            } elseif (strpos($fichierMedia['type'], 'audio') !== false) {
-                $maxSize = 15 * 1024 * 1024;
-            }
-
-            if ($fichierMedia['size'] > $maxSize) {
-                echo json_encode(["error" => "Fichier trop volumineux"]);
-                exit;
             }
         }
 
-        try {
-            $result = $post->modifierArticle($id, $titre, $contenu, $fichierMedia);
-
-            if ($result) {
-                echo json_encode(["success" => "Article modifié avec succès"]);
-            } else {
-                echo json_encode(["error" => "Erreur lors de la modification de l'article"]);
+        // Si erreurs, les afficher
+        if (!empty($errors)) {
+            foreach ($errors as $error) {
+                echo "<p>$error</p>";
             }
-        } catch (Exception $e) {
-            echo json_encode(["error" => "Erreur: " . $e->getMessage()]);
-        }
-        break;
-
-    case 'supprimer':
-        $id = $_POST['id'] ?? null;
-
-        if (!$id) {
-            echo json_encode(["error" => "ID manquant"]);
-            exit;
+            return;
         }
 
-        // Vérifier droits
-        $article = $post->getArticleById($id);
-        if (!$article || $article['auteur_id'] != $_SESSION['user_id']) {
-            echo json_encode(["error" => "Vous n'avez pas les droits pour supprimer cet article"]);
-            exit;
+        // Appeler le modèle pour ajouter l'article
+        $result = $this->postModel->ajouterArticle($titre, $contenu, $auteurId, $mediaPath, $mediaType);
+
+        if ($result) {
+            echo "Article publié avec succès.";
+            // Redirection possible
+        } else {
+            echo "Échec de la publication.";
         }
+    }
 
-        try {
-            $result = $post->supprimerArticle($id);
 
-            if ($result) {
-                echo json_encode(["success" => "Article supprimé avec succès"]);
-            } else {
-                echo json_encode(["error" => "Erreur lors de la suppression de l'article"]);
-            }
-        } catch (Exception $e) {
-            echo json_encode(["error" => "Erreur: " . $e->getMessage()]);
-        }
-        break;
 
-    case 'voir':
-        try {
-            $articles = $post->voirArticles();
-            echo json_encode(["success" => true, "articles" => $articles]);
-        } catch (Exception $e) {
-            echo json_encode(["error" => "Erreur: " . $e->getMessage()]);
-        }
-        break;
-
-    case 'rechercher':
-        $motCle = $_GET['motCle'] ?? '';
-
-        if (empty($motCle)) {
-            echo json_encode(["error" => "Mot-clé manquant"]);
-            exit;
-        }
-
-        try {
-            $resultats = $post->rechercherArticle($motCle);
-            echo json_encode(["success" => true, "resultats" => $resultats]);
-        } catch (Exception $e) {
-            echo json_encode(["error" => "Erreur: " . $e->getMessage()]);
-        }
-        break;
-
-    default:
-        echo json_encode(["error" => "Action non reconnue"]);
-        break;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Je mets ici toute la logique de contrôle à utiliser dans cette classe PostController.
+ *
+ * 1- create() → Reçoit les données du formulaire, valide les champs, vérifie le média, appelle ajouterArticle du modèle.
+ * 2- update($id) → Reçoit les nouvelles données + id, valide, vérifie le média, appelle modifierArticle.
+ * 3- delete($id) → Reçoit l’id, appelle supprimerArticle, gère la redirection ou le message de confirmation.
+ * 4- show($id) → Reçoit l’id, appelle voirArticle, transmet les données à la vue.
+ * 5- index() → Appelle getAllArticles, transmet la liste à la vue principale.
+ * 6- search($motCle) → Reçoit le mot-clé, appelle rechercherArticle, transmet les résultats à la vue.
+ * 7- byAuthor($auteurId) → Reçoit l’auteurId, appelle rechercherArticleParAuteur, transmet les articles à la vue.
+ * 8- count() → Appelle countAllArticles, retourne le nombre total pour statistiques ou dashboard.
+ * 9- countByAuthor($auteurId) → Reçoit l’auteurId, appelle countAllArticlesParAuteur, retourne le total pour cet auteur.
+ * 10- paginate($page, $limit) → Reçoit les paramètres de pagination, calcule l’offset, appelle getArticlesPagines, transmet les résultats à la vue.
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
