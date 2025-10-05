@@ -1,9 +1,8 @@
 <?php
-
 require_once '../config/connexion.php';
 require_once '../models/Post.php';
-require_once '../models/commentaire.php';
-require_once '..config/validator.php';
+require_once '../models/Commentaire.php';
+require_once '../config/Validator.php';
 
 class PostController
 {
@@ -19,148 +18,227 @@ class PostController
     }
 
     /**
-     * Fonction de création d'article avec validation des données
+     * 🔹 Fonction de création d’un article avec validation des données
      */
     public function create()
     {
-        // Vérifier que l'utilisateur est connecté
+        // 1. Je vérifie si l'utilisateur est connecté
         if (!isset($_SESSION['user_id'])) {
-            // Redirection ou message d'erreur
             echo "Vous devez être connecté pour publier un article.";
             return;
         }
 
-        // Récupérer les données du formulaire
-        $titre = $_POST['titre'] ?? '';
-        $contenu = $_POST['contenu'] ?? '';
-        $auteurId = $_SESSION['user_id'];
-        $mediaPath = null;
-        $mediaType = null;
+        // 2. Je nettoyer et récupérer les données du formulaire
+        $titre = htmlspecialchars(strip_tags(trim($_POST['titre'] ?? '')));
+        $contenu = htmlspecialchars(strip_tags(trim($_POST['contenu'] ?? '')));
+        $auteurId = $_SESSION['user_id'] ?? null;
+        $media = $_FILES['media'] ?? null;
 
-        // Valider les champs texte
-        $errors = [];
-        if (!$this->validator->hasMinLength($titre, 5)) {
-            $errors[] = "Le titre doit contenir au moins 5 caractères.";
-        }
-        if (!$this->validator->hasMinLength($contenu, 20)) {
-            $errors[] = "Le contenu est trop court.";
-        }
+        // 3 je valider les données avec la classe Validator
+        $errors = $this->validator->validateArticleData($titre, $contenu, $auteurId, $media);
 
-        // Vérifier le média si présent
-        if (isset($_FILES['media']) && $_FILES['media']['error'] === UPLOAD_ERR_OK) {
-            $file = $_FILES['media'];
-
-            if (!$this->validator->isValidFileType($file, ['image/jpeg', 'image/png', 'video/mp4'])) {
-                $errors[] = "Type de fichier non autorisé.";
-            }
-
-            if (!$this->validator->isValidFileSize($file, 5 * 1024 * 1024)) {
-                $errors[] = "Fichier trop volumineux (max 5 Mo).";
-            }
-
-            if (empty($errors)) {
-                $safeName = $this->validator->generateUniqueFileName($file['name']);
-                $destination = '../assets/uploads' . $safeName;
-
-                if (move_uploaded_file($file['tmp_name'], $destination)) {
-                    $mediaPath = 'uploads/' . $safeName;
-                    $mediaType = $file['type'];
-                } else {
-                    $errors[] = "Échec du téléchargement du fichier.";
-                }
-            }
-        }
-
-        // Si erreurs, les afficher
+        // 4 Si des erreurs existent → les afficher et arrêter
         if (!empty($errors)) {
             foreach ($errors as $error) {
-                echo "<p>$error</p>";
+                echo "<p style='color:red;'>$error</p> \n";
             }
             return;
         }
 
-        // Appeler le modèle pour ajouter l'article
+        // 5 je Préparer les variables pour l’insertion
+        $mediaPath = null;
+        $mediaType = null;
+
+        // 6 Si un fichier média est présent et valide
+        if ($media && $media['error'] === UPLOAD_ERR_OK) {
+
+            // Sécuriser le nom du fichier
+            $safeName = $this->validator->sanitizeFileName($media['name']);
+
+            // Générer un nom unique pour éviter les collisions
+            $uniqueName = $this->validator->generateUniqueFileName($safeName);
+
+            // Définir le chemin complet de stockage
+            $uploadDir = __DIR__ . '../assets/uploads/';
+            $mediaPath = $uploadDir . $uniqueName;
+            $mediaType = $media['type'];
+
+            // Créer le dossier de stockage si il n’existe pas
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            // Déplacer le fichier dans le dossier des uploads
+            if (!move_uploaded_file($media['tmp_name'], $mediaPath)) {
+                echo "Erreur lors de l’upload du fichier.";
+                return;
+            }
+
+            // Chemin à enregistrer dans la base de données (côté web)
+            $mediaPath = '/assets/uploads/' . $uniqueName;
+        }
+
+        // 7 J'Insérer les données dans la base
         $result = $this->postModel->ajouterArticle($titre, $contenu, $auteurId, $mediaPath, $mediaType);
 
-        if ($result) {
-            echo "Article publié avec succès.";
-            // Redirection possible
-        } else {
-            echo "Échec de la publication.";
-        }
+        // 8 Je Vérifier si l’insertion a réussi
+        echo $result ? "<p style='color:green;'>Article publié avec succès </p>" :
+            "<p style='color:red;'>Une erreur s’est produite lors de la publication.</p>";
+
+        // 9 Je rediriger vers la page principale
+        header('Location: index.php');
     }
 
 
 
+    /**
+     * Met à jour un article existant
+     * @method update
+     * @param int $id
+     * 
+     * Étapes :
+     * 1R écupérer les nouvelles données envoyées par le formulaire
+     * 2 Nettoyer les données (trim, strip_tags, htmlspecialchars)
+     * 3 Valider les données avec la classe Validator
+     * 4 Gérer le média (si un nouveau fichier a été uploadé)
+     * 5 Appeler la méthode du modèle pour mettre à jour dans la base
+     * 6 Rediriger ou retourner un message de confirmation
+     */
+    public function update($id)
+    {
+        // 1 Importer ton modèle et ton validateur
+        $validator = new Validator();
+        $postModel = new Post();
+
+        // 2 Récupération et nettoyage des données du formulaire
+        $titre = htmlspecialchars(strip_tags(trim($_POST['titre'] ?? '')));
+        $contenu = htmlspecialchars(strip_tags(trim($_POST['contenu'] ?? '')));
+        $auteurId = $_SESSION['user_id'] ?? null;
+
+        // Variables média (facultatives)
+        $mediaPath = null;
+        $mediaType = null;
+
+        // 3 Validation basique des champs texte
+        $errors = [];
+
+        if ($validator->isEmpty($titre)) {
+            $errors[] = "Le titre ne peut pas être vide.";
+        } elseif (!$validator->hasMinLength($titre, 3)) {
+            $errors[] = "Le titre doit contenir au moins 3 caractères.";
+        }
+
+        if ($validator->isEmpty($contenu)) {
+            $errors[] = "Le contenu ne peut pas être vide.";
+        } elseif (!$validator->hasMinLength($contenu, 10)) {
+            $errors[] = "Le contenu doit contenir au moins 10 caractères.";
+        }
+
+        // 4 Gestion du média (si un fichier a été uploadé)
+        if (isset($_FILES['media']) && $_FILES['media']['error'] === UPLOAD_ERR_OK) {
+            $file = $_FILES['media'];
+
+            // Vérifier le type MIME autorisé (exemple : image/png, image/jpeg)
+            $allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
+            if (!$validator->isValidFileType($file, $allowedTypes)) {
+                $errors[] = "Type de fichier non autorisé.";
+            }
+
+            // Vérifier la taille max (ex. 2 Mo)
+            if (!$validator->isValidFileSize($file, 10 * 1024 * 1024)) {
+                $errors[] = "Le fichier est trop volumineux (max : 10 Mo).";
+            }
+
+            // Si tout est bon, on nettoie le nom du fichier et on le sauvegarde
+            if (empty($errors)) {
+                $fileName = $validator->sanitizeFileName($file['name']);
+                $uniqueName = $validator->generateUniqueFileName($fileName);
+                $uploadPath = __DIR__ . '/../uploads/' . $uniqueName;
+
+                if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+                    $mediaPath = 'uploads/' . $uniqueName;
+                    $mediaType = mime_content_type($uploadPath);
+                } else {
+                    $errors[] = "Erreur lors du téléchargement du fichier.";
+                }
+            }
+        }
+
+        // 5 Si des erreurs existent, on arrête ici
+        if (!empty($errors)) {
+            // Tu peux les stocker dans la session pour les afficher ensuite
+            $_SESSION['errors'] = $errors;
+            header("Location: /admin/edit.php?id=" . $id);
+            exit;
+        }
+
+        // 6 Si tout est valide, on met à jour dans la base
+        $result = $postModel->modifierArticle($id, $titre, $contenu, $auteurId, $mediaPath, $mediaType);
+
+        // 7 Redirection ou message de confirmation
+        // if ($result) {
+        //     $_SESSION['success'] = "L’article a bien été mis à jour.";
+        //     header("Location: index.php");
+        // } else {
+        //     $_SESSION['errors'] = ["Une erreur est survenue lors de la mise à jour."];
+        //     header("Location: /admin/edit.php?id=" . $id);
+        // }
+
+        // exit;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * delete($id)
+     * → Supprime un article par son ID.
+     *   - Appelle $this->postModel->supprimerArticle($id)
+     *   - Gère la redirection ou message de confirmation
+     */
+
+    /**
+     * show($id)
+     * → Affiche un article spécifique avec ses commentaires
+     *   - Appelle $this->postModel->voirArticle($id)
+     *   - Transmet les données à la vue
+     */
+
+    /**
+     * index()
+     * → Liste tous les articles
+     *   - Appelle $this->postModel->getAllArticles()
+     *   - Transmet les données à la vue principale
+     */
+
+    /**
+     * search($motCle)
+     * → Recherche des articles selon un mot-clé
+     *   - Appelle $this->postModel->rechercherArticle($motCle)
+     */
+
+    /**
+     * byAuthor($auteurId)
+     * → Récupère les articles d’un auteur précis
+     */
+
+    /**
+     * count() et countByAuthor($auteurId)
+     * → Compte les articles totaux ou ceux d’un auteur pour statistiques/dashboard
+     */
+
+    /**
+     * paginate($page, $limit)
+     * → Récupère les articles page par page avec OFFSET/LIMIT
+     */
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Je mets ici toute la logique de contrôle à utiliser dans cette classe PostController.
- *
- * 1- create() → Reçoit les données du formulaire, valide les champs, vérifie le média, appelle ajouterArticle du modèle.
- * 2- update($id) → Reçoit les nouvelles données + id, valide, vérifie le média, appelle modifierArticle.
- * 3- delete($id) → Reçoit l’id, appelle supprimerArticle, gère la redirection ou le message de confirmation.
- * 4- show($id) → Reçoit l’id, appelle voirArticle, transmet les données à la vue.
- * 5- index() → Appelle getAllArticles, transmet la liste à la vue principale.
- * 6- search($motCle) → Reçoit le mot-clé, appelle rechercherArticle, transmet les résultats à la vue.
- * 7- byAuthor($auteurId) → Reçoit l’auteurId, appelle rechercherArticleParAuteur, transmet les articles à la vue.
- * 8- count() → Appelle countAllArticles, retourne le nombre total pour statistiques ou dashboard.
- * 9- countByAuthor($auteurId) → Reçoit l’auteurId, appelle countAllArticlesParAuteur, retourne le total pour cet auteur.
- * 10- paginate($page, $limit) → Reçoit les paramètres de pagination, calcule l’offset, appelle getArticlesPagines, transmet les résultats à la vue.
- */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
