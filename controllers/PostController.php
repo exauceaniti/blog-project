@@ -1,8 +1,10 @@
 <?php
-require_once '../config/connexion.php';
-require_once '../models/Post.php';
-require_once '../models/Commentaire.php';
-require_once '../config/Validator.php';
+require_once __DIR__ . '/../config/connexion.php';
+require_once __DIR__ . '/../models/Post.php';
+require_once __DIR__ . '/../models/commentaire.php';
+require_once __DIR__ . '/../config/validator.php';
+
+
 
 class PostController
 {
@@ -107,8 +109,9 @@ class PostController
     public function update($id)
     {
         // 1 Importer ton modèle et ton validateur
+        global $connexion;
+        $postModel = new Post($connexion);
         $validator = new Validator();
-        $postModel = new Post();
 
         // 2 Récupération et nettoyage des données du formulaire
         $titre = htmlspecialchars(strip_tags(trim($_POST['titre'] ?? '')));
