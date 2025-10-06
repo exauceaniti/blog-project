@@ -12,10 +12,9 @@ class PostController
 
     public function __construct($connexion)
     {
-        // Vérifier si on a un objet Connexion
-        if (!$connexion) {
-            $connexion = new Connexion();
-            $connexion = $connexion->connecter();
+        // ✅ On attend ici un objet Connexion, pas PDO
+        if (!$connexion instanceof Connexion) {
+            throw new Exception("Erreur : l'objet connexion doit être une instance de la classe Connexion.");
         }
 
         $this->postModel = new Post($connexion);
@@ -31,7 +30,8 @@ class PostController
     {
         if (!isset($_SESSION['user_id'])) {
             $_SESSION['errors'][] = "Vous devez être connecté pour publier un article.";
-            header('Location: index.php');
+            header('Location: /index.php');
+
             exit;
         }
 
@@ -43,7 +43,8 @@ class PostController
         $errors = $this->validator->validateArticleData($titre, $contenu, $auteurId, $media);
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
-            header('Location: index.php');
+            header('Location: /index.php');
+
             exit;
         }
 
@@ -54,7 +55,8 @@ class PostController
             $uploadResult = $this->handleMediaUpload($media);
             if (!$uploadResult['success']) {
                 $_SESSION['errors'][] = $uploadResult['error'];
-                header('Location: index.php');
+                header('Location: /index.php');
+
                 exit;
             }
             $mediaPath = $uploadResult['path'];
@@ -63,7 +65,8 @@ class PostController
 
         $result = $this->postModel->ajouterArticle($titre, $contenu, $auteurId, $mediaPath, $mediaType);
         $_SESSION['success'] = $result ? "Article publié avec succès." : "Erreur lors de la publication.";
-        header('Location: index.php');
+        header('Location: /index.php');
+
         exit;
     }
 
@@ -135,21 +138,16 @@ class PostController
      * @param int $offset Décalage pour la pagination
      * @return void
      */
-    public function index($page = 1)
+    public function getArticlesForPage($page = 1, $limit = 10)
     {
-        $limit = 10;
-        if ($page < 1)
-            $page = 1;
         $offset = ($page - 1) * $limit;
-
-        $articles = $this->postModel->getArticlesPagines($limit, $offset);
-        $totalArticles = $this->postModel->countAllArticles();
-        $totalPages = ceil($totalArticles / $limit);
-
-        require_once __DIR__ . '/../views/index.php';
+        return $this->postModel->getArticlesPagines($limit, $offset);
     }
 
-
+    public function getTotalArticles()
+    {
+        return $this->postModel->countAllArticles();
+    }
 
 
 
@@ -159,7 +157,8 @@ class PostController
     public function search($motCle)
     {
         $articles = $this->postModel->rechercherArticle($motCle);
-        require_once __DIR__ . '/../views/index.php';
+        require_once __DIR__ . '/../index.php';
+
     }
 
     /**
@@ -168,7 +167,8 @@ class PostController
     public function byAuthor($auteurId)
     {
         $articles = $this->postModel->rechercherArticleParAuteur($auteurId);
-        require_once __DIR__ . '/../views/index.php';
+        require_once __DIR__ . '/../index.php';
+
     }
 
     /**

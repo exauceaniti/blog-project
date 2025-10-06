@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../config/connexion.php';
+
 /**
  * Classe Post
  * 
@@ -8,38 +10,31 @@
 class Post
 {
     /**
-     * @var Connexion|PDO $conn Objet de connexion à la base de données
+     * @var Connexion $db Objet Connexion (qui gère PDO)
      */
-    private $conn;
+    private $db;
 
     /**
      * Constructeur
      * 
-     * @param object $connexion Objet Connexion ou PDO
+     * @param Connexion $connexion Instance de la classe Connexion
      * @throws Exception si la connexion n'est pas initialisée
      */
     public function __construct($connexion)
     {
-        if (!$connexion) {
-            throw new Exception("La connexion à la base de données n'est pas initialisée !");
+        if (!$connexion instanceof Connexion) {
+            throw new Exception("La connexion à la base de données doit être une instance de Connexion !");
         }
-        $this->conn = $connexion;
+        $this->db = $connexion;
     }
 
     /**
      * Ajouter un nouvel article
-     * 
-     * @param string $titre
-     * @param string $contenu
-     * @param int $auteurId
-     * @param string|null $mediaPath
-     * @param string|null $mediaType
-     * @return bool
      */
     public function ajouterArticle($titre, $contenu, $auteurId, $mediaPath = null, $mediaType = null): bool
     {
         $sql = "INSERT INTO articles (titre, contenu, auteur_id, media_path, media_type) VALUES (?, ?, ?, ?, ?)";
-        $stmt = $this->conn->executerRequete($sql, [$titre, $contenu, $auteurId, $mediaPath, $mediaType]);
+        $stmt = $this->db->executerRequete($sql, [$titre, $contenu, $auteurId, $mediaPath, $mediaType]);
         return $stmt->rowCount() > 0;
     }
 
@@ -48,8 +43,10 @@ class Post
      */
     public function modifierArticle($id, $titre, $contenu, $auteurId, $mediaPath = null, $mediaType = null): bool
     {
-        $sql = "UPDATE articles SET titre = ?, contenu = ?, auteur_id = ?, media_path = ?, media_type = ? WHERE id = ?";
-        $stmt = $this->conn->executerRequete($sql, [$titre, $contenu, $auteurId, $mediaPath, $mediaType, $id]);
+        $sql = "UPDATE articles 
+                SET titre = ?, contenu = ?, auteur_id = ?, media_path = ?, media_type = ? 
+                WHERE id = ?";
+        $stmt = $this->db->executerRequete($sql, [$titre, $contenu, $auteurId, $mediaPath, $mediaType, $id]);
         return $stmt->rowCount() > 0;
     }
 
@@ -59,7 +56,7 @@ class Post
     public function supprimerArticle($id): bool
     {
         $sql = "DELETE FROM articles WHERE id = ?";
-        $stmt = $this->conn->executerRequete($sql, [$id]);
+        $stmt = $this->db->executerRequete($sql, [$id]);
         return $stmt->rowCount() > 0;
     }
 
@@ -69,7 +66,7 @@ class Post
     public function voirArticle($id)
     {
         $sql = "SELECT * FROM articles WHERE id = ?";
-        return $this->conn->executerRequete($sql, [$id])->fetch();
+        return $this->db->executerRequete($sql, [$id])->fetch();
     }
 
     /**
@@ -78,12 +75,12 @@ class Post
     public function getAllArticles()
     {
         $sql = "SELECT 
-                    a.id, a.titre, a.contenu, a.media_path, a.media_type, a.publication_date,
+                    a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
                     au.nom AS auteur_nom, au.email AS auteur_email
                 FROM articles a
                 JOIN auteur au ON a.auteur_id = au.id
-                ORDER BY a.publication_date DESC";
-        return $this->conn->executerRequete($sql)->fetchAll();
+                ORDER BY a.date_publication DESC";
+        return $this->db->executerRequete($sql)->fetchAll();
     }
 
     /**
@@ -101,7 +98,7 @@ class Post
             $params[] = "%$word%";
         }
 
-        $sql = "SELECT a.id, a.titre, a.contenu, a.media_path, a.media_type, a.publication_date,
+        $sql = "SELECT a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
                        au.nom AS auteur_nom, au.email AS auteur_email
                 FROM articles a
                 JOIN auteur au ON a.auteur_id = au.id";
@@ -110,9 +107,9 @@ class Post
             $sql .= " WHERE " . implode(' OR ', $conditions);
         }
 
-        $sql .= " ORDER BY a.publication_date DESC";
+        $sql .= " ORDER BY a.date_publication DESC";
 
-        return $this->conn->executerRequete($sql, $params)->fetchAll();
+        return $this->db->executerRequete($sql, $params)->fetchAll();
     }
 
     /**
@@ -120,14 +117,14 @@ class Post
      */
     public function rechercherArticleParAuteur($auteurId)
     {
-        $sql = "SELECT a.id, a.titre, a.contenu, a.media_path, a.media_type, a.publication_date,
+        $sql = "SELECT a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
                        au.nom AS auteur_nom, au.email AS auteur_email
                 FROM articles a
                 JOIN auteur au ON a.auteur_id = au.id
                 WHERE a.auteur_id = ?
-                ORDER BY a.publication_date DESC";
+                ORDER BY a.date_publication DESC";
 
-        return $this->conn->executerRequete($sql, [$auteurId])->fetchAll();
+        return $this->db->executerRequete($sql, [$auteurId])->fetchAll();
     }
 
     /**
@@ -136,7 +133,7 @@ class Post
     public function countAllArticles(): int
     {
         $sql = "SELECT COUNT(*) FROM articles";
-        return (int) $this->conn->executerRequete($sql)->fetchColumn();
+        return (int) $this->db->executerRequete($sql)->fetchColumn();
     }
 
     /**
@@ -145,7 +142,7 @@ class Post
     public function countAllArticlesParAuteur($auteurId): int
     {
         $sql = "SELECT COUNT(*) FROM articles WHERE auteur_id = ?";
-        return (int) $this->conn->executerRequete($sql, [$auteurId])->fetchColumn();
+        return (int) $this->db->executerRequete($sql, [$auteurId])->fetchColumn();
     }
 
     /**
@@ -153,17 +150,23 @@ class Post
      */
     public function getArticlesPagines($limit, $offset)
     {
-        $sql = "SELECT a.id, a.titre, a.contenu, a.media_path, a.media_type, a.publication_date,
-                       au.nom AS auteur_nom, au.email AS auteur_email
-                FROM articles a
-                JOIN auteur au ON a.auteur_id = au.id
-                ORDER BY a.publication_date DESC
-                LIMIT ? OFFSET ?";
+        $pdo = $this->db->connecter();
 
-        $limit = (int) $limit;
-        $offset = (int) $offset;
-        $sql = "SELECT ... LIMIT $limit OFFSET $offset";
-        return $this->conn->executerRequete($sql)->fetchAll();
+        $sql = "SELECT 
+                a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
+                u.nom AS auteur_nom, u.email AS auteur_email
+            FROM articles a
+            JOIN utilisateurs u ON a.auteur_id = u.id
+            ORDER BY a.date_publication DESC
+            LIMIT :limit OFFSET :offset";
 
+        $requete = $pdo->prepare($sql);
+        $requete->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $requete->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $requete->execute();
+
+        return $requete->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
 }
