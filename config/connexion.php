@@ -31,7 +31,7 @@ class Connexion
     /**
      * @var PDO|null $connection Objet PDO représentant la connexion
      */
-    private $connection;
+    private PDO|null $connection = null;
 
     /**
      * Établir la connexion à la base de données

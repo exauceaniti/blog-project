@@ -112,6 +112,8 @@ class PostController
         exit;
     }
 
+
+
     /**
      * 🔹 Supprimer un article
      */
@@ -138,11 +140,12 @@ class PostController
      * @param int $offset Décalage pour la pagination
      * @return void
      */
-    public function getArticlesForPage($page = 1, $limit = 10)
+    public function getArticlesForPage(int $page = 1, int $limit = 10): array
     {
         $offset = ($page - 1) * $limit;
         return $this->postModel->getArticlesPagines($limit, $offset);
     }
+
 
     public function getTotalArticles()
     {
@@ -196,18 +199,20 @@ class PostController
      */
     private function handleMediaUpload($media)
     {
-        $safeName = $this->validator->sanitizeFileName($media['name']);
-        $uniqueName = $this->validator->generateUniqueFileName($safeName);
-        $uploadDir = __DIR__ . '/../assets/uploads/';
+        $uniqueName = $this->validator->generateUniqueFileName(
+            $this->validator->sanitizeFileName($media['name'])
+        );
 
+        $uploadDir = __DIR__ . '/../assets/uploads/';
         if (!file_exists($uploadDir))
             mkdir($uploadDir, 0777, true);
 
         $uploadPath = $uploadDir . $uniqueName;
+
         if (move_uploaded_file($media['tmp_name'], $uploadPath)) {
             return [
                 'success' => true,
-                'path' => '/assets/uploads/' . $uniqueName,
+                'path' => 'assets/uploads/' . $uniqueName,
                 'type' => mime_content_type($uploadPath),
                 'error' => ''
             ];
@@ -215,4 +220,6 @@ class PostController
 
         return ['success' => false, 'path' => '', 'type' => '', 'error' => 'Erreur lors du téléchargement du fichier.'];
     }
+
 }
+
