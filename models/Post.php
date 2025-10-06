@@ -2,210 +2,168 @@
 
 /**
  * Classe Post
- * @class Post
+ * 
+ * Gère toutes les opérations liées aux articles dans la base de données.
  */
 class Post
 {
     /**
-     * Constructeur de la classe Post
-     * @param object $connexion Objet de connexion à la base de données
+     * @var Connexion|PDO $conn Objet de connexion à la base de données
      */
-
     private $conn;
 
     /**
-     * Constructeur de la classe Post
-     * @param mixed $connexion
+     * Constructeur
+     * 
+     * @param object $connexion Objet Connexion ou PDO
+     * @throws Exception si la connexion n'est pas initialisée
      */
     public function __construct($connexion)
     {
+        if (!$connexion) {
+            throw new Exception("La connexion à la base de données n'est pas initialisée !");
+        }
         $this->conn = $connexion;
     }
 
-
     /**
-     * Ajouter un nouvelle article dans la base de donnees
-     * @methode ajouterArticle
-     * Dans cette methode on recupere le mediaPath deja uploade par le Controller
-     * @access public
+     * Ajouter un nouvel article
+     * 
      * @param string $titre
      * @param string $contenu
      * @param int $auteurId
      * @param string|null $mediaPath
      * @param string|null $mediaType
-     * @return object|false
+     * @return bool
      */
-    public function ajouterArticle($titre, $contenu, $auteurId, $mediaPath = null, $mediaType = null)
+    public function ajouterArticle($titre, $contenu, $auteurId, $mediaPath = null, $mediaType = null): bool
     {
-        // Ici, on reçoit le mediaPath déjà uploadé par le Controller
         $sql = "INSERT INTO articles (titre, contenu, auteur_id, media_path, media_type) VALUES (?, ?, ?, ?, ?)";
-        return $this->conn->executerRequete($sql, [$titre, $contenu, $auteurId, $mediaPath, $mediaType]);
+        $stmt = $this->conn->executerRequete($sql, [$titre, $contenu, $auteurId, $mediaPath, $mediaType]);
+        return $stmt->rowCount() > 0;
     }
 
-
-
     /**
-     * Modifie un article existant dans la base de données
-     * @method modifierArticle
-     * @access public
-     * @param int $id
-     * @param string $titre
-     * @param string $contenu
-     * @param int $auteurId
-     * @param string|null $mediaPath
-     * @param string|null $mediaType
-     * @return object|false
+     * Modifier un article existant
      */
-    public function modifierArticle($id, $titre, $contenu, $auteurId, $mediaPath = null, $mediaType = null)
+    public function modifierArticle($id, $titre, $contenu, $auteurId, $mediaPath = null, $mediaType = null): bool
     {
         $sql = "UPDATE articles SET titre = ?, contenu = ?, auteur_id = ?, media_path = ?, media_type = ? WHERE id = ?";
-        return $this->conn->executerRequete($sql, [$titre, $contenu, $auteurId, $mediaPath, $mediaType, $id]);
-
+        $stmt = $this->conn->executerRequete($sql, [$titre, $contenu, $auteurId, $mediaPath, $mediaType, $id]);
+        return $stmt->rowCount() > 0;
     }
 
-
-
     /**
-     * Supprimer definitivement un article de la base de donnees
-     * @method supprimerArticle
-     * @access public
-     * @param int $id seulement l'id de l'article a supprimer
-     * @return void 
+     * Supprimer un article par ID
      */
-
-    public function supprimerArticle($id): void
+    public function supprimerArticle($id): bool
     {
         $sql = "DELETE FROM articles WHERE id = ?";
-        $this->conn->executerRequete($sql, [$id]);
+        $stmt = $this->conn->executerRequete($sql, [$id]);
+        return $stmt->rowCount() > 0;
     }
 
-
     /**
-     * Voir un article par son id
-     * @method voirArticle
-     * @access public
-     * @param int $id
-     * @return object|false
+     * Voir un article par ID
      */
-
     public function voirArticle($id)
     {
         $sql = "SELECT * FROM articles WHERE id = ?";
-        return $this->conn->executerRequete($sql, [$id]);
+        return $this->conn->executerRequete($sql, [$id])->fetch();
     }
 
-
     /**
-     * Voir tous les articles de la base de donees 
-     * avec information sur l'auteur.
-     * @method getAllArticles
-     * @access public
-     * @return object|false
+     * Récupérer tous les articles avec info auteur
      */
-
     public function getAllArticles()
     {
-        $sql = "SELECT articles.id, articles.titre, articles.contenu, articles.media_path, articles.media_type, 
-        auteur.nom as auteur_nom, auteur.email as auteur_email,
-        FROM articles
-        JOIN auteur ON articles.auteur_id = auteur.id";
-        return $this->conn->executerRequete($sql);
+        $sql = "SELECT 
+                    a.id, a.titre, a.contenu, a.media_path, a.media_type, a.publication_date,
+                    au.nom AS auteur_nom, au.email AS auteur_email
+                FROM articles a
+                JOIN auteur au ON a.auteur_id = au.id
+                ORDER BY a.publication_date DESC";
+        return $this->conn->executerRequete($sql)->fetchAll();
     }
 
-
     /**
-     * Rechercher un article par son mot clef ou titre
-     * @method rechercherArticle
-     * @access public
-     * @param string $motClet
-     * @return object|false
+     * Rechercher articles par mot-clé (titre ou contenu)
      */
-
-    public function rechercherArticle($motClet)
+    public function rechercherArticle($motCle)
     {
-        $sql = "SELECT * FROM articles WHERE titre LIKE ? OR contenu LIKE ?";
-        return $this->conn->executerRequete($sql, ["%$motClet%", "%$motClet%"]);
+        $keywords = explode(' ', trim($motCle));
+        $conditions = [];
+        $params = [];
+
+        foreach ($keywords as $word) {
+            $conditions[] = "(a.titre LIKE ? OR a.contenu LIKE ?)";
+            $params[] = "%$word%";
+            $params[] = "%$word%";
+        }
+
+        $sql = "SELECT a.id, a.titre, a.contenu, a.media_path, a.media_type, a.publication_date,
+                       au.nom AS auteur_nom, au.email AS auteur_email
+                FROM articles a
+                JOIN auteur au ON a.auteur_id = au.id";
+
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(' OR ', $conditions);
+        }
+
+        $sql .= " ORDER BY a.publication_date DESC";
+
+        return $this->conn->executerRequete($sql, $params)->fetchAll();
     }
 
-
     /**
-     * Lire tout l'article d'un auteur
-     * @method rechercherArticleParAuteur
-     * @access public
-     * @param int $auteurId
-     * @return object|false
+     * Récupérer les articles d'un auteur
      */
-
     public function rechercherArticleParAuteur($auteurId)
     {
-        $sql = "SELECT * FROM articles WHERE auteur_id = ?";
-        return $this->conn->executerRequete($sql, [$auteurId]);
+        $sql = "SELECT a.id, a.titre, a.contenu, a.media_path, a.media_type, a.publication_date,
+                       au.nom AS auteur_nom, au.email AS auteur_email
+                FROM articles a
+                JOIN auteur au ON a.auteur_id = au.id
+                WHERE a.auteur_id = ?
+                ORDER BY a.publication_date DESC";
+
+        return $this->conn->executerRequete($sql, [$auteurId])->fetchAll();
     }
 
-
     /**
-     * compter tous les articles
-     * @method countAllArticles
-     * @access public
-     * @return int
+     * Compter tous les articles
      */
-
-    public function countAllArticles()
+    public function countAllArticles(): int
     {
         $sql = "SELECT COUNT(*) FROM articles";
-        return $this->conn->executerRequete($sql)->fetchColumn();
+        return (int) $this->conn->executerRequete($sql)->fetchColumn();
     }
 
-
     /**
-     * compter tous les articles d'un auteur
-     * @method countAllArticlesParAuteur
-     * @access public
-     * @param int $auteurId
-     * @return int
+     * Compter tous les articles d'un auteur
      */
-
-    public function countAllArticlesParAuteur($auteurId)
+    public function countAllArticlesParAuteur($auteurId): int
     {
         $sql = "SELECT COUNT(*) FROM articles WHERE auteur_id = ?";
-        return $this->conn->executerRequete($sql, [$auteurId])->fetchColumn();
+        return (int) $this->conn->executerRequete($sql, [$auteurId])->fetchColumn();
     }
 
-
-
     /**
-     * pagination
-     * @method pagination
-     * @access public
-     * @param int $page
-     * @return object|false
+     * Pagination des articles
      */
-
     public function getArticlesPagines($limit, $offset)
     {
-        $sql = "SELECT * FROM articles ORDER BY publication_date DESC LIMIT ? OFFSET ?";
-        return $this->conn->executerRequete($sql, [$limit, $offset])->fetchAll();
+        $sql = "SELECT a.id, a.titre, a.contenu, a.media_path, a.media_type, a.publication_date,
+                       au.nom AS auteur_nom, au.email AS auteur_email
+                FROM articles a
+                JOIN auteur au ON a.auteur_id = au.id
+                ORDER BY a.publication_date DESC
+                LIMIT ? OFFSET ?";
+
+        $limit = (int) $limit;
+        $offset = (int) $offset;
+        $sql = "SELECT ... LIMIT $limit OFFSET $offset";
+        return $this->conn->executerRequete($sql)->fetchAll();
+
     }
-
-
-
-
-
-    /**
-     * Je met ici tout ce qui est algorithme a utiliser dans cette classe.
-     * 1- Ajouter un article (ajouterArticle) Ok
-     * 2- Modifier un article (modifierArticle) Ok
-     * 3- Supprimer un article (supprimerArticle) Ok
-     * 4- Voir un article par son id (voirArticle) Ok
-     * 5- Voir tous les articles (getAllArticles) Ok
-     * 6- rechercher un article par son mot clef ou titre (rechercherArticle) prend en parametre $motClet. Ok
-     * 7- Lire tout l'article d'un auteur (rechercherArticleParAuteur) prend en parametre $auteurId Ok
-     * 8- compter tous les articles (countAllArticles) Ok
-     * 9- compter tous les articles d'un auteur (countAllArticlesParAuteur) prend en parametre $auteurId
-     * 10-pagination.
-     */
-
-
-
-
 }
