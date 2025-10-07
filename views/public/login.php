@@ -56,12 +56,14 @@ if (isset($_SESSION['user_id'])) {
                 <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
                 <div class="password-container">
                     <input type="password" id="password" name="password" placeholder="Votre mot de passe" required>
-                    <button type="button" class="toggle-password" id="togglePassword"><i class="fas fa-eye"></i></button>
+                    <button type="button" class="toggle-password" id="togglePassword"><i
+                            class="fas fa-eye"></i></button>
                 </div>
             </div>
 
             <div class="remember-forgot">
-                <label><input type="checkbox" name="remember" <?= isset($_COOKIE['remember_email']) ? 'checked' : '' ?>> Se souvenir de moi</label>
+                <label><input type="checkbox" name="remember" <?= isset($_COOKIE['remember_email']) ? 'checked' : '' ?>>
+                    Se souvenir de moi</label>
                 <a href="forgot-password.php">Mot de passe oublié ?</a>
             </div>
 

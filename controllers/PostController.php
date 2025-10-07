@@ -121,7 +121,7 @@ class PostController
     {
         $result = $this->postModel->supprimerArticle($id);
         $_SESSION['success'] = $result ? "Article supprimé." : "Erreur lors de la suppression.";
-        header("Location: index.php");
+        header("Location: dashboard.php");
         exit;
     }
 
@@ -142,8 +142,22 @@ class PostController
      */
     public function getArticlesForPage(int $page = 1, int $limit = 10): array
     {
+        $allArticles = $this->postModel->getAllArticles(); // récupère tous les articles
+        $total = count($allArticles);
+
+        // Calcul des offsets
         $offset = ($page - 1) * $limit;
-        return $this->postModel->getArticlesPagines($limit, $offset);
+
+        // Extraire uniquement les articles de la page
+        $articlesPage = array_slice($allArticles, $offset, $limit);
+
+        return $articlesPage;
+    }
+
+    public function getTotalPages(int $limit = 10): int
+    {
+        $totalArticles = $this->postModel->countAllArticles();
+        return (int) ceil($totalArticles / $limit);
     }
 
 

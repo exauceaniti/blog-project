@@ -74,14 +74,21 @@ class Post
      */
     public function getAllArticles()
     {
+        $pdo = $this->db->connecter();
+
         $sql = "SELECT 
-                    a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
-                    au.nom AS auteur_nom, au.email AS auteur_email
-                FROM articles a
-                JOIN auteur au ON a.auteur_id = au.id
-                ORDER BY a.date_publication DESC";
-        return $this->db->executerRequete($sql)->fetchAll();
+                a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
+                u.nom AS auteur_nom, u.email AS auteur_email
+            FROM articles a
+            JOIN utilisateurs u ON a.auteur_id = u.id
+            ORDER BY a.date_publication DESC";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
 
     /**
      * Rechercher articles par mot-clé (titre ou contenu)
@@ -144,29 +151,5 @@ class Post
         $sql = "SELECT COUNT(*) FROM articles WHERE auteur_id = ?";
         return (int) $this->db->executerRequete($sql, [$auteurId])->fetchColumn();
     }
-
-    /**
-     * Pagination des articles
-     */
-    public function getArticlesPagines($limit, $offset)
-    {
-        $pdo = $this->db->connecter();
-
-        $sql = "SELECT 
-                a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
-                u.nom AS auteur_nom, u.email AS auteur_email
-            FROM articles a
-            JOIN utilisateurs u ON a.auteur_id = u.id
-            ORDER BY a.date_publication DESC
-            LIMIT :limit OFFSET :offset";
-
-        $requete = $pdo->prepare($sql);
-        $requete->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $requete->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $requete->execute();
-
-        return $requete->fetchAll(PDO::FETCH_ASSOC);
-    }
-
 
 }
