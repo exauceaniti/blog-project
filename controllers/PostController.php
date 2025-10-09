@@ -22,16 +22,25 @@ class PostController
         $this->validator = new Validator();
     }
 
+    /**
+     * 🔹 Récupère un article par son ID (utilisé dans editPost.php)
+     */
+    public function getArticleById($id)
+    {
+        return $this->postModel->voirArticle($id);
+    }
+
+
 
     /**
-     * 🔹 Créer un article avec validation et upload média
+     * Créer un article avec validation et upload média
      */
     public function create()
     {
+        // Vérifier que l'utilisateur est connecté et a le droit de créer
         if (!isset($_SESSION['user_id'])) {
-            $_SESSION['errors'][] = "Vous devez être connecté pour publier un article.";
-            header('Location: /index.php');
-
+            $_SESSION['errors'][] = "Vous n'avez pas la permission de créer un article.";
+            header('Location: index.php?route=admin/manage_posts'); // redirige vers la page admin
             exit;
         }
 
@@ -40,56 +49,68 @@ class PostController
         $auteurId = $_SESSION['user_id'];
         $media = $_FILES['media'] ?? null;
 
+        //Validation des données
         $errors = $this->validator->validateArticleData($titre, $contenu, $auteurId, $media);
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
-            header('Location: /index.php');
-
+            header('Location: index.php?route=admin/create_post'); // reste sur le formulaire
             exit;
         }
 
-        // Upload média
+        // Upload média si présent
         $mediaPath = null;
         $mediaType = null;
         if ($media && $media['error'] === UPLOAD_ERR_OK) {
             $uploadResult = $this->handleMediaUpload($media);
             if (!$uploadResult['success']) {
                 $_SESSION['errors'][] = $uploadResult['error'];
-                header('Location: /index.php');
-
+                header('Location: index.php?route=admin/create_post');
                 exit;
             }
             $mediaPath = $uploadResult['path'];
             $mediaType = $uploadResult['type'];
         }
 
+        // Création de l'article
         $result = $this->postModel->ajouterArticle($titre, $contenu, $auteurId, $mediaPath, $mediaType);
-        $_SESSION['success'] = $result ? "Article publié avec succès." : "Erreur lors de la publication.";
-        header('Location: /index.php');
 
+        if ($result) {
+            $_SESSION['success'] = "Article publié avec succès.";
+        } else {
+            $_SESSION['errors'][] = "Erreur lors de la publication.";
+        }
+
+        // Redirection vers la gestion des articles
+        header('Location: index.php?route=admin/manage_posts');
         exit;
     }
 
+
     /**
-     * 🔹 Mettre à jour un article existant
+     * Mettre à jour un article existant
      */
     public function update($id)
     {
+        session_start();
+
         $titre = htmlspecialchars(strip_tags(trim($_POST['titre'] ?? '')));
         $contenu = htmlspecialchars(strip_tags(trim($_POST['contenu'] ?? '')));
         $auteurId = $_SESSION['user_id'] ?? null;
 
         $errors = [];
+
         if ($this->validator->isEmpty($titre) || !$this->validator->hasMinLength($titre, 3)) {
-            $errors[] = "Le titre est invalide.";
+            $errors[] = "Le titre doit comporter au moins 3 caractères.";
         }
+
         if ($this->validator->isEmpty($contenu) || !$this->validator->hasMinLength($contenu, 10)) {
-            $errors[] = "Le contenu est invalide.";
+            $errors[] = "Le contenu doit comporter au moins 10 caractères.";
         }
 
         // Upload média
         $mediaPath = null;
         $mediaType = null;
+
         if (isset($_FILES['media']) && $_FILES['media']['error'] === UPLOAD_ERR_OK) {
             $uploadResult = $this->handleMediaUpload($_FILES['media']);
             if (!$uploadResult['success']) {
@@ -102,16 +123,21 @@ class PostController
 
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
-            header("Location: index.php?id=$id");
+            header("Location: index.php?route=admin/edit_post&id=$id");
             exit;
         }
 
         $result = $this->postModel->modifierArticle($id, $titre, $contenu, $auteurId, $mediaPath, $mediaType);
-        $_SESSION['success'] = $result ? "Article mis à jour." : "Erreur lors de la mise à jour.";
-        header("Location: index.php?id=$id");
+
+        if ($result) {
+            $_SESSION['success'] = "Article mis à jour avec succès.";
+            header("Location: index.php?route=admin/manage_posts");
+        } else {
+            $_SESSION['errors'] = ["Erreur lors de la mise a jour."];
+            header("Location: index.php?route=admin/edit_post&id=$id");
+        }
         exit;
     }
-
 
 
     /**

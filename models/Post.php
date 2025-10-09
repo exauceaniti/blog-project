@@ -43,12 +43,22 @@ class Post
      */
     public function modifierArticle($id, $titre, $contenu, $auteurId, $mediaPath = null, $mediaType = null): bool
     {
-        $sql = "UPDATE articles 
-                SET titre = ?, contenu = ?, auteur_id = ?, media_path = ?, media_type = ? 
+        if ($mediaPath) {
+            $sql = "UPDATE articles 
+                SET titre = ?, contenu = ?, auteur_id = ?, media_path = ?, media_type = ?, updated_at = NOW()
                 WHERE id = ?";
-        $stmt = $this->db->executerRequete($sql, [$titre, $contenu, $auteurId, $mediaPath, $mediaType, $id]);
-        return $stmt->rowCount() > 0;
+            $params = [$titre, $contenu, $auteurId, $mediaPath, $mediaType, $id];
+        } else {
+            $sql = "UPDATE articles 
+                SET titre = ?, contenu = ?, auteur_id = ?, updated_at = NOW()
+                WHERE id = ?";
+            $params = [$titre, $contenu, $auteurId, $id];
+        }
+
+        $stmt = $this->db->executerRequete($sql, $params);
+        return $stmt && $stmt->rowCount() > 0;
     }
+
 
     /**
      * Supprimer un article par ID

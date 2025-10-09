@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once __DIR__ . '/../../config/connexion.php';
 require_once __DIR__ . '/../../controllers/PostController.php';
 
@@ -9,7 +10,10 @@ $postController = new PostController($connexion);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $postController->create();
 }
+error_log("DEBUG: Auteur ID = " . ($_SESSION['user_id'] ?? 'NULL'));
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -24,6 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h1>Créer un nouvel article</h1>
     <form action="" method="POST" enctype="multipart/form-data">
         <label for="titre">Titre :</label>
+        <input type="hidden" name="from_admin" value="1">
+
         <input type="text" name="titre" id="titre" required>
 
         <label for="contenu">Contenu :</label>

@@ -1,18 +1,4 @@
 <?php
-/**
- * Je mets ici toute la logique de validation à utiliser dans cette classe Validator.
- *
- * 1- isEmpty($value) → Vérifie si une valeur est vide ou non définie.
- * 2- isEmail($email) → Vérifie si une chaîne est un email valide.
- * 3- isNumeric($value) → Vérifie si une valeur est un nombre.
- * 4- hasMinLength($value, $min) → Vérifie si une chaîne atteint une longueur minimale.
- * 5- hasMaxLength($value, $max) → Vérifie si une chaîne ne dépasse pas une longueur maximale.
- * 6- isValidFileType($file, $allowedTypes) → Vérifie si le type MIME du fichier est autorisé.
- * 7- isValidFileSize($file, $maxSize) → Vérifie si la taille du fichier est inférieure à la limite.
- * 8- sanitizeFileName($name) → Nettoie le nom du fichier pour éviter les caractères dangereux.
- * 9- generateUniqueFileName($originalName) → Génère un nom unique pour éviter les conflits.
- * 10- validateArticleData($titre, $contenu, $auteurId, $media) → Regroupe toutes les validations nécessaires pour un article.
- */
 
 
 class Validator
