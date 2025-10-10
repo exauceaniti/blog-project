@@ -40,7 +40,7 @@ class PostController
         // Vérifier que l'utilisateur est connecté et a le droit de créer
         if (!isset($_SESSION['user_id'])) {
             $_SESSION['errors'][] = "Vous n'avez pas la permission de créer un article.";
-            header('Location: index.php?route=admin/manage_posts'); // redirige vers la page admin
+            header('Location: /index.php?route=admin/manage_posts'); // redirige vers la page admin
             exit;
         }
 

@@ -9,6 +9,8 @@ class User
         $this->conn = $connexion;
     }
 
+    // ========================= UTILISATEUR =========================
+
     /**
      * Récupérer un utilisateur par email
      */
@@ -71,13 +73,27 @@ class User
         session_destroy();
     }
 
+    // ========================= GESTION UTILISATEURS =========================
+
     /**
      * Récupérer tous les utilisateurs
      */
     public function voirUtilisateurs(): array
     {
-        $sql = "SELECT id, nom, email, role FROM utilisateurs";
+        $sql = "SELECT id, nom, email, role FROM utilisateurs ORDER BY id DESC";
         return $this->conn->executerRequete($sql)->fetchAll();
+    }
+
+    /**
+     * Compter tous les utilisateurs
+     * @return int
+     */
+    public function countAllUsers(): int
+    {
+        $sql = "SELECT COUNT(*) AS total FROM utilisateurs";
+        $stmt = $this->conn->executerRequete($sql);
+        $result = $stmt->fetch();
+        return $result['total'] ?? 0;
     }
 
     /**
@@ -97,6 +113,8 @@ class User
         $sql = "DELETE FROM utilisateurs WHERE id = ?";
         $this->conn->executerRequete($sql, [$id]);
     }
+
+    // ========================= ARTICLES ET COMMENTAIRES =========================
 
     /**
      * Créer un article pour l'utilisateur connecté

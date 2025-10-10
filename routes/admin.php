@@ -1,6 +1,7 @@
 <?php
+// admin.php
+session_start();
 require_once __DIR__ . '/../config/connexion.php';
-require_once __DIR__ . '/../controllers/AdminController.php';
 require_once __DIR__ . '/../controllers/PostController.php';
 
 $connexion = new Connexion();
@@ -8,6 +9,25 @@ $postController = new PostController($connexion);
 
 $page = $_GET['route'] ?? 'admin/dashboard';
 
+// --------------------------
+// TRAITEMENT DU FORMULAIRE
+// --------------------------
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Ajout d'un article
+    if (isset($_POST['ajouter-article'])) {
+        $postController->create();
+        // Après création d’un article
+        header('Location: /index.php?route=admin/manage_posts');
+        exit;
+
+    }
+
+    // Pour d'autres formulaires POST (édition, etc.) tu peux ajouter ici
+}
+
+// --------------------------
+// ROUTAGE DES VUES
+// --------------------------
 switch ($page) {
     case 'admin/login':
         require __DIR__ . '/../views/admin/login.php';
@@ -33,8 +53,7 @@ switch ($page) {
         $id = $_GET['id'] ?? null;
         if ($id) {
             $postController->delete($id);
-            // Après suppression, on revient à la liste
-            header('Location: index.php?route=admin/manage_posts');
+            header('Location: /index.php?route=admin/manage_posts');
             exit;
         } else {
             echo "<p>ID d'article manquant pour suppression.</p>";
