@@ -4,7 +4,7 @@
  * @file UserController.php
  * @description Contrôleur principal pour la gestion de l'authentification utilisateur
  * @author Exauce Aniti
- * @version 1.2
+ * @version 1.3
  * @date 2025
  */
 
@@ -35,10 +35,12 @@ class UserController
         $result = $this->user->seConnecter($email, $password);
 
         if ($result) {
-            $_SESSION['user_id'] = $result['id'];
-            $_SESSION['username'] = $result['nom'] ?? '';
-            $_SESSION['email'] = $result['email'];
-            $_SESSION['role'] = $result['role'] ?? 'user';
+            $_SESSION['user'] = [
+                'id' => $result['id'],
+                'nom' => $result['nom'] ?? '',
+                'email' => $result['email'],
+                'role' => $result['role'] ?? 'user',
+            ];
 
             // Cookie “Se souvenir de moi”
             if ($remember) {
@@ -47,89 +49,60 @@ class UserController
                 setcookie('remember_email', '', time() - 3600, '/', '', false, true);
             }
 
-            return ['success' => true, 'role' => $_SESSION['role']];
+            return ['success' => true, 'role' => $_SESSION['user']['role']];
         }
 
         return ['success' => false, 'message' => 'Email ou mot de passe incorrect !'];
     }
 
     // ========================= MÉTHODE DE DÉCONNEXION =========================
-    public function logout(): void
+    public function logout(): array
     {
         session_unset();
         session_destroy();
-        header('Location: ../views/login.php');
-        exit;
+        return ['success' => true];
     }
 
     // ========================= MÉTHODE D'INSCRIPTION =========================
-    public function register(string $nom, string $email, string $password): bool
+    public function register(string $nom, string $email, string $password): array
     {
         $nom = trim($nom);
         $email = trim($email);
         $password = trim($password);
 
         if (empty($nom) || empty($email) || empty($password)) {
-            $_SESSION['error_message'] = 'Tous les champs sont obligatoires !';
-            return false;
+            return ['success' => false, 'message' => 'Tous les champs sont obligatoires !'];
         }
 
-        return $this->user->sInscrire($email, $password, $nom);
+        $result = $this->user->sInscrire($email, $password, $nom);
+        if ($result) {
+            return ['success' => true, 'message' => 'Compte créé avec succès.'];
+        }
+
+        return ['success' => false, 'message' => 'Cet email est déjà utilisé !'];
     }
 
     // ========================= GESTIONNAIRE DE REQUÊTES =========================
-    public function handleRequest(): void
+    public function handleRequest(): array
     {
         $action = $_POST['action'] ?? null;
 
         switch ($action) {
             case 'connexion':
                 $remember = isset($_POST['remember']);
-                $loginResult = $this->login($_POST['email'] ?? '', $_POST['password'] ?? '', $remember);
-
-                if ($loginResult['success']) {
-                    // Redirection possible
-                    $redirect = $_SESSION['redirect_url'] ??
-                        (($loginResult['role'] === 'admin') ? '/admin/dashboard.php' : '/index.php');
-                    unset($_SESSION['redirect_url']);
-                    header('Location: ' . $redirect);
-                } else {
-                    $_SESSION['form_data']['email'] = $_POST['email'] ?? '';
-                    $_SESSION['error_message'] = $loginResult['message'];
-                    header('Location: ../views/login.php?error=1');
-                }
-                exit;
+                return $this->login($_POST['email'] ?? '', $_POST['password'] ?? '', $remember);
 
             case 'deconnexion':
-                $this->logout();
-                break;
+                return $this->logout();
 
             case 'inscription':
                 $nom = $_POST['nom'] ?? '';
                 $email = $_POST['email'] ?? '';
                 $password = $_POST['password'] ?? '';
-
-                if ($this->register($nom, $email, $password)) {
-                    // Connexion automatique après inscription
-                    $loginResult = $this->login($email, $password);
-                    if ($loginResult['success']) {
-                        $_SESSION['success_message'] = 'Félicitations ! Votre compte a été créé avec succès.';
-                        header('Location: /index.php?success=1');
-                    } else {
-                        $_SESSION['error_message'] = 'Compte créé mais problème de connexion automatique.';
-                        header('Location: ../views/login.php');
-                    }
-                } else {
-                    $_SESSION['form_data'] = $_POST;
-                    $_SESSION['error_message'] = 'Cet email est déjà utilisé ou champs invalides !';
-                    header('Location: ../views/register.php?error=1');
-                }
-                exit;
+                return $this->register($nom, $email, $password);
 
             default:
-                $_SESSION['error_message'] = 'Action non reconnue !';
-                header('Location: ../views/login.php');
-                exit;
+                return ['success' => false, 'message' => 'Action non reconnue !'];
         }
     }
 }
@@ -138,8 +111,10 @@ class UserController
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $connexion = new Connexion();
     $controller = new UserController($connexion);
-    $controller->handleRequest();
-} else {
-    header('Location: ../views/login.php');
+    $result = $controller->handleRequest();
+
+    // 🔹 Retourner les résultats au format JSON pour que le routeur ou index.php gère la suite
+    header('Content-Type: application/json');
+    echo json_encode($result);
     exit;
 }
