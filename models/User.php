@@ -45,7 +45,13 @@ class User
     {
         $user = $this->getByEmail($email);
         if ($user && password_verify($password, $user['password'])) {
-            session_regenerate_id(true);
+            // ✅ Assurer que la session est active
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+
+            session_regenerate_id(true); // régénère l'ID pour la sécurité
+
             $_SESSION['user'] = [
                 'id' => $user['id'],
                 'nom' => $user['nom'],
@@ -56,6 +62,7 @@ class User
         }
         return false;
     }
+
 
     /**
      * Vérifie si un utilisateur est connecté

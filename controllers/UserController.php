@@ -8,7 +8,6 @@
  * @date 2025
  */
 
-session_start();
 
 require_once __DIR__ . '/../config/connexion.php';
 require_once __DIR__ . '/../models/User.php';

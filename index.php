@@ -1,62 +1,40 @@
 <?php
 
-// ===============================
-// 🔹 Inclusion des fichiers de base
-// ===============================
+session_start();
 require_once __DIR__ . '/config/connexion.php';
 require_once __DIR__ . '/models/User.php';
-require_once __DIR__ . '/controllers/UserController.php';
-require_once __DIR__ . '/config/validator.php';
 
-// ===============================
-// 🔹 Initialisation
-// ===============================
 $connexion = new Connexion();
 $userModel = new User($connexion);
 
-$isLoggedIn = isset($_SESSION['user']);
-$userRole = $isLoggedIn ? $_SESSION['user']['role'] : null;
-
-// ===============================
-// 🔹 Détection de la route demandée
-// ===============================
-$route = $_GET['route'] ?? 'public/home'; // route par défaut
-
-// Nettoyage de la route
+// Récupération de la route
+$route = $_GET['route'] ?? 'public/home';
 $route = trim($route, '/');
 
-// ===============================
-// 🔹 Gestion des accès et redirections globales
-// ===============================
-
-// Si utilisateur NON connecté et tente d’accéder à une zone protégée admin
-if (str_starts_with($route, 'admin/') && !$isLoggedIn) {
-    $_SESSION['errors'] = ["Veuillez vous connecter pour accéder à l'administration."];
-    header('Location: index.php?route=public/login');
-    exit;
+// Sécurité admin
+if (str_starts_with($route, 'admin/') && (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin')) {
+    $route = 'admin/login';
 }
 
-// Si utilisateur connecté mais n’est pas admin et tente une route admin
-if (str_starts_with($route, 'admin/') && $userRole !== 'admin') {
-    $_SESSION['errors'] = ["Accès refusé : vous n’êtes pas administrateur."];
-    header('Location: index.php?route=public/home');
-    exit;
+// Charger les routes
+$routes = require_once __DIR__ . '/routes.php';
+
+// Vérifier si la route existe
+if (!array_key_exists($route, $routes)) {
+    die("404 - Route non trouvée");
 }
 
-// Si utilisateur connecté et essaie d’aller sur login/register
-if ($isLoggedIn && in_array($route, ['public/login', 'public/register'])) {
-    $redirect = ($userRole === 'admin')
-        ? 'index.php?route=admin/dashboard'
-        : 'index.php?route=public/home';
-    header('Location: ' . $redirect);
-    exit;
-}
+// Extraire le contrôleur et la méthode
+$controllerName = $routes[$route]['controller'];
+$methodName = $routes[$route]['method'];
 
-// ===============================
-// 🔹 Inclusion dynamique selon le type de route
-// ===============================
-if (str_starts_with($route, 'admin/')) {
-    require_once __DIR__ . '/routes/admin.php';
+// Charger le contrôleur
+require_once __DIR__ . "/controllers/{$controllerName}.php";
+$controller = new $controllerName($connexion);
+
+// Appeler la méthode
+if (method_exists($controller, $methodName)) {
+    $controller->$methodName();
 } else {
-    require_once __DIR__ . '/routes/public.php';
+    die("Erreur : méthode '$methodName' introuvable dans '$controllerName'");
 }

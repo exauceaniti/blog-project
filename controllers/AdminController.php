@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../config/connexion.php';
 
+
+//Classe Principale 
 class AdminController
 {
     private $userModel;
@@ -11,6 +13,8 @@ class AdminController
         $connexion = new Connexion();
         $this->userModel = new User($connexion);
     }
+
+
 
     /**
      * Connexion admin
@@ -34,6 +38,26 @@ class AdminController
 
         return false;
     }
+
+
+
+
+
+    /**
+     * Affiche le dashboard admin
+     */
+    public function dashboard()
+    {
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+            header('Location: index.php?route=admin/login');
+            exit;
+        }
+
+        require_once __DIR__ . '/../views/admin/dashboard.php';
+    }
+
+
+
 
     /**
      * Déconnexion
