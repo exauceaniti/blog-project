@@ -20,20 +20,29 @@ class PostController
         $this->commentModel = new Commentaire($connexion);
         $this->validator = new Validator();
     }
+    /**
+     * Fonction pour verifier si celui qui est connecter est admin ou pas
+     */
+    public function isAdmin()
+    {
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+            header('Location: index.php?route=admin/login');
+            exit;
+        }
+    }
+
 
     /**
      * 🔹 Méthode principale pour gérer les articles (admin/manage_posts)
      */
     public function managePosts()
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-            header('Location: index.php?route=admin/login');
-            exit;
-        }
+        $this->isAdmin();
 
         $articles = $this->postModel->getAllArticles();
         require_once __DIR__ . '/../views/admin/manage_posts.php';
     }
+
 
     public function getArticleById($id)
     {
@@ -42,11 +51,7 @@ class PostController
 
     public function create()
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-            $_SESSION['errors'][] = "Accès refusé.";
-            header('Location: index.php?route=admin/login');
-            exit;
-        }
+        $this->isAdmin();
 
         $titre = htmlspecialchars(strip_tags(trim($_POST['titre'] ?? '')));
         $contenu = htmlspecialchars(strip_tags(trim($_POST['contenu'] ?? '')));
@@ -82,10 +87,7 @@ class PostController
 
     public function update($id)
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-            header('Location: index.php?route=admin/login');
-            exit;
-        }
+        $this->isAdmin();
 
         $titre = htmlspecialchars(strip_tags(trim($_POST['titre'] ?? '')));
         $contenu = htmlspecialchars(strip_tags(trim($_POST['contenu'] ?? '')));
@@ -129,10 +131,7 @@ class PostController
 
     public function delete($id)
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-            header('Location: index.php?route=admin/login');
-            exit;
-        }
+        $this->isAdmin();
 
         $result = $this->postModel->supprimerArticle($id);
         $_SESSION['success'] = $result ? "Article supprimé." : "Erreur lors de la suppression.";
@@ -140,12 +139,12 @@ class PostController
         exit;
     }
 
-    public function show($id)
-    {
-        $article = $this->postModel->voirArticle($id);
-        $commentaires = $this->commentModel->getCommentairesByArticle($id);
-        require_once __DIR__ . '/../views/article.php';
-    }
+    // public function show($id)
+    // {
+    //     $article = $this->postModel->voirArticle($id);
+    //     $commentaires = $this->commentModel->getCommentairesByArticle($id);
+    //     require_once __DIR__ . '/../views/article.php';
+    // }
 
     public function getArticlesForPage(int $page = 1, int $limit = 10): array
     {
