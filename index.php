@@ -17,7 +17,7 @@ if (str_starts_with($route, 'admin/') && (!isset($_SESSION['user']) || $_SESSION
 }
 
 // Charger les routes
-$routes = require_once __DIR__ . '/routes.php';
+$routes = require_once __DIR__ . '/routes/routes.php';
 
 // Vérifier si la route existe
 if (!array_key_exists($route, $routes)) {

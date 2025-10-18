@@ -1,42 +1,46 @@
 <?php
-require_once __DIR__ . '/../models/User.php';
-require_once __DIR__ . '/../config/connexion.php';
-
-
-//Classe Principale 
+// ...existing code...
 class AdminController
 {
     private $userModel;
+    private $connexion;
 
     public function __construct()
     {
-        $connexion = new Connexion();
-        $this->userModel = new User($connexion);
+        $this->connexion = new Connexion();
+        $this->userModel = new User($this->connexion);
     }
-
-
-
-    /**
-     * Connexion admin
-     * @param string $email
-     * @param string $password
-     * @return bool
-     */
-    public function login($email, $password)
+    // ...existing code...
+    public function login()
     {
-        $user = $this->userModel->seConnecter($email, $password);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = trim($_POST['email'] ?? '');
+            $password = trim($_POST['password'] ?? '');
 
-        if ($user && $user['role'] === 'admin') {
-            // Stockage info admin dans session
-            $_SESSION['user'] = [
-                'id' => $user['id'],
-                'email' => $user['email'],
-                'role' => $user['role']
-            ];
-            return true;
+            if (empty($email) || empty($password)) {
+                $error = "Tous les champs sont obligatoires.";
+                require __DIR__ . '/../views/admin/login.php';
+                return;
+            }
+
+            // Utiliser le modèle déjà instancié
+            $user = $this->userModel->findByEmail($email);
+
+            if ($user && password_verify($password, $user['password'])) {
+                $_SESSION['user'] = [
+                    'id' => $user['id'],
+                    'role' => $user['role']
+                ];
+                header('Location: index.php?route=admin/dashboard');
+                exit;
+            } else {
+                $error = "Email ou mot de passe incorrect.";
+                require __DIR__ . '/../views/admin/login.php';
+                return;
+            }
+        } else {
+            require __DIR__ . '/../views/admin/login.php';
         }
-
-        return false;
     }
 
 

@@ -140,4 +140,19 @@ class User
         $sql = "INSERT INTO commentaires (contenu, article_id, auteur_id, date_commentaire) VALUES (?, ?, ?, NOW())";
         return $this->conn->executerRequete($sql, [$contenu, $articleId, $_SESSION['user']['id']]);
     }
+
+    /**
+     * Récupérer tous les utilisateurs
+     */
+
+    public function getAllUsers()
+    {
+        $sql = "SELECT id, nom, email, role FROM utilisateurs ORDER BY id DESC";
+        return $this->conn->executerRequete($sql)->fetchAll();
+    }
+    public function findByEmail($email)
+    {
+        $sql = "SELECT * FROM utilisateurs WHERE email = ?";
+        return $this->conn->executerRequete($sql, [$email])->fetch();
+    }
 }
