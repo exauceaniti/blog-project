@@ -1,10 +1,4 @@
 <?php
-/**
- * Controller : CommentController
- * Gère les actions sur les commentaires (affichage, ajout, suppression, édition)
- * @author Exauce Aniti
- */
-
 require_once __DIR__ . '/../models/Commentaire.php';
 
 class CommentController
@@ -17,18 +11,21 @@ class CommentController
     }
 
     /**
-     * 🔹 Affiche la page admin de gestion des commentaires
+     * 🔹 Affiche les commentaires pour la page admin
      * Route : admin/manage_comments
      */
     public function manageComments()
     {
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-            header('Location: index.php?route=admin/login');
-            exit;
+            return ['redirect' => 'admin/login'];
         }
 
-        $comments = $this->commentModel->voirCommentairesGlobal(); // méthode déjà existante
-        require_once __DIR__ . '/../views/admin/manage_comments.php';
+        try {
+            $comments = $this->commentModel->voirCommentairesGlobal();
+            return ['view' => 'admin/manage_comments', 'data' => ['comments' => $comments]];
+        } catch (Exception $e) {
+            return ['view' => 'admin/manage_comments', 'data' => ['comments' => [], 'error' => 'Erreur de chargement']];
+        }
     }
 
     public function afficherCommentairesParArticle($articleId)
@@ -36,7 +33,6 @@ class CommentController
         try {
             return $this->commentModel->voirCommentaires($articleId);
         } catch (Exception $e) {
-            echo "<p style='color:red;'> Erreur : impossible de charger les commentaires.</p>";
             return [];
         }
     }
@@ -44,45 +40,42 @@ class CommentController
     public function ajouterCommentaire($contenu, $articleId, $auteurId)
     {
         if (empty($contenu) || !$articleId) {
-            echo "<p style='color:red;'> Veuillez remplir tous les champs du commentaire.</p>";
-            return;
+            return ['status' => 'error', 'message' => 'Champs du commentaire manquants.'];
         }
 
         try {
             $this->commentModel->ajouterCommentaire($contenu, $articleId, $auteurId);
-            echo "<p style='color:green;'> Commentaire ajouté avec succès !</p>";
+            return ['status' => 'success', 'message' => 'Commentaire ajouté avec succès.'];
         } catch (Exception $e) {
-            echo "<p style='color:red;'> Erreur lors de l’ajout du commentaire.</p>";
+            return ['status' => 'error', 'message' => 'Erreur lors de l’ajout du commentaire.'];
         }
     }
 
     public function modifierCommentaire($id, $contenu, $auteurId)
     {
         if (empty($contenu)) {
-            echo "<p style='color:red;'> Le contenu du commentaire ne peut pas être vide.</p>";
-            return;
+            return ['status' => 'error', 'message' => 'Le contenu ne peut pas être vide.'];
         }
 
         try {
             $this->commentModel->modifierCommentaire($id, $contenu, $auteurId);
-            echo "<p style='color:green;'>✏️ Commentaire modifié avec succès.</p>";
+            return ['status' => 'success', 'message' => 'Commentaire modifié avec succès.'];
         } catch (Exception $e) {
-            echo "<p style='color:red;'> Impossible de modifier le commentaire.</p>";
+            return ['status' => 'error', 'message' => 'Impossible de modifier le commentaire.'];
         }
     }
 
     public function supprimerCommentaire($id)
     {
         if (!$id) {
-            echo "<p style='color:red;'> Identifiant manquant pour la suppression.</p>";
-            return;
+            return ['status' => 'error', 'message' => 'Identifiant manquant.'];
         }
 
         try {
             $this->commentModel->supprimerCommentaire($id);
-            echo "<p style='color:green;'>🗑️ Commentaire supprimé avec succès.</p>";
+            return ['status' => 'success', 'message' => 'Commentaire supprimé avec succès.'];
         } catch (Exception $e) {
-            echo "<p style='color:red;'> Erreur lors de la suppression du commentaire.</p>";
+            return ['status' => 'error', 'message' => 'Erreur lors de la suppression.'];
         }
     }
 
@@ -91,7 +84,6 @@ class CommentController
         try {
             return $this->commentModel->countAllComments();
         } catch (Exception $e) {
-            echo "<p style='color:red;'> Impossible de compter les commentaires.</p>";
             return 0;
         }
     }

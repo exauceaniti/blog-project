@@ -12,35 +12,34 @@ class UserController
         $this->user = new User($connexion);
     }
 
-    public function login(string $email, string $password, bool $remember = false): array
+    public function login()
     {
-        $email = trim($email);
-        $password = trim($password);
+        $email = trim($_POST['email'] ?? '');
+        $password = trim($_POST['password'] ?? '');
+        $remember = isset($_POST['remember']);
 
         if (empty($email) || empty($password)) {
-            return ['success' => false, 'message' => 'Email ou mot de passe manquant !'];
+            return ['view' => 'public/login', 'data' => ['error' => 'Champs obligatoires']];
         }
 
-        $result = $this->user->seConnecter($email, $password);
+        $user = $this->user->seConnecter($email, $password);
 
-        if ($result) {
+        if ($user) {
             $_SESSION['user'] = [
-                'id' => $result['id'],
-                'nom' => $result['nom'] ?? '',
-                'email' => $result['email'],
-                'role' => $result['role'] ?? 'user',
+                'id' => $user['id'],
+                'nom' => $user['nom'],
+                'email' => $user['email'],
+                'role' => $user['role']
             ];
 
             if ($remember) {
                 setcookie('remember_email', $email, time() + 30 * 24 * 3600, '/', '', false, true);
-            } else {
-                setcookie('remember_email', '', time() - 3600, '/', '', false, true);
             }
 
-            return ['success' => true, 'role' => $_SESSION['user']['role']];
+            return ['redirect' => $user['role'] === 'admin' ? 'admin/dashboard' : 'public/home'];
         }
 
-        return ['success' => false, 'message' => 'Email ou mot de passe incorrect !'];
+        return ['view' => 'public/login', 'data' => ['error' => 'Email ou mot de passe incorrect']];
     }
 
     public function logout(): void
@@ -75,11 +74,16 @@ class UserController
     public function manageUsers()
     {
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-            header('Location: index.php?route=admin/login');
-            exit;
+            return ['redirect' => 'admin/login'];
         }
 
-        $users = $this->user->getAllUsers(); // à créer dans ton modèle si pas encore fait
-        require_once __DIR__ . '/../views/admin/manage_users.php';
+        $users = $this->user->getAllUsers();
+        return ['view' => 'admin/manage_users', 'data' => ['users' => $users]];
+    }
+
+    public function deleteUser($id)
+    {
+        $this->user->supprimerUtilisateur($id);
+        return ['redirect' => 'admin/manage_users'];
     }
 }

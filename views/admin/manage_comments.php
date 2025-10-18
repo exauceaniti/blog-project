@@ -7,7 +7,7 @@ $connexion = new Connexion();
 $controller = new CommentController($connexion);
 
 // Récupérer tous les commentaires
-$commentaires = $controller->afficherCommentaires();
+$commentaires = $controller->afficherCommentairesParArticle($articleId);
 
 // Messages simples (succès / erreur)
 $message = $_SESSION['message'] ?? '';

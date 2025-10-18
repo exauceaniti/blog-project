@@ -14,11 +14,28 @@ class User
     /**
      * Récupérer un utilisateur par email
      */
-    public function getByEmail(string $email)
+    public function findByEmail(string $email)
     {
-        $sql = "SELECT * FROM utilisateurs WHERE email = ?";
-        return $this->conn->executerRequete($sql, [$email])->fetch();
+        $sql = "SELECT id, nom, email, password, role FROM utilisateurs WHERE email = ?";
+        $stmt = $this->conn->executerRequete($sql, [$email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    public function isAdmin($userId): bool
+    {
+        $sql = "SELECT role FROM utilisateurs WHERE id = ?";
+        $stmt = $this->conn->executerRequete($sql, [$userId]);
+        $result = $stmt->fetch();
+        return $result && $result['role'] === 'admin';
+    }
+
+    public function getUserById($id)
+    {
+        $sql = "SELECT id, nom, email, role FROM utilisateurs WHERE id = ?";
+        return $this->conn->executerRequete($sql, [$id])->fetch(PDO::FETCH_ASSOC);
+    }
+
+
+
 
     /**
      * Inscription d'un utilisateur
@@ -43,25 +60,13 @@ class User
      */
     public function seConnecter($email, $password)
     {
-        $user = $this->getByEmail($email);
+        $user = $this->findByEmail($email);
         if ($user && password_verify($password, $user['password'])) {
-            // ✅ Assurer que la session est active
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
-
-            session_regenerate_id(true); // régénère l'ID pour la sécurité
-
-            $_SESSION['user'] = [
-                'id' => $user['id'],
-                'nom' => $user['nom'],
-                'email' => $user['email'],
-                'role' => $user['role']
-            ];
             return $user;
         }
         return false;
     }
+
 
 
     /**
@@ -150,9 +155,5 @@ class User
         $sql = "SELECT id, nom, email, role FROM utilisateurs ORDER BY id DESC";
         return $this->conn->executerRequete($sql)->fetchAll();
     }
-    public function findByEmail($email)
-    {
-        $sql = "SELECT * FROM utilisateurs WHERE email = ?";
-        return $this->conn->executerRequete($sql, [$email])->fetch();
-    }
+
 }
