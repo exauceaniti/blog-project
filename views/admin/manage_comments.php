@@ -1,20 +1,28 @@
 <?php
+/** 
+ * Logique dans la partie administrateur pour gerer tou les commetaires dans le blog
+ * premierement nous affichons le nombres totales des commentaires
+ * deuxiemement nous affichons tout les comentaires lier aux articles s'il existe dans un tableau HTML
+ * troisiemement nous donnons la possobolite a l'administrateur de supprimer un commentaire
+ */
+
 require_once __DIR__ . '/../../config/connexion.php';
 require_once __DIR__ . '/../../controllers/CommentController.php';
 
-// Connexion et initialisation du contrôleur
+//Connexion et initialisation du controller
 $connexion = new Connexion();
 $controller = new CommentController($connexion);
 
-// Récupérer tous les commentaires
+// Compter le nombre des commentaires premierement
+$commentaires = $controller->compterCommentaires();
+
+// Recuperer tout les commentaires
 $commentaires = $controller->afficherCommentairesParArticle($articleId);
 
-// Messages simples (succès / erreur)
-$message = $_SESSION['message'] ?? '';
-unset($_SESSION['message']);
-?>
 
+?>
 <section class="admin-section">
+
     <h2>💬 Gestion des Commentaires</h2>
 
     <?php if ($message): ?>
@@ -97,9 +105,5 @@ unset($_SESSION['message']);
         color: #fff;
         border-radius: 5px;
         cursor: pointer;
-    }
-
-    #table-comments button:hover {
-        background-color: #e74c3c;
     }
 </style>

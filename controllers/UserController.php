@@ -86,4 +86,10 @@ class UserController
         $this->user->supprimerUtilisateur($id);
         return ['redirect' => 'admin/manage_users'];
     }
+
+    public function changeUserRole($id, $newRole)
+    {
+        $this->user->changerRole($id, $newRole);
+        return ['redirect' => 'admin/manage_users'];
+    }
 }
