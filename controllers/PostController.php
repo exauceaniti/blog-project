@@ -143,12 +143,6 @@ class PostController
         exit;
     }
 
-    // public function show($id)
-    // {
-    //     $article = $this->postModel->voirArticle($id);
-    //     $commentaires = $this->commentModel->getCommentairesByArticle($id);
-    //     require_once __DIR__ . '/../views/article.php';
-    // }
 
     public function getArticlesForPage(int $page = 1, int $limit = 10): array
     {
@@ -216,4 +210,26 @@ class PostController
 
         return ['success' => false, 'path' => '', 'type' => '', 'error' => 'Erreur lors du téléchargement du fichier.'];
     }
+
+    public function editForm()
+    {
+        $this->isAdmin();
+
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            $_SESSION['errors'][] = "ID d'article manquant.";
+            header('Location: index.php?route=admin/manage_posts');
+            exit;
+        }
+
+        $article = $this->postModel->voirArticle($id);
+        if (!$article) {
+            $_SESSION['errors'][] = "Article introuvable.";
+            header('Location: index.php?route=admin/manage_posts');
+            exit;
+        }
+
+        require_once __DIR__ . '/../views/admin/edit_post.php';
+    }
+
 }

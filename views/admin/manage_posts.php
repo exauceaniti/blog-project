@@ -27,6 +27,8 @@ $totalArticles = $controller->getTotalArticles();
                     <th>Auteur</th>
                     <th>Date de publication</th>
                     <th>Média</th>
+                    <th>Modifier</th>
+                    <th>Supprimer</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,6 +45,16 @@ $totalArticles = $controller->getTotalArticles();
                             <?php else: ?>
                                 Aucun
                             <?php endif; ?>
+                        </td>
+                        <td>
+                            <a href="index.php?route=admin/edit_post&id=<?= $article['id'] ?>">✏️ Modifier</a>
+                        </td>
+                        <td>
+                            <form action="index.php?route=admin/delete_post" method="post"
+                                onsubmit="return confirm('Supprimer cet article ?')">
+                                <input type="hidden" name="id" value="<?= $article['id'] ?>">
+                                <button type="submit">🗑️ Supprimer</button>
+                            </form>
                         </td>
                     </tr>
                 <?php endforeach; ?>
