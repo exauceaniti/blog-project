@@ -40,8 +40,12 @@ class PostController
         $this->isAdmin();
 
         $articles = $this->postModel->getAllArticles();
+        $totalArticles = count($articles);
+
         require_once __DIR__ . '/../views/admin/manage_posts.php';
     }
+
+
 
 
     public function getArticleById($id)

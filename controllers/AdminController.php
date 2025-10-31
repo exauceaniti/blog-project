@@ -72,4 +72,5 @@ class AdminController
         header('Location: index.php?route=admin/login');
         exit;
     }
+
 }

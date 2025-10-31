@@ -1,4 +1,8 @@
 <?php
+//------ Classe routes.php ------
+// Fichier de configuration des routes de l'application
+
+
 return [
     // Routes publiques
     'public/home' => ['controller' => 'HomeController', 'method' => 'index'],

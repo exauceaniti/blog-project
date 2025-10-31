@@ -156,4 +156,12 @@ class User
         return $this->conn->executerRequete($sql)->fetchAll();
     }
 
+
+    public function updateUser($id, $nom, $email, $role)
+    {
+        $sql = "UPDATE utilisateurs SET nom = ?, email = ?, role = ? WHERE id = ?";
+        $this->conn->executerRequete($sql, [$nom, $email, $role, $id]);
+    }
+
+
 }

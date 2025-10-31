@@ -7,70 +7,61 @@ $controller = new PostController($connexion);
 
 // Récupérer tous les articles
 $posts = $controller->getArticlesForPage(1, 50);
+$totalArticles = $controller->getTotalArticles();
 ?>
 
 <section class="admin-section">
-    <h2>📰 Gestion des Articles</h2>
+    <h2>📝 Gestion des articles</h2>
 
-    <!-- Message de succès -->
-    <?php if (!empty($_SESSION['success'])): ?>
-        <div style="color:green; margin-bottom:10px;">
-            <?= $_SESSION['success'];
-            unset($_SESSION['success']); ?>
-        </div>
-    <?php endif; ?>
+    <p><strong>Nombre total d'articles :</strong> <?= $totalArticles ?></p>
 
-    <!-- Formulaire d'ajout -->
-    <section id="add-post">
-        <h3>Ajouter un nouvel article</h3>
-        <form action="/index.php?route=admin/manage_posts" method="POST" enctype="multipart/form-data">
-            <input type="text" name="titre" placeholder="Titre de l’article" required>
-            <textarea name="contenu" placeholder="Contenu de l’article" required></textarea>
-            <input type="file" name="media" accept="image/*,video/*,audio/*">
-            <button type="submit" name="ajouter-article">Publier</button>
-        </form>
-    </section>
-
-    <!-- Tableau des articles -->
-    <table id="table-posts">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Titre</th>
-                <th>Contenu</th>
-                <th>Média</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($posts as $p): ?>
+    <?php if (empty($posts)): ?>
+        <p style="color: red;">Aucun article trouvé.</p>
+    <?php else: ?>
+        <table id="table-posts">
+            <thead>
                 <tr>
-                    <td><?= $p['id'] ?></td>
-                    <td><?= htmlspecialchars($p['titre']) ?></td>
-                    <td><?= htmlspecialchars(substr($p['contenu'], 0, 100)) ?>...</td>
-                    <td>
-                        <?php if (!empty($p['media_path'])):
-                            $type = $p['media_type'] ?? '';
-                            $mediaSrc = '/' . ltrim($p['media_path'], '/');
-                            if (str_contains($type, 'image')): ?>
-                                <img src="<?= htmlspecialchars($mediaSrc) ?>" width="120">
-                            <?php elseif (str_contains($type, 'video')): ?>
-                                <video width="200" controls>
-                                    <source src="<?= htmlspecialchars($mediaSrc) ?>" type="<?= htmlspecialchars($type) ?>">
-                                </video>
-                            <?php elseif (str_contains($type, 'audio')): ?>
-                                <audio controls>
-                                    <source src="<?= htmlspecialchars($mediaSrc) ?>" type="<?= htmlspecialchars($type) ?>">
-                                </audio>
-                            <?php endif;
-                        endif; ?>
-                    </td>
-                    <td><?= $p['date_publication'] ?></td>
+                    <th>ID</th>
+                    <th>Titre</th>
+                    <th>Contenu</th> <!-- ✅ Ajouté -->
+                    <th>Auteur</th>
+                    <th>Date de publication</th>
+                    <th>Média</th>
                 </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <?php foreach ($posts as $article): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($article['id']) ?></td>
+                        <td><?= htmlspecialchars($article['titre']) ?></td>
+                        <td><?= nl2br(htmlspecialchars($article['contenu'])) ?></td>
+                        <td><?= htmlspecialchars($article['auteur_nom']) ?></td>
+                        <td><?= htmlspecialchars($article['date_publication']) ?></td>
+                        <td>
+                            <?php if ($article['media_path']): ?>
+                                <a href="<?= $article['media_path'] ?>" target="_blank">📎 Voir</a>
+                            <?php else: ?>
+                                Aucun
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+
+    <?php endif; ?>
 </section>
+<section id="add-post">
+    <h3>➕ Ajouter un nouvel article</h3>
+    <form action="index.php?route=admin/create_post" method="POST" enctype="multipart/form-data">
+        <input type="text" name="titre" placeholder="Titre de l'article" required>
+        <textarea name="contenu" rows="5" placeholder="Contenu de l'article" required></textarea>
+        <input type="file" name="media">
+        <button type="submit">📤 Publier</button>
+    </form>
+</section>
+
+
 
 <style>
     .admin-section {

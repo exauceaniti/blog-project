@@ -118,7 +118,7 @@ class Post
         $sql = "SELECT a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
                        au.nom AS auteur_nom, au.email AS auteur_email
                 FROM articles a
-                JOIN auteur au ON a.auteur_id = au.id";
+                JOIN utilisateurs au ON a.auteur_id = au.id";
 
         if (!empty($conditions)) {
             $sql .= " WHERE " . implode(' OR ', $conditions);
@@ -137,7 +137,7 @@ class Post
         $sql = "SELECT a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
                        au.nom AS auteur_nom, au.email AS auteur_email
                 FROM articles a
-                JOIN auteur au ON a.auteur_id = au.id
+                JOIN utilisateurs au ON a.auteur_id = au.id
                 WHERE a.auteur_id = ?
                 ORDER BY a.date_publication DESC";
 
@@ -161,5 +161,22 @@ class Post
         $sql = "SELECT COUNT(*) FROM articles WHERE auteur_id = ?";
         return (int) $this->db->executerRequete($sql, [$auteurId])->fetchColumn();
     }
+
+
+    /**
+     * @param mixed $limit
+     * @return array
+     * Récupérer les articles récents avec info auteur
+     */
+    public function getRecentArticles($limit = 5)
+    {
+        $sql = "SELECT a.id, a.titre, a.date_publication, u.nom AS auteur_nom
+            FROM articles a
+            JOIN utilisateurs u ON a.auteur_id = u.id
+            ORDER BY a.date_publication DESC
+            LIMIT ?";
+        return $this->db->executerRequete($sql, [$limit])->fetchAll();
+    }
+
 
 }

@@ -74,16 +74,18 @@ class UserController
     public function manageUsers()
     {
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-            return ['redirect' => 'admin/login'];
+            header('Location: index.php?route=admin/login');
+            exit;
         }
 
         $users = $this->user->getAllUsers();
-        return ['view' => 'admin/manage_users', 'data' => ['users' => $users]];
+        require __DIR__ . '/../views/admin/manage_users.php';
     }
 
-    public function deleteUser($id)
+    public function deleteUser($id, $newRole)
     {
         $this->user->supprimerUtilisateur($id);
+        $newRole = in_array($newRole, ['user', 'admin']) ? $newRole : 'user';
         return ['redirect' => 'admin/manage_users'];
     }
 
@@ -92,4 +94,11 @@ class UserController
         $this->user->changerRole($id, $newRole);
         return ['redirect' => 'admin/manage_users'];
     }
+
+    public function editUser($id, $nom, $email, $role)
+    {
+        $this->user->updateUser($id, $nom, $email, $role);
+        return ['redirect' => 'admin/manage_users'];
+    }
+
 }

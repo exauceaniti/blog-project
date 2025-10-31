@@ -28,6 +28,14 @@ class CommentController
         }
     }
 
+    /**
+     * Summary of afficherCommentairesParArticle
+     * ici on associe a chaque commentaire des articles s'il existe
+     * ou s'il n'existe pas on laisse la case vide
+     * @param mixed $articleId
+     * @return array
+     */
+
     public function afficherCommentairesParArticle($articleId)
     {
         try {
@@ -37,6 +45,14 @@ class CommentController
         }
     }
 
+    /**
+     * Summary of ajouterCommentaire
+     * Ici c'est une methode pour ajouter un commentaire a un article
+     * @param mixed $contenu
+     * @param mixed $articleId
+     * @param mixed $auteurId
+     * @return array{message: string, status: string}
+     */
     public function ajouterCommentaire($contenu, $articleId, $auteurId)
     {
         if (empty($contenu) || !$articleId) {
@@ -65,6 +81,14 @@ class CommentController
         }
     }
 
+    /**
+     * Summary of supprimerCommentaire
+     * Methode pour supprimer un commentaire.
+     * cette methode ne sera appliquer que dans la page de l'administrateur
+     * @param mixed $id
+     * @return array{message: string, status: string}
+     */
+
     public function supprimerCommentaire($id)
     {
         if (!$id) {
@@ -79,6 +103,13 @@ class CommentController
         }
     }
 
+
+    /**
+     * Compte le nombre total de commentaires.
+     * Cette methode compte tout les commentaire qui se trouve dans la base de donnees
+     * nous l'appellerons dans le dashboard de l'administrateur.
+     * @return int
+     */
     public function compterCommentaires()
     {
         try {

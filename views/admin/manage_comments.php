@@ -1,66 +1,54 @@
 <?php
-/** 
- * Logique dans la partie administrateur pour gerer tou les commetaires dans le blog
- * premierement nous affichons le nombres totales des commentaires
- * deuxiemement nous affichons tout les comentaires lier aux articles s'il existe dans un tableau HTML
- * troisiemement nous donnons la possobolite a l'administrateur de supprimer un commentaire
- */
-
 require_once __DIR__ . '/../../config/connexion.php';
 require_once __DIR__ . '/../../controllers/CommentController.php';
 
-//Connexion et initialisation du controller
 $connexion = new Connexion();
 $controller = new CommentController($connexion);
 
-// Compter le nombre des commentaires premierement
-$commentaires = $controller->compterCommentaires();
-
-// Recuperer tout les commentaires
-$commentaires = $controller->afficherCommentairesParArticle($articleId);
-
-
+// Récupérer tous les commentaires
+$comments = $controller->manageComments()['data']['comments'];
 ?>
+
 <section class="admin-section">
-
-    <h2>💬 Gestion des Commentaires</h2>
-
-    <?php if ($message): ?>
-        <div style="color: green; margin-bottom: 10px;">
-            <?= htmlspecialchars($message) ?>
-        </div>
-    <?php endif; ?>
+    <h2> Gestion des Commentaires</h2>
 
     <!-- Tableau des commentaires -->
     <table id="table-comments">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Article ID</th>
                 <th>Auteur</th>
+                <th>Article</th>
                 <th>Contenu</th>
                 <th>Date</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($commentaires as $c): ?>
+            <?php foreach ($comments as $c): ?>
                 <tr>
-                    <td><?= $c['id'] ?></td>
-                    <td><?= $c['article_id'] ?></td>
-                    <td><?= htmlspecialchars($c['auteur']) ?></td>
-                    <td><?= htmlspecialchars(substr($c['contenu'], 0, 100)) ?>...</td>
-                    <td><?= $c['date_Commentaire'] ?></td>
                     <td>
-                        <!-- Supprimer commentaire -->
-                        <form action="/index.php?route=admin/manage_comment_action" method="POST"
-                            style="display:inline-block;">
+                        <?= $c['id'] ?>
+                    </td>
+                    <td>
+                        <?= htmlspecialchars($c['auteur']) ?>
+                    </td>
+                    <td>
+                        <?= htmlspecialchars($c['article']) ?>
+                    </td>
+                    <td>
+                        <?= htmlspecialchars(substr($c['contenu'], 0, 100)) ?>...
+                    </td>
+                    <td>
+                        <?= $c['date_commentaire'] ?>
+                    </td>
+                    <td>
+                        <form method="POST" action="index.php?route=admin/manage_comment_action" style="display:inline;">
                             <input type="hidden" name="id" value="<?= $c['id'] ?>">
                             <button type="submit" name="supprimer-commentaire"
-                                onclick="return confirm('Voulez-vous vraiment supprimer ce commentaire ?');">
-                                🗑️ Supprimer
-                            </button>
+                                onclick="return confirm('Supprimer ce commentaire ?');">🗑️ Supprimer</button>
                         </form>
+                        <a href="index.php?route=admin/edit_comment&id=<?= $c['id'] ?>">✏️ Modifier</a>
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -98,12 +86,22 @@ $commentaires = $controller->afficherCommentairesParArticle($articleId);
         background: #f0f0f0;
     }
 
-    #table-comments button {
-        padding: 5px 10px;
-        border: none;
+    button {
         background-color: #c0392b;
-        color: #fff;
-        border-radius: 5px;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
         cursor: pointer;
+    }
+
+    a {
+        margin-left: 10px;
+        color: #2980b9;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
     }
 </style>
