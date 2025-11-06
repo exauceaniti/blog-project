@@ -26,7 +26,10 @@ class AdminController
             // Utiliser le modèle déjà instancié
             $user = $this->userModel->findByEmail($email);
 
+
+            
             if ($user && password_verify($password, $user['password'])) {
+                die(var_dump($user));
                 $_SESSION['user'] = [
                     'id' => $user['id'],
                     'role' => $user['role']

@@ -9,22 +9,37 @@ __DIR__ . '/../logs/db_errors.log';
 
 class Connexion
 {
+
+    private static ?self $instance = null;
+
     private string $host = 'localhost';
     private string $user = 'exauce';
     private string $password = 'Mysql@.001';
     private string $database = 'blog_db';
 
-    private static ?PDO $connection = null;
+    private ?PDO $connection = null;
+
+    private function __construct()
+    {
+    }
+
+    public static function getInstance () : Connexion
+    {
+        if (self::$instance === null) {
+            self::$instance = new Connexion();
+        }
+        return self::$instance;
+    }
 
     /**
      * Établit une connexion PDO persistante
      */
     public function connecter(): PDO
     {
-        if (self::$connection === null) {
+        if ($this->connection === null) {
             try {
-                self::$connection = new PDO(
-                    "mysql:host={$this->host};dbname={$this->database};charset=utf8mb4",
+                $this->connection = new PDO(
+                    "mysql:host={$this->host}:3306;dbname={$this->database};charset=utf8mb4",
                     $this->user,
                     $this->password,
                     [
@@ -57,15 +72,6 @@ class Connexion
         } catch (PDOException $e) {
             die("Erreur lors de l'exécution de la requête : " . $e->getMessage());
         }
-    }
-
-    public static function getInstance(): PDO
-    {
-        if (self::$connection === null) {
-            $instance = new self();
-            self::$connection = $instance->connecter();
-        }
-        return self::$connection;
     }
 
 
