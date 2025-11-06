@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../config/connexion.php';
 require_once __DIR__ . '/../../controllers/PostController.php';
 
-$connexion = new Connexion();
+$connexion = Connexion::getInstance();
 $controller = new PostController($connexion);
 
 // Récupérer tous les articles

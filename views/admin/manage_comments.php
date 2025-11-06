@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../config/connexion.php';
 require_once __DIR__ . '/../../controllers/CommentController.php';
 
-$connexion = new Connexion();
+$connexion = Connexion::getInstance();
 $controller = new CommentController($connexion);
 
 // Récupérer tous les commentaires

@@ -2,7 +2,7 @@
 // Chargement du contrôleur et récupération des utilisateurs
 require_once __DIR__ . '/../../controllers/UserController.php';
 
-$connexion = new Connexion();
+$connexion = Connexion::getInstance();
 $controller = new UserController($connexion);
 
 // Appel de la méthode et extraction des données

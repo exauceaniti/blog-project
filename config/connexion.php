@@ -9,6 +9,10 @@ __DIR__ . '/../logs/db_errors.log';
 
 class Connexion
 {
+    
+    /**
+     * reference de l'instance unique de la classe {@link Connexion}
+     */
 
     private static ?self $instance = null;
 
@@ -17,6 +21,11 @@ class Connexion
     private string $password = 'Mysql@.001';
     private string $database = 'blog_db';
 
+    /**
+     * 
+     * refenrece de la connexion a la BDD
+     * @var PDO
+     */
     private ?PDO $connection = null;
 
     private function __construct()
@@ -54,7 +63,7 @@ class Connexion
             }
         }
 
-        return self::$connection;
+        return $this->connection;
     }
 
 
@@ -80,6 +89,6 @@ class Connexion
      */
     public function fermer(): void
     {
-        self::$connection = null;
+        $this->connection = null;
     }
 }

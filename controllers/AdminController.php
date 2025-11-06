@@ -1,13 +1,15 @@
 <?php
+require_once __DIR__.'/BaseController.php';
+
 // ...existing code...
-class AdminController
+class AdminController extends BaseController
 {
     private $userModel;
     private $connexion;
 
     public function __construct()
     {
-        $this->connexion = new Connexion();
+        $this->connexion = Connexion::getInstance();
         $this->userModel = new User($this->connexion);
     }
     // ...existing code...
@@ -19,31 +21,27 @@ class AdminController
 
             if (empty($email) || empty($password)) {
                 $error = "Tous les champs sont obligatoires.";
-                require __DIR__ . '/../views/admin/login.php';
-                return;
-            }
-
-            // Utiliser le modèle déjà instancié
-            $user = $this->userModel->findByEmail($email);
-
-
-            
-            if ($user && password_verify($password, $user['password'])) {
-                die(var_dump($user));
-                $_SESSION['user'] = [
-                    'id' => $user['id'],
-                    'role' => $user['role']
-                ];
-                header('Location: index.php?route=admin/dashboard');
-                exit;
             } else {
+                // Utiliser le modèle déjà instancié
+                $user = $this->userModel->findByEmail($email);
+    
+                if ($user && password_verify($password, $user['password'])) {
+                    $_SESSION['user'] = [
+                        'id' => $user['id'],
+                        'role' => $user['role']
+                    ];
+                    $this->redirectResponse('index.php?route=admin/dashboard');
+                }
+
                 $error = "Email ou mot de passe incorrect.";
-                require __DIR__ . '/../views/admin/login.php';
-                return;
             }
-        } else {
-            require __DIR__ . '/../views/admin/login.php';
-        }
+
+            $this->renderView("admin/login", [
+                "error_message" => $error
+            ]);
+        } 
+
+        $this->renderView("admin/login");
     }
 
 

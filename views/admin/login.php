@@ -1,22 +1,3 @@
-<?php
-require_once __DIR__ . '/../../controllers/AdminController.php';
-
-$adminController = new AdminController();
-$error = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email']);
-    $password = trim($_POST['password']);
-
-    if ($adminController->login($email, $password)) {
-        // Redirection vers index.php avec route admin/dashboard
-        header('Location: index.php?route=admin/dashboard');
-        exit;
-    } else {
-        $error = 'Email ou mot de passe incorrect ou vous n\'êtes pas admin.';
-    }
-}
-?>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -30,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="login-container">
         <h2>Espace Administration</h2>
-        <?php if (!empty($error)): ?>
+        <?php if (isset($$error_message)): ?>
             <p class="error"><?= htmlspecialchars($error) ?></p>
         <?php endif; ?>
 
