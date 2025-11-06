@@ -4,6 +4,9 @@
  * Classe Connexion
  * Gère la connexion à la base de données MySQL avec PDO
  */
+
+__DIR__ . '/../logs/db_errors.log';
+
 class Connexion
 {
     private string $host = 'localhost';
@@ -21,7 +24,7 @@ class Connexion
         if (self::$connection === null) {
             try {
                 self::$connection = new PDO(
-                    "mysql:host={$this->host};dbname={$this->database};charset=utf8",
+                    "mysql:host={$this->host};dbname={$this->database};charset=utf8mb4",
                     $this->user,
                     $this->password,
                     [
@@ -32,12 +35,13 @@ class Connexion
                 );
             } catch (PDOException $e) {
                 error_log($e->getMessage(), 3, __DIR__ . '/../logs/db_errors.log');
-
+                throw new RuntimeException("Erreur de connexion à la base de données");
             }
         }
 
         return self::$connection;
     }
+
 
     /**
      * Exécute une requête SQL préparée
