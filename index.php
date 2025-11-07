@@ -21,6 +21,8 @@ foreach ($routes as $key => $rt) {
     }
 }
 
+//Cette partie sera enlever c'est juste pour faire des testes approfondie sur github
+
 if ($route == null) {
      die("404 - Route non trouvée: $url");
 }

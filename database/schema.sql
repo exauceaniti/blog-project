@@ -1,3 +1,9 @@
+/**
+ * Si vous n'avez pas encore cree la base de donneees
+ commencer ici au debut ou si non : passer diectement a la creations des tables.
+ */
+
+
 CREATE DATABASE blog_db;
 USE blog_db;
 
