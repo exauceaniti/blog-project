@@ -25,22 +25,6 @@ if ($route == null) {
      die("404 - Route non trouvée: $url");
 }
 
-// // Récupération de la route
-// $route = $_GET['route'] ?? 'public/home';
-// $route = trim($route, '/');
-
-// // Sécurité admin
-// if (str_starts_with($route, 'admin/') && (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin')) {
-//     $route = 'admin/login';
-// }
-
-// // Charger les routes
-// $routes = require_once __DIR__ . '/routes/routes.php';
-
-// // Vérifier si la route existe
-// if (!array_key_exists($route, $routes)) {
-//     die("404 - Route non trouvée");
-// }
 
 // Extraire le contrôleur et la méthode
 $controllerName = $route['controller'];
