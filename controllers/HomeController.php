@@ -1,4 +1,7 @@
 <?php
+
+use Core\BaseController;
+
 require_once __DIR__.'/BaseController.php';
 require_once dirname(__DIR__).'/models/Post.php';
 
@@ -29,6 +32,11 @@ class HomeController extends BaseController
 
         $this->renderView("public/articles", [
             "articles_list" => $articles
-        ], "public/public-custom");
+        ], template: "public/public-custom");
+    }
+
+    public function adminConnect () : void 
+    {
+        $this->renderView(viewPath: "admin/login", params: [], template: "admin/login");
     }
 }
