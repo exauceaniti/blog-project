@@ -1,1 +1,1 @@
-<h1>Nos articles en mas</h1>
+<h1>Nos articles en gros</h1>

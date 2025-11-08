@@ -1,6 +1,9 @@
 <?php
 
+//Controller metier 
+
 use Core\BaseController;
+use controllers\layout\LayoutController;
 
 require_once __DIR__.'/BaseController.php';
 require_once dirname(__DIR__).'/models/Post.php';
@@ -19,24 +22,30 @@ class HomeController extends BaseController
     {
         $articles = $this->post->getAllArticles();
 
-        $this->renderView("public/home", 
-        [
-            "articles" => $articles
-        ], "public/public-layout");
+        $layout = new LayoutController();
+        $layout->autoTitle($_SERVER['REQUEST_URI']);
+        $layout->render('public/home', [
+            "articles_list" => $articles
+        ]);
     }
 
-     public function articles ()
+    public function articles ()
     {
-
         $articles = $this->post->getAllArticles();
 
-        $this->renderView("public/articles", [
+        $layout = new LayoutController();
+        $layout->autoTitle($_SERVER['REQUEST_URI']);
+        $layout->render('public/articles', [
             "articles_list" => $articles
-        ], template: "public/public-custom");
+        ]);
     }
 
-    public function adminConnect () : void 
-    {
-        $this->renderView(viewPath: "admin/login", params: [], template: "admin/login");
-    }
+
+
+    // public function adminConnect () : void 
+    // {
+    //     $layout = new LayoutController();
+    //     $layout->autoTitle($_SERVER['REQUEST_URI']);
+    //     $layout->render('admin/login', [], 'public-layout');
+    // }
 }
