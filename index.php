@@ -1,57 +1,76 @@
 <?php
-//------ Fichier index.php ------
+/**
+ * ---------------------------------------------------------
+ *  index.php
+ * ---------------------------------------------------------
+ * Point d'entrée principal de l'application.
+ *
+ * Rôle :
+ * - Charger automatiquement toutes les classes (Autoloading)
+ * - Démarrer la session utilisateur
+ * - Initialiser le système de routing
+ * - Analyser l'URL et exécuter le contrôleur associé
+ *
+ * Ce fichier est exécuté à chaque requête HTTP.
+ */
+
 
 
 spl_autoload_register(function ($class) {
+
     // Convertit le namespace en chemin de fichier
     $classPath = str_replace('\\', DIRECTORY_SEPARATOR, $class);
+
+    // Constructeur du chemin physique du fichier
     $file = __DIR__ . '/' . $classPath . '.php';
 
+    // Si le fichier existe, on le charge
     if (file_exists($file)) {
         require_once $file;
-    } else {
-        die("Autoload error: fichier introuvable pour la classe $class ($file)");
     }
 });
 
 
-
+/* ---------------------------------------------------------
+ * 1. DÉMARRAGE DE LA SESSION
+ * ---------------------------------------------------------
+ * La session permet de conserver des données
+ * entre plusieurs requêtes HTTP.
+ *
+ * Utile pour gérer les utilisateurs connectés,
+ * les messages flash, etc.
+ */
 session_start();
-require_once __DIR__ . '/config/connexion.php';
-require_once __DIR__ . '/models/User.php';
-
-$connexion = Connexion::getInstance();
-$userModel = new User($connexion);
-
-$url = $_SERVER['REQUEST_URI'];
-$routes = require_once __DIR__ . '/Core/routes/routes.php';
-
-$route = null;
-
-foreach ($routes as $key => $rt) {
-    if (preg_match("`$key`", $url)) {
-        $route = $rt;
-        break;
-    }
-}
 
 
-if ($route == null) {
-     die("404 - Route non trouvée: $url");
-}
+/* ---------------------------------------------------------
+ * 2. INITIALISATION DU ROUTER
+ * ---------------------------------------------------------
+ * Le Router est responsable d'associer une URL
+ * à un contrôleur + une méthode.
+ *
+ * On récupère uniquement le chemin de l'URL :
+ *   /articles?id=3 → /articles
+ */
+use Core\Routing\Router;
+
+// Récupération du chemin de la requête
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+// Instanciation du router avec le fichier des routes
+$router = new Router(__DIR__ . '/Core/Routing/Config/routes.php');
 
 
-// Extraire le contrôleur et la méthode
-$controllerName = $route['controller'];
-$methodName = $route['method'];
-
-// Charger le contrôleur
-require_once __DIR__ . "/controllers/{$controllerName}.php";
-$controller = new $controllerName($connexion);
-
-// Appeler la méthode
-if (method_exists($controller, $methodName)) {
-    $controller->$methodName();
-} else {
-    die("Erreur : méthode '$methodName' introuvable dans '$controllerName'");
-}
+/* ---------------------------------------------------------
+ * 3. DISPATCH
+ * ---------------------------------------------------------
+ * Analyse l’URL et exécute :
+ * - le contrôleur défini
+ * - la méthode correspondante
+ * - puis charge la vue associée
+ *
+ * Exemple :
+ *   URL : /login
+ *   → AuthController::login()
+ */
+$router->dispatch($uri);

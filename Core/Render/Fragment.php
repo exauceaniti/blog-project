@@ -51,4 +51,19 @@ class Fragment
         extract($params);
         include self::$basePath . 'footer.php';
     }
+
+    /**
+     * Injecte un composant réutilisable
+     */
+    public static function component(string $name, array $params = []): void
+    {
+        extract($params);
+        $path = __DIR__ . '/../Components/' . ucfirst($name) . '.php';
+
+        if (file_exists($path)) {
+            include $path;
+        } else {
+            throw new \Exception("Le composant '$name' n'existe pas.");
+        }
+    }
 }

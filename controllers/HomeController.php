@@ -1,5 +1,7 @@
 <?php
 
+namespace controllers;
+
 //Controller metier 
 
 use Core\BaseController;

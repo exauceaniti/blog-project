@@ -17,4 +17,4 @@ $page_title = $page_title ?? 'Mon Blog';
 <title><?= htmlspecialchars($page_title) ?></title>
 
 <!-- CSS principal -->
-<link rel="stylesheet" href="/assets/css/index.css">
+<link rel="stylesheet" href="/assets/css/base.css">
