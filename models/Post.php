@@ -1,5 +1,11 @@
 <?php
 
+namespace models;
+
+use Connexion;
+use PDO;
+use Exception;
+
 require_once __DIR__ . '/../config/connexion.php';
 
 /**
@@ -10,28 +16,25 @@ require_once __DIR__ . '/../config/connexion.php';
 class Post
 {
     /**
-     * @var Connexion $db Objet Connexion (qui gère PDO)
+     * @var Connexion Instance de connexion à la base de données
      */
-    private $db;
+    private Connexion $db;
 
     /**
      * Constructeur
+     * Initialise la connexion via le singleton Connexion
      * 
-     * @param Connexion $connexion Instance de la classe Connexion
-     * @throws Exception si la connexion n'est pas initialisée
+     * @throws Exception si la connexion échoue
      */
-    public function __construct($connexion)
+    public function __construct()
     {
-        if (!$connexion instanceof Connexion) {
-            throw new Exception("La connexion à la base de données doit être une instance de Connexion !");
-        }
-        $this->db = $connexion;
+        $this->db = Connexion::getInstance();
     }
 
     /**
      * Ajouter un nouvel article
      */
-    public function ajouterArticle($titre, $contenu, $auteurId, $mediaPath = null, $mediaType = null): bool
+    public function ajouterArticle(string $titre, string $contenu, int $auteurId, ?string $mediaPath = null, ?string $mediaType = null): bool
     {
         $sql = "INSERT INTO articles (titre, contenu, auteur_id, media_path, media_type) VALUES (?, ?, ?, ?, ?)";
         $stmt = $this->db->executerRequete($sql, [$titre, $contenu, $auteurId, $mediaPath, $mediaType]);
@@ -41,17 +44,13 @@ class Post
     /**
      * Modifier un article existant
      */
-    public function modifierArticle($id, $titre, $contenu, $auteurId, $mediaPath = null, $mediaType = null): bool
+    public function modifierArticle(int $id, string $titre, string $contenu, int $auteurId, ?string $mediaPath = null, ?string $mediaType = null): bool
     {
         if ($mediaPath) {
-            $sql = "UPDATE articles 
-                SET titre = ?, contenu = ?, auteur_id = ?, media_path = ?, media_type = ?, updated_at = NOW()
-                WHERE id = ?";
+            $sql = "UPDATE articles SET titre = ?, contenu = ?, auteur_id = ?, media_path = ?, media_type = ?, updated_at = NOW() WHERE id = ?";
             $params = [$titre, $contenu, $auteurId, $mediaPath, $mediaType, $id];
         } else {
-            $sql = "UPDATE articles 
-                SET titre = ?, contenu = ?, auteur_id = ?, updated_at = NOW()
-                WHERE id = ?";
+            $sql = "UPDATE articles SET titre = ?, contenu = ?, auteur_id = ?, updated_at = NOW() WHERE id = ?";
             $params = [$titre, $contenu, $auteurId, $id];
         }
 
@@ -59,11 +58,10 @@ class Post
         return $stmt && $stmt->rowCount() > 0;
     }
 
-
     /**
      * Supprimer un article par ID
      */
-    public function supprimerArticle($id): bool
+    public function supprimerArticle(int $id): bool
     {
         $sql = "DELETE FROM articles WHERE id = ?";
         $stmt = $this->db->executerRequete($sql, [$id]);
@@ -73,37 +71,31 @@ class Post
     /**
      * Voir un article par ID
      */
-    public function voirArticle($id)
+    public function voirArticle(int $id): array|false
     {
         $sql = "SELECT * FROM articles WHERE id = ?";
-        return $this->db->executerRequete($sql, [$id])->fetch();
+        return $this->db->executerRequete($sql, [$id])->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
      * Récupérer tous les articles avec info auteur
      */
-    public function getAllArticles()
+    public function getAllArticles(): array
     {
-        $pdo = $this->db->connecter();
-
         $sql = "SELECT 
-                a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
-                u.nom AS auteur_nom, u.email AS auteur_email
-            FROM articles a
-            JOIN utilisateurs u ON a.auteur_id = u.id
-            ORDER BY a.date_publication DESC";
+                    a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
+                    u.nom AS auteur_nom, u.email AS auteur_email
+                FROM articles a
+                JOIN utilisateurs u ON a.auteur_id = u.id
+                ORDER BY a.date_publication DESC";
 
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute();
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->db->executerRequete($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
-
     /**
-     * Rechercher articles par mot-clé (titre ou contenu)
+     * Rechercher des articles par mot-clé
      */
-    public function rechercherArticle($motCle)
+    public function rechercherArticle(string $motCle): array
     {
         $keywords = explode(' ', trim($motCle));
         $conditions = [];
@@ -115,10 +107,11 @@ class Post
             $params[] = "%$word%";
         }
 
-        $sql = "SELECT a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
-                       au.nom AS auteur_nom, au.email AS auteur_email
+        $sql = "SELECT 
+                    a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
+                    u.nom AS auteur_nom, u.email AS auteur_email
                 FROM articles a
-                JOIN utilisateurs au ON a.auteur_id = au.id";
+                JOIN utilisateurs u ON a.auteur_id = u.id";
 
         if (!empty($conditions)) {
             $sql .= " WHERE " . implode(' OR ', $conditions);
@@ -126,22 +119,23 @@ class Post
 
         $sql .= " ORDER BY a.date_publication DESC";
 
-        return $this->db->executerRequete($sql, $params)->fetchAll();
+        return $this->db->executerRequete($sql, $params)->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Récupérer les articles d'un auteur
+     * Récupérer les articles d’un auteur
      */
-    public function rechercherArticleParAuteur($auteurId)
+    public function rechercherArticleParAuteur(int $auteurId): array
     {
-        $sql = "SELECT a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
-                       au.nom AS auteur_nom, au.email AS auteur_email
+        $sql = "SELECT 
+                    a.id, a.titre, a.contenu, a.media_path, a.media_type, a.date_publication,
+                    u.nom AS auteur_nom, u.email AS auteur_email
                 FROM articles a
-                JOIN utilisateurs au ON a.auteur_id = au.id
+                JOIN utilisateurs u ON a.auteur_id = u.id
                 WHERE a.auteur_id = ?
                 ORDER BY a.date_publication DESC";
 
-        return $this->db->executerRequete($sql, [$auteurId])->fetchAll();
+        return $this->db->executerRequete($sql, [$auteurId])->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -154,29 +148,27 @@ class Post
     }
 
     /**
-     * Compter tous les articles d'un auteur
+     * Compter les articles d’un auteur
      */
-    public function countAllArticlesParAuteur($auteurId): int
+    public function countAllArticlesParAuteur(int $auteurId): int
     {
         $sql = "SELECT COUNT(*) FROM articles WHERE auteur_id = ?";
         return (int) $this->db->executerRequete($sql, [$auteurId])->fetchColumn();
     }
 
-
     /**
-     * @param mixed $limit
-     * @return array
-     * Récupérer les articles récents avec info auteur
+     * Récupérer les articles récents
      */
-    public function getRecentArticles($limit = 5)
+    public function getRecentArticles(int $limit = 5): array
     {
-        $sql = "SELECT a.id, a.titre, a.date_publication, u.nom AS auteur_nom
-            FROM articles a
-            JOIN utilisateurs u ON a.auteur_id = u.id
-            ORDER BY a.date_publication DESC
-            LIMIT ?";
-        return $this->db->executerRequete($sql, [$limit])->fetchAll();
+        $sql = "SELECT 
+                    a.id, a.titre, a.date_publication,
+                    u.nom AS auteur_nom
+                FROM articles a
+                JOIN utilisateurs u ON a.auteur_id = u.id
+                ORDER BY a.date_publication DESC
+                LIMIT ?";
+
+        return $this->db->executerRequete($sql, [$limit])->fetchAll(PDO::FETCH_ASSOC);
     }
-
-
 }
