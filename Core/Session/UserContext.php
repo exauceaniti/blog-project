@@ -2,26 +2,66 @@
 
 namespace Core\Session;
 
+/**
+ * Classe UserContext
+ * 
+ * Centralise l’accès aux informations de session utilisateur
+ */
 class UserContext
 {
-    public static function name(): string
+    /**
+     * Vérifie si un utilisateur est connecté
+     */
+    public static function isAuthenticated(): bool
     {
-        return $_SESSION['user']['name'] ?? 'Invité';
+        return isset($_SESSION['user']);
     }
 
-    public static function role(): string
+    /**
+     * Vérifie si l’utilisateur est admin
+     */
+    public static function isAdmin(): bool
     {
-        return $_SESSION['user']['role'] ?? 'visiteur';
+        return $_SESSION['user']['role'] ?? '' === 'admin';
     }
 
-   
-    // public static function avatar(): ?string
-    // {
-    //     return $_SESSION['user']['avatar'] ?? null;
-    // }
+    /**
+     * Vérifie si l’utilisateur est un utilisateur normal
+     */
+    public static function isUser(): bool
+    {
+        return $_SESSION['user']['role'] ?? '' === 'user';
+    }
 
-    public static function id(): ?int
+    /**
+     * Retourne l’ID de l’utilisateur connecté
+     */
+    public static function getId(): ?int
     {
         return $_SESSION['user']['id'] ?? null;
+    }
+
+    /**
+     * Retourne le nom de l’utilisateur connecté
+     */
+    public static function getName(): ?string
+    {
+        return $_SESSION['user']['nom'] ?? null;
+    }
+
+    /**
+     * Retourne l’email de l’utilisateur connecté
+     */
+    public static function getEmail(): ?string
+    {
+        return $_SESSION['user']['email'] ?? null;
+    }
+
+    /**
+     * Retourne toutes les infos de l’utilisateur
+     */
+    public static function getUser(): ?array
+    {
+        return $_SESSION['user'] ?? null;
     }
 }

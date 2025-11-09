@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Summary of namespace Core\Session
+ * Classe gérant les messages flash pour les notifications utilisateur.
+ * @package Core\Session
+ * 
+ */
 namespace Core\Session;
 
 use Core\Render\Fragment;

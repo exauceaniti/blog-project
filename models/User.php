@@ -1,167 +1,76 @@
 <?php
 
+namespace models;
+
+use Connexion;
+use PDO;
+
+require_once dirname(__DIR__) . '/config/connexion.php';
+
+/**
+ * Classe User
+ * 
+ * Gère les opérations liées aux utilisateurs : création, recherche, etc.
+ */
 class User
 {
-    private $conn;
-
-    public function __construct($connexion)
-    {
-        $this->conn = $connexion;
-    }
-
-    // ========================= UTILISATEUR =========================
+    /**
+     * @var Connexion Instance de connexion à la base de données
+     */
+    private Connexion $db;
 
     /**
-     * Récupérer un utilisateur par email
+     * Constructeur
+     * Initialise la connexion via le singleton Connexion
      */
-    public function findByEmail(string $email)
+    public function __construct()
     {
-        $sql = "SELECT id, nom, email, password, role FROM utilisateurs WHERE email = ?";
-        $stmt = $this->conn->executerRequete($sql, [$email]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $this->db = Connexion::getInstance();
     }
-    public function isAdmin($userId): bool
-    {
-        $sql = "SELECT role FROM utilisateurs WHERE id = ?";
-        $stmt = $this->conn->executerRequete($sql, [$userId]);
-        $result = $stmt->fetch();
-        return $result && $result['role'] === 'admin';
-    }
-
-    public function getUserById($id)
-    {
-        $sql = "SELECT id, nom, email, role FROM utilisateurs WHERE id = ?";
-        return $this->conn->executerRequete($sql, [$id])->fetch(PDO::FETCH_ASSOC);
-    }
-
-
-
 
     /**
-     * Inscription d'un utilisateur
+     * Rechercher un utilisateur par email
      */
-    public function sInscrire($email, $password, $nom = null, $role = 'user')
+    public function findByEmail(string $email): array|false
     {
-        $stmt = $this->conn->executerRequete("SELECT * FROM utilisateurs WHERE email = ?", [$email]);
-        if ($stmt->fetch())
-            return false;
+        $sql = "SELECT * FROM utilisateurs WHERE email = ?";
+        return $this->db->executerRequete($sql, [$email])->fetch(PDO::FETCH_ASSOC);
+    }
 
-        $nom = $nom ?: 'Utilisateur';
-        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-
+    /**
+     * Créer un nouvel utilisateur
+     */
+    public function create(string $nom, string $email, string $hashedPassword, string $role = 'user'): bool
+    {
         $sql = "INSERT INTO utilisateurs (nom, email, password, role) VALUES (?, ?, ?, ?)";
-        $this->conn->executerRequete($sql, [$nom, $email, $hashedPassword, $role]);
-
-        return true;
+        $stmt = $this->db->executerRequete($sql, [$nom, $email, $hashedPassword, $role]);
+        return $stmt->rowCount() > 0;
     }
 
     /**
-     * Connexion utilisateur
+     * Récupérer un utilisateur par ID
      */
-    public function seConnecter($email, $password)
+    public function findById(int $id): array|false
     {
-        $user = $this->findByEmail($email);
-        if ($user && password_verify($password, $user['password'])) {
-            return $user;
-        }
-        return false;
-    }
-
-
-
-    /**
-     * Vérifie si un utilisateur est connecté
-     */
-    public function estConnecte(): bool
-    {
-        return isset($_SESSION['user']);
+        $sql = "SELECT * FROM utilisateurs WHERE id = ?";
+        return $this->db->executerRequete($sql, [$id])->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Déconnexion utilisateur
+     * Vérifier si un email est déjà utilisé
      */
-    public function seDeconnecter()
+    public function emailExists(string $email): bool
     {
-        session_destroy();
-    }
-
-    // ========================= GESTION UTILISATEURS =========================
-
-    /**
-     * Récupérer tous les utilisateurs
-     */
-    public function voirUtilisateurs(): array
-    {
-        $sql = "SELECT id, nom, email, role FROM utilisateurs ORDER BY id DESC";
-        return $this->conn->executerRequete($sql)->fetchAll();
-    }
-
-    /**
-     * Compter tous les utilisateurs
-     * @return int
-     */
-    public function countAllUsers(): int
-    {
-        $sql = "SELECT COUNT(*) AS total FROM utilisateurs";
-        $stmt = $this->conn->executerRequete($sql);
-        $result = $stmt->fetch();
-        return $result['total'] ?? 0;
-    }
-
-    /**
-     * Modifier le rôle d'un utilisateur
-     */
-    public function changerRole($id, $nouveauRole)
-    {
-        $sql = "UPDATE utilisateurs SET role = ? WHERE id = ?";
-        $this->conn->executerRequete($sql, [$nouveauRole, $id]);
+        return $this->findByEmail($email) !== false;
     }
 
     /**
      * Supprimer un utilisateur
      */
-    public function supprimerUtilisateur($id)
+    public function delete(int $id): bool
     {
         $sql = "DELETE FROM utilisateurs WHERE id = ?";
-        $this->conn->executerRequete($sql, [$id]);
+        $stmt = $this->db->executerRequete($sql, [$id]);
+        return $stmt->rowCount() > 0;
     }
-
-    // ========================= ARTICLES ET COMMENTAIRES =========================
-
-    /**
-     * Créer un article pour l'utilisateur connecté
-     */
-    public function creeArticle($titre, $contenu)
-    {
-        $sql = "INSERT INTO articles (titre, contenu, auteur_id, date_publication) VALUES (?, ?, ?, NOW())";
-        return $this->conn->executerRequete($sql, [$titre, $contenu, $_SESSION['user']['id']]);
-    }
-
-    /**
-     * Créer un commentaire pour l'utilisateur connecté
-     */
-    public function creeCommentaire($contenu, $articleId)
-    {
-        $sql = "INSERT INTO commentaires (contenu, article_id, auteur_id, date_commentaire) VALUES (?, ?, ?, NOW())";
-        return $this->conn->executerRequete($sql, [$contenu, $articleId, $_SESSION['user']['id']]);
-    }
-
-    /**
-     * Récupérer tous les utilisateurs
-     */
-
-    public function getAllUsers()
-    {
-        $sql = "SELECT id, nom, email, role FROM utilisateurs ORDER BY id DESC";
-        return $this->conn->executerRequete($sql)->fetchAll();
-    }
-
-
-    public function updateUser($id, $nom, $email, $role)
-    {
-        $sql = "UPDATE utilisateurs SET nom = ?, email = ?, role = ? WHERE id = ?";
-        $this->conn->executerRequete($sql, [$nom, $email, $role, $id]);
-    }
-
-
 }

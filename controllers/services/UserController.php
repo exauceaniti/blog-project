@@ -1,104 +1,85 @@
 <?php
 
-require_once __DIR__ . '/../config/connexion.php';
-require_once __DIR__ . '/../models/User.php';
+namespace controllers\services;
 
-class UserController
+use Core\BaseController;
+use Core\Session\FlashManager;
+use Core\Http\Redirector;
+use Core\Auth\Authentification;
+use models\User;
+use controllers\layout\LayoutController;
+
+require_once dirname(__DIR__, 2) . '/models/User.php';
+require_once dirname(__DIR__, 2) . '/Core/Auth/Authentification.php';
+
+class UserController extends BaseController
 {
-    private User $user;
-
-    public function __construct($connexion)
+    /**
+     * Affiche le formulaire de connexion ou traite la soumission
+     */
+    public function login(): void
     {
-        $this->user = new User($connexion);
-    }
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = $_POST['email'] ?? '';
+            $password = $_POST['password'] ?? '';
 
-    public function login()
-    {
-        $email = trim($_POST['email'] ?? '');
-        $password = trim($_POST['password'] ?? '');
-        $remember = isset($_POST['remember']);
-
-        if (empty($email) || empty($password)) {
-            return ['view' => 'public/login', 'data' => ['error' => 'Champs obligatoires']];
-        }
-
-        $user = $this->user->seConnecter($email, $password);
-
-        if ($user) {
-            $_SESSION['user'] = [
-                'id' => $user['id'],
-                'nom' => $user['nom'],
-                'email' => $user['email'],
-                'role' => $user['role']
-            ];
-
-            if ($remember) {
-                setcookie('remember_email', $email, time() + 30 * 24 * 3600, '/', '', false, true);
+            if (Authentification::login($email, $password)) {
+                $role = $_SESSION['user']['role'] ?? 'user';
+                $redirect = $role === 'admin' ? '/admin/dashboard' : '/profile';
+                Redirector::to($redirect);
+            } else {
+                FlashManager::set('error', 'Email ou mot de passe incorrect.');
+                Redirector::to('/login');
             }
-
-            return ['redirect' => $user['role'] === 'admin' ? 'admin/dashboard' : 'public/home'];
+        } else {
+            $layout = new LayoutController();
+            $layout->autoTitle($_SERVER['REQUEST_URI']);
+            $layout->render('public/login');
         }
-
-        return ['view' => 'public/login', 'data' => ['error' => 'Email ou mot de passe incorrect']];
-    }
-
-    public function logout(): void
-    {
-        session_unset();
-        session_destroy();
-        header('Location: index.php?route=public/home');
-        exit;
-    }
-
-    public function register(string $nom, string $email, string $password): array
-    {
-        $nom = trim($nom);
-        $email = trim($email);
-        $password = trim($password);
-
-        if (empty($nom) || empty($email) || empty($password)) {
-            return ['success' => false, 'message' => 'Tous les champs sont obligatoires !'];
-        }
-
-        $result = $this->user->sInscrire($email, $password, $nom);
-        if ($result) {
-            return ['success' => true, 'message' => 'Compte créé avec succès.'];
-        }
-
-        return ['success' => false, 'message' => 'Cet email est déjà utilisé !'];
     }
 
     /**
-     * 🔹 Affiche la gestion des utilisateurs (admin/manage_users)
+     * Déconnecte l’utilisateur
      */
-    public function manageUsers()
+    public function logout(): void
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-            header('Location: index.php?route=admin/login');
-            exit;
+        Authentification::logout();
+        FlashManager::set('success', 'Déconnexion réussie.');
+        Redirector::to('/login');
+    }
+
+    /**
+     * Affiche le formulaire d’inscription ou traite la soumission
+     */
+    public function register(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nom = trim($_POST['nom'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $password = $_POST['password'] ?? '';
+
+            if (!$nom || !$email || !$password) {
+                FlashManager::set('error', 'Tous les champs sont obligatoires.');
+                Redirector::to('/register');
+                return;
+            }
+
+            $userModel = new User();
+            if ($userModel->findByEmail($email)) {
+                FlashManager::set('error', 'Cet email est déjà utilisé.');
+                Redirector::to('/register');
+                return;
+            }
+
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            $userModel->create($nom, $email, $hashedPassword);
+
+            FlashManager::set('success', 'Compte créé avec succès. Connecte-toi maintenant.');
+            Redirector::to('/login');
+        } else {
+            $layout = new LayoutController();
+            $layout->autoTitle($_SERVER['REQUEST_URI']);
+            $layout->render('public/register');
         }
-
-        $users = $this->user->getAllUsers();
-        require __DIR__ . '/../views/admin/manage_users.php';
     }
-
-    public function deleteUser($id, $newRole)
-    {
-        $this->user->supprimerUtilisateur($id);
-        $newRole = in_array($newRole, ['user', 'admin']) ? $newRole : 'user';
-        return ['redirect' => 'admin/manage_users'];
-    }
-
-    public function changeUserRole($id, $newRole)
-    {
-        $this->user->changerRole($id, $newRole);
-        return ['redirect' => 'admin/manage_users'];
-    }
-
-    public function editUser($id, $nom, $email, $role)
-    {
-        $this->user->updateUser($id, $nom, $email, $role);
-        return ['redirect' => 'admin/manage_users'];
-    }
-
 }
