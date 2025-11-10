@@ -1,10 +1,14 @@
 <?php
-/** Classe responsable de la gestion du routage.
- * Elle utilise une collection de routes et un analyseur de routes
- * pour dispatcher les requêtes vers les contrôleurs appropriés.
-*/
 
 namespace Core\Routing;
+
+/**
+ * Classe Router
+ * 
+ * Gère le routage des requêtes HTTP vers les contrôleurs appropriés
+ * Les routes recoivent l'URI, recherche la route correspondante, verifie le Middleware,
+ * puis invoque le contrôleur et la méthode associés.
+ */
 
 class Router
 {
@@ -26,19 +30,19 @@ class Router
             return;
         }
 
+        // Vérification des middleware
+        if (isset($match['middleware']) && is_array($match['middleware'])) {
+            foreach ($match['middleware'] as $middleware) {
+                $middlewareClass = "Core\\Middleware\\" . ucfirst($middleware) . "Middleware";
+                if (class_exists($middlewareClass) && method_exists($middlewareClass, 'handle')) {
+                    $middlewareClass::handle();
+                }
+            }
+        }
+
         $this->call($match['controller'], $match['method'], $match['params']);
     }
 
-    
-    /**
-     * Appelle la méthode d'un contrôleur avec les paramètres donnés.
-     * Summary of call
-     * @param string $controllerName
-     * @param string $method
-     * @param array $params
-     * @throws \Exception
-     * @return void
-     */
     private function call(string $controllerName, string $method, array $params): void
     {
         $controllerClass = "\\controllers\\" . $controllerName;

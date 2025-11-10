@@ -7,80 +7,109 @@
  */
 
 return [
-    // Routes publiques
+    // Routes qui menent a la page publics pour tout utilisateur connecter ou non connecter.
     [
         'pattern' => '#^/(home)?$#',
         'controller' => 'HomeController',
         'method' => 'index'
     ],
+
+    //Routes qui menent a la page des articles pour tout utilisateur connecter ou non connecter.
     [
         'pattern' => '#^/articles$#',
         'controller' => 'HomeController',
         'method' => 'articles'
     ],
+
+    // Route pour afficher un article spécifique avec des parametres dynamiques
     [
         'pattern' => '#^/article/(?<id>\d+)-(?<slug>[^/]+)$#',
         'controller' => 'HomeController',
         'method' => 'showArticle'
     ],
+
+    // Route pour la page de contact accessible uniquement aux utilisateurs authentifiés
     [
         'pattern' => '#^/contact$#',
         'controller' => 'ContactController',
-        'method' => 'show'
+        'method' => 'show',
+        'middleware' => ['auth']
     ],
 
-    // Routes admin
+    // Routes admin qui menent a la page de connexion pour tout utilisateur connecter ou non connecter.
     [
-        'pattern' => '#^/admin/login$#',
+        'pattern' => '#^/public/login$#',
         'controller' => 'AdminController',
         'method' => 'login'
     ],
+
+    // Tableau des routes admin protégées par le middleware AdminMiddleware
     [
         'pattern' => '#^/admin/dashboard$#',
         'controller' => 'AdminController',
-        'method' => 'dashboard'
+        'method' => 'dashboard',
+        'middleware' => ['auth','admin']
     ],
 
-    // Gestion des articles
+    // Routes pour la gestion des articles uniquement pour l'administrateur
     [
         'pattern' => '#^/admin/manage_posts$#',
         'controller' => 'PostController',
-        'method' => 'managePosts'
+        'method' => 'managePosts',
+        'middleware' => ['auth','admin']
     ],
+
+    // Routes pur cree un nouvelle articles, uniquement pour l'adin dans un premier temps
     [
         'pattern' => '#^/admin/create_post$#',
         'controller' => 'PostController',
-        'method' => 'create'
+        'method' => 'create',
+        'middleware' => ['auth','admin']
     ],
+
+    // Routes pour mettre a jour un article, uniquement pour l'administrateur pour le premier temps
     [
         'pattern' => '#^/admin/update_post$#',
         'controller' => 'PostController',
-        'method' => 'update'
+        'method' => 'update',
+        'middleware' => ['auth','admin']
     ],
+
+    // Routes pour supprimer un article, uniquement pour l'administrateur pour le premier temps
     [
         'pattern' => '#^/admin/delete_post$#',
         'controller' => 'PostController',
-        'method' => 'delete'
+        'method' => 'delete',
+        'middleware' => ['auth','admin']
     ],
 
-    // Gestion des utilisateurs
+    // Routes qui menent a la gestion des utilisateurs uniquement pour l'administrateur pour le premier temps
     [
         'pattern' => '#^/admin/manage_users$#',
         'controller' => 'UserController',
-        'method' => 'manageUsers'
+        'method' => 'manageUsers',
+        'middleware' => ['auth','admin']
     ],
 
-    // Gestion des commentaires
+    // Routes pour la gestion des commentaires uniquement pour l'administrateur pour le premier temps
     [
         'pattern' => '#^/admin/manage_comments$#',
         'controller' => 'CommentController',
-        'method' => 'manageComments'
+        'method' => 'manageComments',
+        'middleware' => ['auth','admin']
+    ],
+
+    // ROutes pour afficher un message d'acces refuser ou non autoriser
+    [
+        'pattern' => '#^/unauthorized$#',
+        'controller' => 'ErrorController',
+        'method' => 'unauthorized',
     ],
 
     // Déconnexion
     [
         'pattern' => '#^/admin/logout$#',
         'controller' => 'AdminController',
-        'method' => 'logout'
+        'method' => 'logout',
     ]
 ];

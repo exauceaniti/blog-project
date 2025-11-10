@@ -39,27 +39,4 @@ class Authentification
         session_destroy();
     }
 
-    /**
-     * Vérifie si un utilisateur est connecté
-     */
-    public static function isAuthenticated(): bool
-    {
-        return isset($_SESSION['user']);
-    }
-
-    /**
-     * Vérifie si l’utilisateur est admin
-     */
-    public static function isAdmin(): bool
-    {
-        return $_SESSION['user']['role'] ?? '' === 'admin';
-    }
-
-    /**
-     * Retourne les infos de l’utilisateur connecté
-     */
-    public static function getUser(): ?array
-    {
-        return $_SESSION['user'] ?? null;
-    }
 }
