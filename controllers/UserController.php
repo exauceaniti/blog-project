@@ -1,18 +1,17 @@
 <?php
 
-namespace controllers\services;
+namespace controllers;
 
-use Core\BaseController;
 use Core\Session\FlashManager;
 use Core\Http\Redirector;
 use Core\Auth\Authentification;
 use models\User;
 use controllers\layout\LayoutController;
 
-require_once dirname(__DIR__, 2) . '/models/User.php';
-require_once dirname(__DIR__, 2) . '/Core/Auth/Authentification.php';
-
-class UserController extends BaseController
+require_once dirname(__DIR__) . '/models/User.php';
+require_once dirname(__DIR__) . '/Core/Auth/Authentification.php';
+    
+class UserController
 {
     /**
      * Affiche le formulaire de connexion ou traite la soumission

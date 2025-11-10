@@ -3,10 +3,16 @@
 namespace Core\Resolver;
 
 use Core\Render\Fragment;
+use Core\Session\FlashManager;
 
 /**
  * InjectResolver
- * Centralise l’injection des fragments HTML dans le layout
+ * Centralise l’injection des fragments HTML dans une seule methode
+ * @injectAll injecte tous les fragments nécessaires (meta, header, footer)
+ * celui ci inject aussi les FlashManager pour les messages flash
+ * cette methode est ensuite appeles dans le LayoutController::render 
+ * et c'est ce qui est directement appeler dans les templates de layout
+ * pour afficher automatiquement les fragments requis necessaires pour les pages.
  */
 class InjectResolver
 {
@@ -23,11 +29,6 @@ class InjectResolver
         Fragment::header($layoutData);
     }
 
-    public static function injectNav(array $layoutData): void
-    {
-        Fragment::nav($layoutData);
-    }
-
     public static function injectFooter(): void
     {
         Fragment::footer();
@@ -37,7 +38,7 @@ class InjectResolver
     {
         self::injectMeta($layoutData);
         self::injectHeader($layoutData);
-        self::injectNav($layoutData);
+        FlashManager::inject();
         self::injectFooter();
     }
 }

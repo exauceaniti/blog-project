@@ -4,7 +4,8 @@ namespace Core\Render;
 
 /**
  * Classe responsable du rendu des vues avec ou sans template global.
- * Permet d'injecter dynamiquement des variables dans une vue et de l'encapsuler dans un layout.
+ * Permet d'injecter dynamiquement des variables dans une vue 
+ * et de l'encapsuler dans un layout.
  */
 
 class RenderViews
@@ -18,38 +19,26 @@ class RenderViews
      *
      * @return void
      */
-    public static function renderView(string $viewPath, array $params = [], ?string $template = null): void
-    {
-        // Injecte les variables dans le scope local
-        extract($params);
+   public static function renderView(string $viewPath, array $params = [], ?string $template = null): void
+{
+    extract($params);
 
-        // Chemin absolu vers la vue
-        $path = dirname(__DIR__, 2) . "/views/{$viewPath}.php";
+    $viewFullPath = dirname(__DIR__, 2) . "/views/{$viewPath}.php";
 
-        // Si un template est fourni
-        if ($template !== null) {
-            $pathTemplate = dirname(__DIR__, 2) . "/templates/{$template}.php";
+    if ($template !== null) {
+        $templateFullPath = dirname(__DIR__, 2) . "/templates/{$template}.php";
 
-            // Capture le contenu de la vue
-            ob_start();
-            include $path;
-            $content = ob_get_clean();
+        ob_start();
+        require $viewFullPath;
+        $page_view = ob_get_clean();
 
-            // Injecte le contenu dans une variable pour le template
-            extract(["page_view" => $content]);
-
-            // Capture le rendu final du template
-            ob_start();
-            include $pathTemplate;
-            $page = ob_get_clean();
-
-            // Affiche la page complète
-            exit($page);
-        } else {
-            // Affiche directement la vue sans template
-            require $path;
-        }
-
-        exit();
+        extract(['page_view' => $page_view]);
+        require $templateFullPath;
+    } else {
+        require $viewFullPath;
     }
+
+    exit();
+}
+
 }

@@ -16,7 +16,7 @@ $user_role = $user_role ?? null;
         <?php endif; ?>
         <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
     <?php else: ?>
-        <li><a href="/login"><i class="fas fa-sign-in-alt"></i> Connexion</a></li>
-        <li><a href="/register"><i class="fas fa-user-plus"></i> Inscription</a></li>
+        <li><a href="/public/login"><i class="fas fa-sign-in-alt"></i> Connexion</a></li>
+        <li><a href="/public/register"><i class="fas fa-user-plus"></i> Inscription</a></li>
     <?php endif; ?>
 </ul>

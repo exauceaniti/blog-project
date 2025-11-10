@@ -9,8 +9,8 @@ class PageTitleResolver
         return match ($route) {
             '/' => 'Accueil',
             '/articles' => 'Nos Articles',
-            '/login' => 'Connexion',
-            '/register' => 'Inscription',
+            '/public/login' => 'Connexion',
+            '/public/register' => 'Inscription',
             '/admin/dashboard' => 'Espace Admin',
             default => 'Mon Blog',
         };

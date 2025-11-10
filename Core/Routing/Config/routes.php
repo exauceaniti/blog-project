@@ -36,12 +36,32 @@ return [
         'middleware' => ['auth']
     ],
 
-    // Routes admin qui menent a la page de connexion pour tout utilisateur connecter ou non connecter.
+    // Authentification publique
     [
         'pattern' => '#^/public/login$#',
-        'controller' => 'AdminController',
+        'controller' => 'UserController',
         'method' => 'login'
     ],
+    [
+        'pattern' => '#^/public/register$#',
+        'controller' => 'UserController',
+        'method' => 'register'
+    ],
+    [
+        'pattern' => '#^/public/logout$#',
+        'controller' => 'UserController',
+        'method' => 'logout',
+        'middleware' => ['auth']
+    ],
+
+    //Methode que je vais faire venir apres. 
+    // [
+    //     'pattern' => '#^/user/profile$#',
+    //     'controller' => 'UserController',
+    //     'method' => 'profile',
+    //     'middleware' => ['auth']
+    // ],
+
 
     // Tableau des routes admin protégées par le middleware AdminMiddleware
     [
@@ -106,10 +126,5 @@ return [
         'method' => 'unauthorized',
     ],
 
-    // Déconnexion
-    [
-        'pattern' => '#^/admin/logout$#',
-        'controller' => 'AdminController',
-        'method' => 'logout',
-    ]
+
 ];
