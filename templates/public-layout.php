@@ -7,8 +7,6 @@
 
  $layout = new \controllers\layout\LayoutController();
 
-
-
 /**Définition automatique du titre selon la route actuelle
  * Utilise PageTitleResolver pour éviter toute logique répétée.
 */
@@ -29,16 +27,13 @@ $layout->autoTitle($_SERVER['REQUEST_URI']);
     'email' => $layout->getLayoutData()['email'],
     'theme' => $layout->getLayoutData()['theme'],
 ]);
-
-
 ?>
 
-<!-- Zone principale d’affichage -->
-<!-- Le contenu dynamique de la vue est injecté ici par RenderViews -->
+
 <main>
     <?= $page_view ?>
 </main>
 
 <?php 
 //injection du footer
-\Core\Render\Fragment::footer();
+// \Core\Render\Fragment::footer();

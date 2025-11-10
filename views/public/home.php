@@ -9,7 +9,7 @@
             <h2><?= htmlspecialchars($article['titre']) ?></h2>
             <p><?= substr(htmlspecialchars($article['contenu']), 0, 150) ?>...</p>
             <p><strong>Auteur :</strong> <?= htmlspecialchars($article['auteur_nom'] ?? 'Inconnu') ?></p>
-            <a href="show.php?id=<?= $article['id'] ?>">Lire plus</a>
+            <a href="/article/<?= $article['id']?>-<?= $article['slug']?> " >📎 Lire la suite</a>
         </div>
     <?php endforeach; ?>
 
