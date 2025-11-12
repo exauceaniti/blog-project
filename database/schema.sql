@@ -39,3 +39,7 @@ CREATE TABLE commentaires (
   FOREIGN KEY (auteur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
   FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE
 );
+
+-- Ajouter un nouvelle utilisateur dans la base de donnee pour les testes avec role admin:
+INSERT INTO utilisateurs (nom, email, password, role) 
+VALUES ('admin', 'admin@gmail.com', 'admin123', 'admin');
