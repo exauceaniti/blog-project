@@ -8,12 +8,15 @@ use Src\Core\Session\FlashManager;
 use Src\Core\Http\Redirector;
 use Src\Core\Lang\MessageBag;
 use Src\Controller\BaseController;
+use Src\Service\CommentService;
 
 class PostController extends BaseController {
     private PostService $postService;
+    private CommentService $commentService;
 
-    public function __construct(PostService $postService) {
+    public function __construct(PostService $postService, CommentService $commentService) {
         $this->postService = $postService;
+        $this->commentService = $commentService;
     }
 
     /**
@@ -21,8 +24,15 @@ class PostController extends BaseController {
      */
     public function index(): void {
         $posts = $this->postService->getAllPosts();
-        $this->render('home/articles', ['articles_list' => $posts], 'layout/public');
+
+        // Ajouter le nombre de commentaires pour chaque article
+        foreach ($posts as $post) {
+            $post->comment_count = $this->commentService->getCommentsCountByArticle($post->id);
+        }
+
+        $this->render('home/index', ['articles_list' => $posts], 'layout/public');
     }
+
 
     /**
      * Affiche un article

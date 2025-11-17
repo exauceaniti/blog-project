@@ -1,91 +1,115 @@
-<!-- views/public/register.php -->
-
-<section class="register-section">
-    <h2>Créer un compte</h2>
-
-    <?php if (isset($_SESSION['flash'])): ?>
-        <div class="flash-message <?= $_SESSION['flash']['type'] ?>">
-            <?= $_SESSION['flash']['message'] ?>
-        </div>
-        <?php unset($_SESSION['flash']); ?>
-    <?php endif; ?>
-
-    <form method="POST" action="/register">
-        <div class="form-group">
-            <label for="nom">Nom complet</label>
-            <input type="text" name="nom" id="nom" required placeholder=" votre nom ">
-        </div>
-
-        <div class="form-group">
-            <label for="email">Adresse email</label>
-            <input type="email" name="email" id="email" required placeholder="ex: Exemple@gmail.com">
-        </div>
-
-        <div class="form-group">
-            <label for="password">Mot de passe</label>
-            <input type="password" name="password" id="password" required placeholder="••••••••">
-        </div>
-
-        <button type="submit">S’inscrire</button>
-    </form>
-
-    <p class="register-hint">Déjà inscrit ? <a href="/login">Se connecter</a></p>
-</section>
+ 
+ 
+ <div class="container">
+        <h1>Inscription</h1>
+        
+        <form action="/register" method="post">
+            <label for="nom">Nom :</label>
+            <input type="text" name="nom" id="nom" required>
+            
+            <label for="email">Email :</label>
+            <input type="email" name="email" id="email" required>
+            
+            <label for="password">Mot de passe :</label>
+            <input type="password" name="password" id="password" required>
+            
+            <button type="submit">S'inscrire</button>
+        </form>
+        
+        <p>Déjà inscrit ? <a href="/login">Se connecter</a></p>
+    </div>
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-<style>
-    .register-section {
-        max-width: 400px;
-        margin: 50px auto;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        background-color: #f9f9f9;
-    }
-
-    .register-section h2 {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    .form-group {
-        margin-bottom: 15px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-    }
-
-    .form-group input {
-        width: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-    }
-
-    button {
-        width: 100%;
-        padding: 10px;
-        background-color: #28a745;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background-color: #218838;
-    }
-</style>
+        <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input {
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            border-color: #4a90e2;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+        
+        button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #3a7bc8;
+        }
+        
+        p {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>

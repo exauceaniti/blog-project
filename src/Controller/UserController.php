@@ -6,8 +6,9 @@ use Src\Validator\UserValidator;
 use Src\Core\Session\FlashManager;
 use Src\Core\Http\Redirector;
 use Src\Core\Lang\MessageBag;
+use Src\Controller\BaseController;
 
-class UserController
+class UserController extends BaseController
 {
     private UserService $userService;
 
@@ -106,7 +107,7 @@ class UserController
 
         if (!$userId) {
             FlashManager::error(MessageBag::get('auth.required'));
-            Redirector::to('/login');
+            $this->render('errors/unauthorized', [], 'layout/public');
             return;
         }
 
@@ -118,7 +119,12 @@ class UserController
             return;
         }
 
+        // Rendu de la vue profil
+        $this->render('user/profile', ['user' => $user], 'layout/public');
+    }
+
+
         // Exemple de rendu (si tu utilises RenderViews via BaseController)
         // $this->render('user/profile', ['user' => $user], 'layouts/user');
-    }
+    
 }
