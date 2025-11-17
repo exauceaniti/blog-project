@@ -66,6 +66,14 @@ class MessageBag {
         'system.permission_denied' => "Permission refusée.",
         'system.action_success' => "Action effectuée avec succès.",
         'system.action_failed' => "Échec de l'action demandée.",
+
+        // 🏷️ Titres des pages
+        'titles./'                => "Accueil",
+        'titles./articles'        => "Nos Articles",
+        'titles./public/login'    => "Connexion",
+        'titles./public/register' => "Inscription",
+        'titles./user/profile'    => "Mon Profil",
+        'titles./admin/dashboard' => "Espace Admin",
     ];
 
     public static function get(string $key): string {

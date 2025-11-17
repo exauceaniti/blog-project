@@ -52,13 +52,13 @@ session_start();
  * On récupère uniquement le chemin de l'URL :
  *   /articles?id=3 → /articles
  */
-use Core\Routing\Router;
+use Src\Core\Routing\Router;
 
 // Récupération du chemin de la requête
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // Instanciation du router avec le fichier des routes
-$router = new Router(__DIR__ . '/Core/Routing/Config/routes.php');
+$router = new Router(__DIR__ . 'Src/Core/Routing/Config/routes.php');
 
 
 /* ---------------------------------------------------------

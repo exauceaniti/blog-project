@@ -1,22 +1,45 @@
 <?php
-/** Classe représentant une collection de routes. 
- * Elle charge les définitions de routes à partir d'un fichier de configuration
- * et fournit une méthode pour récupérer toutes les routes.
-*/
-
-namespace Core\Routing;
+namespace Src\Core\Routing;
 
 class RouteCollection
 {
     private array $routes = [];
 
-    public function __construct(string $configPath)
+    public function __construct(array $routesConfig)
     {
-        $this->routes = require $configPath;
+        foreach ($routesConfig as $route) {
+            $this->add($route);
+        }
+    }
+
+    private function add(array $route): void
+    {
+        $this->routes[] = [
+            'pattern'    => $route['pattern'],
+            'controller' => $route['controller'],
+            'method'     => $route['method'],
+            'middleware' => $route['middleware'] ?? [],
+        ];
     }
 
     public function all(): array
     {
         return $this->routes;
+    }
+
+    public function match(string $uri, string $method): ?array
+    {
+        foreach ($this->routes as $route) {
+            if (preg_match($route['pattern'], $uri, $matches)) {
+                $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+                return [
+                    'controller' => $route['controller'],
+                    'method'     => $route['method'],
+                    'middleware' => $route['middleware'],
+                    'params'     => $params
+                ];
+            }
+        }
+        return null;
     }
 }

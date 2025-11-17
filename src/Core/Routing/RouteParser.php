@@ -1,42 +1,27 @@
 <?php
-/** Classe responsable de l'analyse des routes.
- * Elle vérifie si une URI correspond à une route définie
- * et extrait les paramètres dynamiques.
-*/
-
-namespace Core\Routing;
+namespace Src\Core\Routing;
 
 class RouteParser
 {
-    public static function match(string $uri, array $routes): ?array
+    /**
+     * Transforme un chemin avec paramètres en regex
+     * Exemple : /article/{id}-{slug} → #^/article/(?<id>\d+)-(?<slug>[^/]+)$#
+     */
+    public static function toRegex(string $path): string
     {
-        foreach ($routes as $route) {
-            if (preg_match($route['pattern'], $uri, $matches)) {
-                $params = self::extractParams($matches);
-                return [
-                    'controller' => $route['controller'],
-                    'method' => $route['method'],
-                    'params' => $params
-                ];
-            }
-        }
-
-        return null;
+        $pattern = preg_replace('#\{id\}#', '(?P<id>\d+)', $path);
+        $pattern = preg_replace('#\{slug\}#', '(?P<slug>[^/]+)', $pattern);
+        return '#^' . $pattern . '$#';
     }
 
     /**
-     * Extrait les paramètres nommés des correspondances d'une expression régulière.
-     * @param array $matches
-     * @return array
+     * Extrait les paramètres depuis une URL
      */
-    private static function extractParams(array $matches): array
+    public static function extractParams(string $pattern, string $uri): array
     {
-        $params = [];
-        foreach ($matches as $key => $value) {
-            if (!is_int($key)) {
-                $params[$key] = $value;
-            }
+        if (preg_match($pattern, $uri, $matches)) {
+            return array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
         }
-        return $params;
+        return [];
     }
 }

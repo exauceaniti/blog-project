@@ -1,15 +1,8 @@
 <?php
-
 namespace controllers;
-
-// Contrôleur métier : gère les pages publiques liées aux articles
 
 use models\Post;
 use Core\BaseController;
-use controllers\layout\LayoutController;
-
-require_once __DIR__ . '/BaseController.php';
-require_once dirname(__DIR__) . '/models/Post.php';
 
 class HomeController extends BaseController
 {
@@ -35,11 +28,9 @@ class HomeController extends BaseController
     {
         $articles = $this->post->getAllArticles();
 
-        $layout = new LayoutController();
-        $layout->autoTitle($_SERVER['REQUEST_URI']);
-        $layout->render('public/home', [
+        $this->render('public/home', [
             'articles_list' => $articles
-        ]);
+        ], 'layouts/public');
     }
 
     /**
@@ -49,10 +40,24 @@ class HomeController extends BaseController
     {
         $articles = $this->post->getAllArticles();
 
-        $layout = new LayoutController();
-        $layout->autoTitle($_SERVER['REQUEST_URI']);
-        $layout->render('public/articles', [
+        $this->render('public/articles', [
             'articles_list' => $articles
-        ]);
+        ], 'layouts/public');
+    }
+
+    /**
+     * Page détail d’un article
+     */
+    public function show(int $id): void
+    {
+        $article = $this->post->getArticleById($id);
+
+        if (!$article) {
+            $this->redirect('/articles');
+        }
+
+        $this->render('public/article_detail', [
+            'article' => $article
+        ], 'layouts/public');
     }
 }

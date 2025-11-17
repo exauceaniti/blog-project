@@ -1,58 +1,72 @@
 <?php
+namespace Src\Core\Render;
 
-namespace Core\Render;
+use Src\Core\Lang\MessageBag;
+use Src\Core\Resolver\PageTitleResolver;
 
 /**
- * Classe responsable du rendu des vues avec ou sans template global.
- * Permet d'injecter dynamiquement des variables dans une vue 
- * et de l'encapsuler dans un layout.
+ * Classe RenderViews
+ * ------------------
+ * Moteur central de rendu des vues et des layouts.
+ *
+ * Responsabilités :
+ * - Charger une vue PHP et injecter ses variables.
+ * - Capturer le contenu de la vue et l’injecter dans un layout.
+ * - Résoudre automatiquement le titre de la page via PageTitleResolver + MessageBag.
+ * - Gérer les erreurs si une vue ou un layout est introuvable.
  */
-
 class RenderViews
 {
-/**
- * Rend une vue PHP avec des variables injectées, avec ou sans encapsulation dans un layout.
- *
- * @param string $viewPath   Le chemin relatif vers la vue (ex: 'public/home' pour 'views/public/home.php')
- * @param array $params      Les variables à rendre disponibles dans la vue (ex: ['user' => $user])
- * @param string|null $template Le nom du layout à utiliser (ex: 'public-layout' pour 'templates/public-layout.php')
- *
- * Fonctionnement :
- * - Si un layout est fourni :
- *   1. Charge la vue et capture son contenu dans $page_view
- *   2. Injecte $page_view + les variables dans le layout
- *   3. Affiche le layout complet
- * - Si aucun layout n’est fourni :
- *   1. Affiche directement la vue seule
- */
+    /**
+     * Rend une vue avec ou sans layout.
+     *
+     * @param string      $viewPath  Nom de la vue (ex: "home/index")
+     * @param array       $params    Données à injecter dans la vue
+     * @param string|null $template  Layout à utiliser (ex: "layout/public")
+     *
+     * @throws \Exception Si la vue ou le layout est introuvable
+     */
+    public function renderView(string $viewPath, array $params = [], ?string $template = null): void
+    {
+        // 1 Injection des variables dans le scope local
+        extract($params);
 
-   public static function renderView(string $viewPath, array $params = [], ?string $template = null): void
-{
-    /**injecte toutes les variables dans un scope local
-     * Donc la variable est sera aeecessible seulement dans la classe local
-    */
-    extract($params);
+        // 2 Résolution automatique du titre
+        // Exemple : "home/index" → MessageBag::get("titles.home.index")
+        $title = MessageBag::get("titles.$viewPath") 
+            ?? PageTitleResolver::resolve($_SERVER['REQUEST_URI']) 
+            ?? 'Mon Blog';
 
-    //Construit le chemin absolue vers la vue demander.
-    $viewFullPath = dirname(__DIR__, 2) . "/views/{$viewPath}.php";
+        // 3 Construction du chemin absolu vers la vue
+        $viewFullPath = dirname(__DIR__, 3) . "/Views/{$viewPath}.php";
 
-    //Si un layout est specifier, on encapsule la vue dedans
-    if ($template !== null) {
-        $templateFullPath = dirname(__DIR__, 2) . "/templates/{$template}.php";
+        if (!file_exists($viewFullPath)) {
+            throw new \Exception("Vue introuvable: {$viewPath}");
+        }
 
-        //Capture le rendu HTML de la vue dans la variable $page_view (sans afficher tout de suite)
-        ob_start();
-        require $viewFullPath;
-        $page_view = ob_get_clean();
+        // 4 Si un layout est fourni
+        if ($template !== null) {
+            $templateFullPath = dirname(__DIR__, 3) . "/templates/{$template}.php";
 
-        //Injecte $page_view + les variables dans le layout puis affiche le layout complet
-        extract(['page_view' => $page_view]);
-        require $templateFullPath;
-    } else {
-        require $viewFullPath;//Affiche directement la vue si un layout est choisie
+            if (!file_exists($templateFullPath)) {
+                throw new \Exception("Layout introuvable: {$template}");
+            }
+
+            // Capture du contenu de la vue
+            ob_start();
+            require $viewFullPath;
+            $page_view = ob_get_clean();
+
+            // Injection des variables globales dans le layout
+            extract([
+                'page_view' => $page_view,
+                'title'     => $title
+            ]);
+
+            require $templateFullPath;
+        } else {
+            // Pas de layout → affichage direct de la vue
+            require $viewFullPath;
+        }
     }
-
-    exit();//fin propre de l'executions.
-}
-
 }

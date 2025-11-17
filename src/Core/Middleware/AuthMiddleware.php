@@ -5,58 +5,62 @@ use Src\Core\Http\Redirector;
 use Src\Core\Session\FlashManager;
 use Src\Core\Lang\MessageBag;
 
-class AuthMiddleware {
+class AuthMiddleware
+{
     /**
      * Vérifie si l'utilisateur est connecté
-     * Si non, capture l'URL actuelle et redirige vers /login
      */
-    public static function requireAuth(): void {
-        if (!isset($_SESSION['user_id'])) {
-            $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-
-            FlashManager::error(MessageBag::get('auth.required'));
-            Redirector::to('/login');
-            exit;
-        }
+    private static function checkAuth(): bool
+    {
+        return isset($_SESSION['user_id']);
     }
 
     /**
-     * Vérifie si l'utilisateur est connecté ET est admin
-     * Sinon redirige vers /unauthorized
+     * Vérifie le rôle de l'utilisateur
      */
-    public static function requireAdmin(): void {
-        if (!isset($_SESSION['user_id'])) {
+    private static function hasRole(string $role): bool
+    {
+        return ($_SESSION['role'] ?? '') === $role;
+    }
+
+    /**
+     * Middleware générique : vérifie l'authentification et éventuellement le rôle
+     */
+    public static function handle(?string $requiredRole = null): void
+    {
+        if (!self::checkAuth()) {
+            // Capture l'URL actuelle pour redirection après login
             $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
 
             FlashManager::error(MessageBag::get('auth.required'));
-            Redirector::to('/login');
+            Redirector::to('/user/login');
             exit;
         }
 
-        if (($_SESSION['role'] ?? '') !== 'admin') {
-            FlashManager::error(MessageBag::get('auth.admin_only'));
+        if ($requiredRole && !self::hasRole($requiredRole)) {
+            $key = $requiredRole === 'admin' ? 'auth.admin_only' : 'auth.user_only';
+            FlashManager::error(MessageBag::get($key));
+            //Mise à jour du chemin unauthorized
             Redirector::to('/unauthorized');
             exit;
         }
     }
 
     /**
-     * Vérifie si l'utilisateur est connecté ET est un utilisateur standard
-     * Sinon redirige vers /unauthorized
+     * Alias pratiques
      */
-    public static function requireUser(): void {
-        if (!isset($_SESSION['user_id'])) {
-            $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+    public static function requireAuth(): void
+    {
+        self::handle();
+    }
 
-            FlashManager::error(MessageBag::get('auth.required'));
-            Redirector::to('/login');
-            exit;
-        }
+    public static function requireAdmin(): void
+    {
+        self::handle('admin');
+    }
 
-        if (($_SESSION['role'] ?? '') !== 'user') {
-            FlashManager::error(MessageBag::get('auth.user_only'));
-            Redirector::to('/unauthorized');
-            exit;
-        }
+    public static function requireUser(): void
+    {
+        self::handle('user');
     }
 }

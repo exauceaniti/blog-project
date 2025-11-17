@@ -11,7 +11,7 @@ class BaseController extends RenderViews
      *
      * @param string $view Nom de la vue (ex: 'public/home')
      * @param array $params Données à injecter dans la vue
-     * @param string|null $template Layout à utiliser (ex: 'layouts/public_layout')
+     * @param string|null $template Layout à utiliser 
      */
     public function render(string $view, array $params = [], ?string $template = null): void
     {

@@ -1,18 +1,28 @@
-<?php 
+<?php
+namespace Src\Core\Resolver;
 
-namespace Core\Resolver;
+use Src\Core\Lang\MessageBag;
 
-class PageTitleResolver
-{
-    public static function resolve(string $route): string
-    {
-        return match ($route) {
-            '/' => 'Accueil',
-            '/articles' => 'Nos Articles',
-            '/public/login' => 'Connexion',
-            '/public/register' => 'Inscription',
-            '/admin/dashboard' => 'Espace Admin',
-            default => 'Mon Blog',
-        };
+class PageTitleResolver {
+    public static function resolve(string $route): string {
+        $cleanRoute = strtok($route, '?');
+        $cleanRoute = rtrim($cleanRoute, '/');
+
+        // Cherche dans MessageBag
+        $title = MessageBag::get("titles.$cleanRoute");
+        if (!str_starts_with($title, "Message inconnu")) {
+            return $title;
+        }
+
+        // Routes dynamiques
+        if (preg_match('#^/articles/(\d+)$#', $cleanRoute, $matches)) {
+            return "Article #" . $matches[1];
+        }
+
+        if (preg_match('#^/user/profile/(\d+)$#', $cleanRoute, $matches)) {
+            return "Profil utilisateur #" . $matches[1];
+        }
+
+        return "Mon Blog";
     }
 }

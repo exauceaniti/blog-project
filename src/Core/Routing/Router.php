@@ -1,14 +1,10 @@
 <?php
 
-namespace Core\Routing;
+namespace Src\Core\Routing;
 
-/**
- * Classe Router
- * 
- * Gère le routage des requêtes HTTP vers les contrôleurs appropriés
- * Les routes recoivent l'URI, recherche la route correspondante, verifie le Middleware,
- * puis invoque le contrôleur et la méthode associés.
- */
+use Src\Core\Routing\RouteCollection;
+// use Src\Core\Routing\RouteParser;
+use Src\Core\Middleware\AuthMiddleware;
 
 class Router
 {
@@ -16,27 +12,30 @@ class Router
 
     public function __construct(string $configPath)
     {
-        $this->collection = new RouteCollection($configPath);
+        $this->collection = new RouteCollection(require $configPath);
     }
 
-    public function dispatch(string $uri): void
+    public function dispatch(string $uri, string $method): void
     {
-        $routes = $this->collection->all();
-        $match = RouteParser::match($uri, $routes);
+        $uri = parse_url($uri, PHP_URL_PATH);
+        $match = $this->collection->match($uri, $method);
 
         if (!$match) {
             http_response_code(404);
-            echo "404 - Route non trouvée";
+            $this->call('ErrorController', 'notFound', []);
             return;
         }
 
-        // Vérification des middleware
-        if (isset($match['middleware']) && is_array($match['middleware'])) {
-            foreach ($match['middleware'] as $middleware) {
-                $middlewareClass = "Core\\Middleware\\" . ucfirst($middleware) . "Middleware";
-                if (class_exists($middlewareClass) && method_exists($middlewareClass, 'handle')) {
-                    $middlewareClass::handle();
-                }
+        // Vérification des middlewares
+        foreach ($match['middleware'] as $mw) {
+            if ($mw === 'auth') {
+                AuthMiddleware::requireAuth();
+            }
+            if ($mw === 'admin') {
+                AuthMiddleware::requireAdmin();
+            }
+            if ($mw === 'user') {
+                AuthMiddleware::requireUser();
             }
         }
 
@@ -45,7 +44,7 @@ class Router
 
     private function call(string $controllerName, string $method, array $params): void
     {
-        $controllerClass = "\\controllers\\" . $controllerName;
+        $controllerClass = "Src\\Controller\\" . $controllerName;
 
         if (!class_exists($controllerClass)) {
             throw new \Exception("Contrôleur $controllerClass introuvable.");
