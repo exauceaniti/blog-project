@@ -1,76 +1,47 @@
-<?php
-/**
- * ---------------------------------------------------------
- *  index.php
- * ---------------------------------------------------------
- * Point d'entrée principal de l'application.
- *
- * Rôle :
- * - Charger automatiquement toutes les classes (Autoloading)
- * - Démarrer la session utilisateur
- * - Initialiser le système de routing
- * - Analyser l'URL et exécuter le contrôleur associé
- *
- * Ce fichier est exécuté à chaque requête HTTP.
- */
+    <?php
+    /**
+     * Point d'entrée principal de l'application
+     * -----------------------------------------
+     * - Charge l'autoload de Composer (PSR-4).
+     * - Initialise la session.
+     * - Configure les constantes de chemin.
+     * - Instancie le Router et dispatch la requête.
+     */
 
+    declare(strict_types=1);
 
+    // Autoload Composer
+    require_once __DIR__ . '/vendor/autoload.php';
 
-spl_autoload_register(function ($class) {
-
-    // Convertit le namespace en chemin de fichier
-    $classPath = str_replace('\\', DIRECTORY_SEPARATOR, $class);
-
-    // Constructeur du chemin physique du fichier
-    $file = __DIR__ . '/' . $classPath . '.php';
-
-    // Si le fichier existe, on le charge
-    if (file_exists($file)) {
-        require_once $file;
+    // Démarrage de la session
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
     }
-});
 
+    // Définition des chemins globaux
+    define('ROOT_PATH', __DIR__);
+    define('VIEW_PATH', ROOT_PATH . '/Views');
+    define('TEMPLATE_PATH', ROOT_PATH . '/templates');
+    define('ASSET_PATH', ROOT_PATH . '/assets');
 
-/* ---------------------------------------------------------
- * 1. DÉMARRAGE DE LA SESSION
- * ---------------------------------------------------------
- * La session permet de conserver des données
- * entre plusieurs requêtes HTTP.
- *
- * Utile pour gérer les utilisateurs connectés,
- * les messages flash, etc.
- */
-session_start();
+    // Import des classes nécessaires
+    use Src\Core\Routing\Router;
 
+    // 5 Chargement des routes
+    $routesFile = ROOT_PATH . '/src/Core/Routing/Config/routes.php';
+    if (!file_exists($routesFile)) {
+        die("Le fichier de configuration des routes est introuvable.");
+    }
 
-/* ---------------------------------------------------------
- * 2. INITIALISATION DU ROUTER
- * ---------------------------------------------------------
- * Le Router est responsable d'associer une URL
- * à un contrôleur + une méthode.
- *
- * On récupère uniquement le chemin de l'URL :
- *   /articles?id=3 → /articles
- */
-use Src\Core\Routing\Router;
+    // Instanciation du Router
+    $router = new Router($routesFile);
 
-// Récupération du chemin de la requête
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
-// Instanciation du router avec le fichier des routes
-$router = new Router(__DIR__ . 'Src/Core/Routing/Config/routes.php');
-
-
-/* ---------------------------------------------------------
- * 3. DISPATCH
- * ---------------------------------------------------------
- * Analyse l’URL et exécute :
- * - le contrôleur défini
- * - la méthode correspondante
- * - puis charge la vue associée
- *
- * Exemple :
- *   URL : /login
- *   → AuthController::login()
- */
-$router->dispatch($uri);
+    // Dispatch de la requête
+    try {
+        $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
+    } catch (Exception $e) {
+        // Gestion des erreurs globales
+        http_response_code(500);
+        echo "<h1>Erreur interne</h1>";
+        echo "<p>{$e->getMessage()}</p>";
+    }

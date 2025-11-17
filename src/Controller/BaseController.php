@@ -1,8 +1,8 @@
 <?php
 
-namespace Core;
+namespace Src\Controller;
 
-use Core\Render\RenderViews;
+use Src\Core\Render\RenderViews;
 
 class BaseController extends RenderViews
 {
