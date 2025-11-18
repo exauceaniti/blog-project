@@ -12,6 +12,6 @@
         <?= $page_view ?>
     </main>
 
-    <?php \Src\Core\Render\Fragment::footer(); ?>
+    <!-- <?php \Src\Core\Render\Fragment::footer(); ?> -->
 </body>
 </html>

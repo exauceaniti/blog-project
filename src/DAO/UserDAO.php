@@ -1,5 +1,5 @@
 <?php
-namespace Src\Repository;
+namespace Src\DAO;
 
 use Src\Core\Database\Database;
 use Src\Entity\User;

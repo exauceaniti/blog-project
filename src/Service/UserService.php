@@ -2,7 +2,7 @@
 namespace Src\Service;
 
 use Src\Factory\UserFactory;
-use Src\Repository\UserDAO;
+use Src\DAO\UserDAO;
 use Src\Entity\User;
 
 class UserService {
