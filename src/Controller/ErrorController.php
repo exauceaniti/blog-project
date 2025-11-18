@@ -1,15 +1,32 @@
 <?php
+namespace Src\Controller;
 
-namespace controllers;
+use Src\Controller\BaseController;
+use Src\Core\Lang\MessageBag;
 
-use controllers\layout\LayoutController;
-
-class ErrorController
+class ErrorController extends BaseController
 {
+    /**
+     * Page 404 - Not Found
+     */
+    public function notFound(): void
+    {
+        http_response_code(404);
+        $this->render('errors/404', [
+            'title'   => MessageBag::get('system.not_found'),
+            'message' => MessageBag::get('system.error')
+        ], 'layout/public');
+    }
+
+    /**
+     * Page Unauthorized - accès refusé
+     */
     public function unauthorized(): void
     {
-        $layout = new LayoutController();
-        $layout->autoTitle('Accès refusé');
-        $layout->render('public/unauthorized');
+        http_response_code(403);
+        $this->render('errors/unauthorized', [
+            'title'   => MessageBag::get('auth.unauthorized'),
+            'message' => MessageBag::get('auth.required')
+        ], 'layout/public');
     }
 }

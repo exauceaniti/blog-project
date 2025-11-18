@@ -31,7 +31,7 @@ class Database {
         if (self::$pdo === null) {
 
             //charge le fichier de configuration de connexion
-            $config = require __DIR__ . '/../../config/connexion.php';
+            $config = require __DIR__ . '/../../../config/connexion.php';
             
             //Creation d'une nouvelle Instance ou connexion PDO
             try {
@@ -65,6 +65,6 @@ class Database {
     
     private static function logError(PDOException $e): void {
         $message = "[" . date('Y-m-d H:i:s') . "] " . $e->getMessage() . PHP_EOL;
-        error_log($message, 3, __DIR__ . '/../../logs/db_errors.log');
+        error_log($message, 3, __DIR__ . '/../../../var/logs/db_errors.log');
     }
 }

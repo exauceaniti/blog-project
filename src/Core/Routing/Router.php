@@ -2,23 +2,25 @@
 
 namespace Src\Core\Routing;
 
-use Src\Core\Routing\RouteCollection;
-// use Src\Core\Routing\RouteParser;
+use Src\Core\Container;
 use Src\Core\Middleware\AuthMiddleware;
 
 class Router
 {
     private RouteCollection $collection;
+    private Container $container;
 
-    public function __construct(string $configPath)
+    public function __construct(string $configPath, ?Container $container = null)
     {
         $this->collection = new RouteCollection(require $configPath);
+        $this->container = $container ?? new Container();
+        $this->bootBindings(); // Configurer les bindings si besoin
     }
 
     public function dispatch(string $uri, string $method): void
     {
-        $uri = parse_url($uri, PHP_URL_PATH);
-        $match = $this->collection->match($uri, $method);
+        $path = parse_url($uri, PHP_URL_PATH) ?? '/';
+        $match = $this->collection->match($path, $method);
 
         if (!$match) {
             http_response_code(404);
@@ -26,17 +28,11 @@ class Router
             return;
         }
 
-        // Vérification des middlewares
+        // Middlewares (auth, admin, user)
         foreach ($match['middleware'] as $mw) {
-            if ($mw === 'auth') {
-                AuthMiddleware::requireAuth();
-            }
-            if ($mw === 'admin') {
-                AuthMiddleware::requireAdmin();
-            }
-            if ($mw === 'user') {
-                AuthMiddleware::requireUser();
-            }
+            if ($mw === 'auth') { AuthMiddleware::requireAuth(); }
+            if ($mw === 'admin') { AuthMiddleware::requireAdmin(); }
+            if ($mw === 'user') { AuthMiddleware::requireUser(); }
         }
 
         $this->call($match['controller'], $match['method'], $match['params']);
@@ -44,18 +40,24 @@ class Router
 
     private function call(string $controllerName, string $method, array $params): void
     {
-        $controllerClass = "Src\\Controller\\" . $controllerName;
+        $controllerClass = str_starts_with($controllerName, 'Src\\')
+            ? $controllerName
+            : "Src\\Controller\\{$controllerName}";
 
-        if (!class_exists($controllerClass)) {
-            throw new \Exception("Contrôleur $controllerClass introuvable.");
-        }
-
-        $controller = new $controllerClass();
+        // Instanciation via container (autowiring)
+        $controller = $this->container->get($controllerClass);
 
         if (!method_exists($controller, $method)) {
-            throw new \Exception("Méthode $method introuvable dans $controllerClass.");
+            throw new \RuntimeException("Méthode {$method} introuvable dans {$controllerClass}");
         }
 
         call_user_func_array([$controller, $method], $params);
+    }
+
+    private function bootBindings(): void
+    {
+        // Exemple: binder PDO/Database/config si tes services en ont besoin
+        // $this->container->set(\PDO::class, new \PDO($dsn, $user, $pass));
+        // $this->container->bind(\Src\Service\PostService::class, fn($c) => new \Src\Service\PostService($c->get(\Src\DAO\PostDAO::class)));
     }
 }

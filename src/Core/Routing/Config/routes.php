@@ -10,30 +10,24 @@
 
 return [
 
-    // 🌍 Routes publiques
+    // Routes publiques (PostController)
     [
         'pattern' => '#^/(home)?$#',
-        'controller' => 'HomeController',
+        'controller' => 'PostController',
         'method' => 'index'
     ],
     [
         'pattern' => '#^/articles$#',
-        'controller' => 'HomeController',
-        'method' => 'articles'
+        'controller' => 'PostController',
+        'method' => 'index' // Je vais cree une methode articles() plus tard si necessaire
     ],
     [
-        'pattern' => '#^/article/(?<id>\d+)-(?<slug>[^/]+)$#',
-        'controller' => 'HomeController',
-        'method' => 'showArticle'
-    ],
-    [
-        'pattern' => '#^/contact$#',
-        'controller' => 'ContactController',
-        'method' => 'show',
-        'middleware' => ['auth']
+        'pattern' => '#^/article/(?<id>\d+)$#',
+        'controller' => 'PostController',
+        'method' => 'show'
     ],
 
-    // 🔐 Authentification
+    // Authentification (UserController)
     [
         'pattern' => '#^/login$#',
         'controller' => 'UserController',
@@ -51,13 +45,38 @@ return [
         'middleware' => ['auth']
     ],
     [
-        'pattern' => '#^/user/profile$#',
+        'pattern' => '#^/profile$#',
         'controller' => 'UserController',
         'method' => 'profile',
         'middleware' => ['auth']
     ],
 
-    // ⚙️ Administration
+    // Commentaires (CommentController)
+    [
+        'pattern' => '#^/comments/list/(?<articleId>\d+)$#',
+        'controller' => 'CommentController',
+        'method' => 'list'
+    ],
+    [
+        'pattern' => '#^/comments/add$#',
+        'controller' => 'CommentController',
+        'method' => 'add',
+        'middleware' => ['auth']
+    ],
+    [
+        'pattern' => '#^/comments/update/(?<id>\d+)$#',
+        'controller' => 'CommentController',
+        'method' => 'update',
+        'middleware' => ['auth']
+    ],
+    [
+        'pattern' => '#^/comments/delete/(?<id>\d+)$#',
+        'controller' => 'CommentController',
+        'method' => 'delete',
+        'middleware' => ['auth','admin']
+    ],
+
+    // Administration
     [
         'pattern' => '#^/admin/dashboard$#',
         'controller' => 'AdminController',
@@ -67,7 +86,7 @@ return [
     [
         'pattern' => '#^/admin/manage_posts$#',
         'controller' => 'PostController',
-        'method' => 'managePosts',
+        'method' => 'index',
         'middleware' => ['auth','admin']
     ],
     [
@@ -91,17 +110,17 @@ return [
     [
         'pattern' => '#^/admin/manage_users$#',
         'controller' => 'UserController',
-        'method' => 'manageUsers',
+        'method' => 'profile', //Je met profile parce que je n'ai pas encore "manageUsers()", à créer si besoin
         'middleware' => ['auth','admin']
     ],
     [
         'pattern' => '#^/admin/manage_comments$#',
         'controller' => 'CommentController',
-        'method' => 'manageComments',
+        'method' => 'list', //Je met list parce que je n'ai pas encore "manageComments()", à créer si besoin
         'middleware' => ['auth','admin']
     ],
 
-    // 🚫 Erreurs
+    // Erreurs
     [
         'pattern' => '#^/unauthorized$#',
         'controller' => 'ErrorController',

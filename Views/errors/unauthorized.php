@@ -1,12 +1,12 @@
 
 
 
-    <div class="container">
-        <div class="error-icon">⛔</div>
-        <h1>Accès non autorisé</h1>
-        <p class="error-message"><?= \Src\Core\Lang\MessageBag::get('auth.unauthorized') ?></p>
-        <a href="/login" class="back-link">Retour à la connexion</a>
-    </div>
+        <div class="container">
+            <h1><?= $title ?></h1>
+            <p><?= $message ?></p>
+            <a href="/login">Se connecter</a>
+        </div>
+
 
 
 
