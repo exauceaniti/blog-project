@@ -2,5 +2,5 @@
 return [
     'dsn' => 'mysql:host=localhost;dbname=blog_db;charset=utf8mb4',
     'username' => 'exauce',
-    'password' => 'Mysql@.001'
+    'password' => 'Mariadb.exau'
 ];

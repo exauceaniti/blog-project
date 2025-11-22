@@ -18,12 +18,3 @@ $page_title = $page_title ?? 'Mon Blog';
 
 <!-- CSS principal -->
 <link rel="stylesheet" href="/assets/css/base.css">
-
-<style>
-    body {
-        font-family: 'Roboto', sans-serif;
-        background-color: #f5f5f5;
-        margin: 0;
-        padding: 0;
-    }
-</style>

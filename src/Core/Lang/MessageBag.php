@@ -1,7 +1,9 @@
 <?php
+
 namespace Src\Core\Lang;
 
-class MessageBag {
+class MessageBag
+{
     private static array $messages = [
 
         // 🔐 Authentification & Sécurité
@@ -69,6 +71,7 @@ class MessageBag {
 
         // 🏷️ Titres des pages
         'titles./'                => "Accueil",
+        'titles.' => "Accueil", // pour la route "/" apres rtrim. 
         'titles./articles'        => "Nos Articles",
         'titles./public/login'    => "Connexion",
         'titles./public/register' => "Inscription",
@@ -76,7 +79,8 @@ class MessageBag {
         'titles./admin/dashboard' => "Espace Admin",
     ];
 
-    public static function get(string $key): string {
+    public static function get(string $key): string
+    {
         return self::$messages[$key] ?? "Message inconnu : $key";
     }
 }

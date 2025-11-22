@@ -1,24 +1,35 @@
-<header class="site-header">
-    <div class="container">
-        <div class="logo">
-            <i class="fas fa-feather-alt"></i> MonBlog
+<?php
+$user_connected = $user_connected ?? false;
+$user_role = $user_role ?? null;
+?>
+
+<header>
+
+    <div class="site-header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-feather-alt"></i> MonBlog
+            </div>
         </div>
     </div>
-</header>
 
-<style>
-.site-header {
-    background: #222;
-    padding: 15px 20px;
-    color: white;
-}
-.site-header .logo {
-    font-size: 22px;
-    font-weight: 600;
-    font-family: 'Playfair Display', serif;
-}
-.site-header .logo i {
-    margin-right: 8px;
-    color: #4a90e2;
-}
-</style>
+    <nav class="site-nav">
+        <ul class="nav-links">
+            <li><a href="/"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="/articles"><i class="fas fa-newspaper"></i> Articles</a></li>
+
+            <?php if ($user_connected): ?>
+                <?php if ($user_role === 'admin'): ?>
+                    <li><a href="/admin/dashboard"><i class="fas fa-user-shield"></i> dashboard</a></li>
+                <?php else: ?>
+                    <li><a href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+                <?php endif; ?>
+                <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+            <?php else: ?>
+                <li><a href="/login"><i class="fas fa-sign-in-alt"></i> Connexion</a></li>
+                <li><a href="/register"><i class="fas fa-user-plus"></i> Inscription</a></li>
+            <?php endif; ?>
+        </ul>
+    </nav>
+
+</header>
