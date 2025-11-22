@@ -2,104 +2,82 @@
 
 namespace Src\Core\Render;
 
-use Src\Core\Lang\MessageBag;
 use Src\Core\Resolver\PageTitleResolver;
+use Src\Core\Routing\RouteContext;
 
 /**
- * Classe RenderViews
- * ------------------
- * Moteur central de rendu des vues et des layouts.
+ * Moteur de rendu de vues - Gestionnaire de templates et layouts
  * 
- * Cette classe est le cœur du système de rendu de l'application.
- * Elle gère le chargement des vues, l'injection dans les layouts,
- * et la résolution automatique des titres de page.
- *
- * Responsabilités :
- * - Charger une vue PHP et injecter ses variables.
- * - Capturer le contenu de la vue et l'injecter dans un layout.
- * - Résoudre automatiquement le titre de la page via PageTitleResolver + MessageBag.
- * - Gérer les erreurs si une vue ou un layout est introuvable.
+ * Cette classe gère le rendu des vues avec système de templates, injection
+ * de variables et résolution automatique des titres de pages.
  * 
  * @package Src\Core\Render
  */
 class RenderViews
 {
     /**
-     * Rend une vue avec ou sans layout.
-     *
-     * Le processus de rendu :
-     * 1. Résolution du titre de la page (MessageBag → PageTitleResolver → Valeur par défaut)
-     * 2. Vérification de l'existence de la vue
-     * 3. Si layout spécifié : capture de la vue + injection dans le layout
-     * 4. Si pas de layout : affichage direct de la vue
-     *
-     * @param string      $viewPath  Nom de la vue (ex: "home/index", "admin/users")
-     * @param array       $params    Données à injecter dans la vue
-     * @param string|null $template  Layout à utiliser (ex: "layout/public", "layout/admin")
-     *
-     * @throws \Exception Si la vue ou le layout est introuvable
+     * Rend une vue avec son template et variables
+     * 
+     * Processus de rendu :
+     * 1. Récupération du contexte de route
+     * 2. Résolution du titre de page
+     * 3. Vérification des chemins de fichiers
+     * 4. Capture du contenu de la vue
+     * 5. Injection dans le template
+     * 
+     * @param string $viewPath Chemin relatif de la vue (sans extension)
+     * @param array $params Variables à passer à la vue
+     * @param string|null $template Nom du template à utiliser (null = rendu direct)
+     * 
+     * @return void
+     * 
+     * @throws \Exception Si la vue ou le template est introuvable
      * 
      * @example
-     * // Vue simple sans layout
-     * $renderer->renderView('errors/404');
-     * 
-     * // Vue avec layout et données
-     * $renderer->renderView('blog/show', [
-     *     'article' => $article,
-     *     'comments' => $comments
-     * ], 'layout/public');
-     * 
-     * // Vue admin avec layout admin
-     * $renderer->renderView('admin/dashboard', [
-     *     'stats' => $stats
-     * ], 'layout/admin');
+     * $renderer->renderView('posts/show', ['post' => $post], 'default');
      */
+
     public function renderView(string $viewPath, array $params = [], ?string $template = null): void
     {
-        // Extraction des paramètres pour les rendre accessibles dans la vue
-        extract($params);
+        // NETTOYAGE DES BUFFERS EXISTANTS
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
 
-        /**
-         * Résolution du titre de la page selon la priorité :
-         * 1. MessageBag (traductions) : "titles.home.index"
-         * 2. PageTitleResolver (basé sur l'URL) : "/blog/article-1"
-         * 3. Valeur par défaut : "Mon Blog"
-         */
-        $page_title = MessageBag::get("titles.$viewPath")
-            ?? PageTitleResolver::resolve($_SERVER['REQUEST_URI'])
-            ?? 'Mon Blog';
+        $routeKey = RouteContext::getRouteKey() ?? 'Unknown@unknown';
+        $routeParams = RouteContext::getParams();
+        $page_title = PageTitleResolver::resolve($routeKey, $routeParams) ?? 'Mon Blog';
 
-        // Construction du chemin complet vers la vue
         $viewFullPath = dirname(__DIR__, 3) . "/Views/{$viewPath}.php";
-
-        // Vérification de l'existence de la vue
         if (!file_exists($viewFullPath)) {
             throw new \Exception("Vue introuvable: {$viewPath}");
         }
 
-        // Rendu avec layout
         if ($template !== null) {
             $templateFullPath = dirname(__DIR__, 3) . "/templates/{$template}.php";
-
             if (!file_exists($templateFullPath)) {
                 throw new \Exception("Layout introuvable: {$template}");
             }
 
-            // Capture du contenu de la vue
+            // CAPTURE DE LA VUE
             ob_start();
+            extract($params);
             require $viewFullPath;
             $page_view = ob_get_clean();
 
-            // Variables disponibles dans le layout
+            // RENDU FINAL AVEC NOUVEAU BUFFER
+            ob_start();
             extract([
-                'page_view' => $page_view,  // Contenu HTML de la vue
-                'title'     => $page_title       // Titre résolu de la page
+                'page_view'  => $page_view,
+                'page_title' => $page_title,
             ]);
-
-            // Inclusion du layout avec la vue injectée
             require $templateFullPath;
+
+            // ENVOI DU CONTENU
+            ob_end_flush();
         } else {
-            // Rendu direct sans layout
+            // Rendu direct
+            extract($params);
             require $viewFullPath;
         }
     }

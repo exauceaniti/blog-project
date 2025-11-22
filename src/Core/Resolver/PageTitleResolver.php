@@ -2,66 +2,98 @@
 
 namespace Src\Core\Resolver;
 
-use Src\Core\Lang\MessageBag;
-
 /**
- * Classe PageTitleResolver
- * ------------------------
- * Résout automatiquement les titres de page basés sur les routes/URLs.
+ * Résolveur de titres de pages - Système centralisé de gestion des balises <title>
  * 
- * Cette classe tente de déterminer le titre d'une page en fonction :
- * 1. De la route actuelle via MessageBag (traductions)
- * 2. De patterns d'URLs dynamiques (articles/, user/profile/)
- * 3. D'une valeur par défaut si aucune correspondance
+ * Cette classe fournit un mapping entre les routes de l'application et les titres
+ * de pages correspondants à afficher dans les balises <title> du HTML.
+ * 
+ * Elle utilise le pattern Resolver et Factory pour générer des titres dynamiques
+ * en fonction des paramètres de route et du contexte.
  * 
  * @package Src\Core\Resolver
  */
 class PageTitleResolver
 {
     /**
-     * Résout le titre de la page pour une route donnée
-     *
-     * Ordre de priorité :
-     * 1. MessageBag avec la clé "titles.{route}"
-     * 2. Patterns d'URLs dynamiques (articles/, user/profile/)
-     * 3. Valeur par défaut "Mon Blog"
-     *
-     * @param string $route La route/URL à résoudre (ex: "/articles", "/user/profile/123")
-     * @return string Le titre résolu pour la page
+     * Résout et retourne le titre de page approprié selon la route et les paramètres
+     * 
+     * Cette méthode fait le mapping entre les routes de contrôleurs et les titres
+     * de pages correspondants, avec support pour les titres dynamiques basés sur
+     * les paramètres de route.
+     * 
+     * @param string $route La route au format "Controller@method"
+     * @param array $params Tableau associatif des paramètres de la route
+     * 
+     * @return string|null Le titre de page formaté, "Mon Blog" par défaut
      * 
      * @example
-     * PageTitleResolver::resolve('/'); // → "Accueil - Mon Blog" (si dans MessageBag)
-     * PageTitleResolver::resolve('/articles/42'); // → "Article #42"
-     * PageTitleResolver::resolve('/contact'); // → "Contact - Mon Blog" (si dans MessageBag)
+     * // Titre statique
+     * $title = PageTitleResolver::resolve('UserController@login');
+     * // Retourne: "Connexion"
+     * 
+     * // Titre dynamique avec paramètres
+     * $title = PageTitleResolver::resolve('PostController@show', ['id' => 42]);
+     * // Retourne: "Article #42"
+     * 
+     * @throws \TypeError Si les types des paramètres sont incorrects
      */
-    public static function resolve(string $route): string
+    public static function resolve(string $route, array $params = []): ?string
     {
-        // Nettoyage de la route : suppression des query params et slash final
-        $cleanRoute = strtok($route, '?');
-        $cleanRoute = $cleanRoute === '/' ? '/' : rtrim($cleanRoute, '/');
+        switch ($route) {
+            // Pages publiques
+            case 'PostController@index':
+                return "Accueil - Mon Blog";
+            case 'PostController@articles':
+                return "Tous les articles";
+            case 'PostController@show':
+                return isset($params['id'])
+                    ? "Article #{$params['id']}"
+                    : "Article - Mon Blog";
 
-        // === ÉTAPE 1 : Recherche dans MessageBag ===
-        $title = MessageBag::get("titles.$cleanRoute");
+                // Authentification et utilisateur
+            case 'UserController@login':
+                return "Connexion";
+            case 'UserController@register':
+                return "Inscription";
+            case 'UserController@profile':
+                return "Mon Profil";
 
+                // Gestion des commentaires
+            case 'CommentController@list':
+                return isset($params['articleId'])
+                    ? "Commentaires de l'article #{$params['articleId']}"
+                    : "Liste des commentaires";
+            case 'CommentController@add':
+                return "Ajouter un commentaire";
+            case 'CommentController@update':
+                return "Modifier un commentaire";
+            case 'CommentController@delete':
+                return "Supprimer un commentaire";
 
-        // Vérification si le titre a été trouvé dans MessageBag
-        // MessageBag retourne "Message inconnu" quand la clé n'existe pas
-        if ($title && $title !== "titles.$cleanRoute" && !str_contains($title, "Inconue")) {
-            return $title;
+                // Administration
+            case 'AdminController@dashboard':
+                return "Tableau de bord";
+            case 'PostController@create':
+                return "Créer un article";
+            case 'PostController@update':
+                return "Modifier un article";
+            case 'PostController@delete':
+                return "Supprimer un article";
+            case 'UserController@manageUsers':
+                return "Gestion des utilisateurs";
+            case 'CommentController@manageComments':
+                return "Gestion des commentaires";
+
+                // Pages d'erreur
+            case 'ErrorController@unauthorized':
+                return "Accès non autorisé";
+            case 'ErrorController@notFound':
+                return "Page introuvable";
+
+                // Fallback sécurisé
+            default:
+                return "Mon Blog";
         }
-        // === ÉTAPE 2 : Routes dynamiques (fallback) ===
-
-        // Pattern: /articles/123 → "Article #123"
-        if (preg_match('#^/articles/(\d+)$#', $cleanRoute, $matches)) {
-            return "Article #" . $matches[1];
-        }
-
-        // Pattern: /user/profile/123 → "Profil utilisateur #123"
-        if (preg_match('#^/user/profile/(\d+)$#', $cleanRoute, $matches)) {
-            return "Profil utilisateur #" . $matches[1];
-        }
-
-        // === ÉTAPE 3 : Valeur par défaut ===
-        return "Mon Blog";
     }
 }

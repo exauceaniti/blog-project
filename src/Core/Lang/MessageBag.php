@@ -2,6 +2,34 @@
 
 namespace Src\Core\Lang;
 
+/**
+ * MessageBag - Gestionnaire centralisé des messages de l'application
+ * 
+ * ROLES ET RESPONSABILITÉS :
+ * - Stocke tous les messages texte de l'application
+ * - Fournit une interface unifiée pour récupérer les messages
+ * - Garantit la cohérence du wording dans toute l'app
+ * 
+ * UTILISATION TYPIQUE :
+ * 1. Dans les contrôleurs :
+ *    $errorMessage = MessageBag::get('auth.failed');
+ * 
+ * 2. Dans les vues :
+ *    <div class="error"><?= MessageBag::get('form.invalid') ?></div>
+ * 
+ * 3. Dans les validateurs :
+ *    throw new ValidationException(MessageBag::get('user.email_invalid'));
+ * 
+ * CE QUE CETTE CLASSE NE FAIT PAS :
+ * - Ne gère pas les titres de page (utiliser PageTitleResolver)
+ * - Ne gère pas les traductions i18n (pour le moment)
+ * - Ne stocke pas les messages flash de session
+ * 
+ * CONVENTIONS DE NOMMAGE :
+ * [categorie].[action_ou_context]_[statut]
+ * Ex: auth.failed, user.create_success, article.not_found
+ */
+
 class MessageBag
 {
     private static array $messages = [
@@ -69,16 +97,25 @@ class MessageBag
         'system.action_success' => "Action effectuée avec succès.",
         'system.action_failed' => "Échec de l'action demandée.",
 
-        // 🏷️ Titres des pages
-        'titles./'                => "Accueil",
-        'titles.' => "Accueil", // pour la route "/" apres rtrim. 
-        'titles./articles'        => "Nos Articles",
-        'titles./public/login'    => "Connexion",
-        'titles./public/register' => "Inscription",
-        'titles./user/profile'    => "Mon Profil",
-        'titles./admin/dashboard' => "Espace Admin",
     ];
 
+    /**
+     * Récupère un message par sa clé
+     * 
+     * @param string $key La clé du message (ex: 'auth.failed')
+     * @return string Le message ou un fallback si clé inexistante
+     * 
+     * @example
+     * // Dans un contrôleur après une tentative de connexion échouée
+     * $error = MessageBag::get('auth.failed');
+     * FlashManager::add('error', $error);
+     * 
+     * @example  
+     * // Dans un validateur
+     * if (empty($email)) {
+     *     throw new InvalidArgumentException(MessageBag::get('user.email_required'));
+     * }
+     */
     public static function get(string $key): string
     {
         return self::$messages[$key] ?? "Message inconnu : $key";

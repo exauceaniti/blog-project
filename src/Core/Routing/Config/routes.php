@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Configuration des routes de l'application
  * Chaque route est définie par :
@@ -24,7 +25,7 @@ return [
     [
         'pattern' => '#^/article/(?<id>\d+)$#',
         'controller' => 'PostController',
-        'method' => 'show'
+        'method' => 'show',
     ],
 
     // Authentification (UserController)
@@ -73,7 +74,7 @@ return [
         'pattern' => '#^/comments/delete/(?<id>\d+)$#',
         'controller' => 'CommentController',
         'method' => 'delete',
-        'middleware' => ['auth','admin']
+        'middleware' => ['auth', 'admin']
     ],
 
     // Administration
@@ -81,43 +82,43 @@ return [
         'pattern' => '#^/admin/dashboard$#',
         'controller' => 'AdminController',
         'method' => 'dashboard',
-        'middleware' => ['auth','admin']
+        'middleware' => ['auth', 'admin']
     ],
     [
         'pattern' => '#^/admin/manage_posts$#',
         'controller' => 'PostController',
         'method' => 'index',
-        'middleware' => ['auth','admin']
+        'middleware' => ['auth', 'admin']
     ],
     [
         'pattern' => '#^/admin/create_post$#',
         'controller' => 'PostController',
         'method' => 'create',
-        'middleware' => ['auth','admin']
+        'middleware' => ['auth', 'admin']
     ],
     [
         'pattern' => '#^/admin/update_post/(?<id>\d+)$#',
         'controller' => 'PostController',
         'method' => 'update',
-        'middleware' => ['auth','admin']
+        'middleware' => ['auth', 'admin']
     ],
     [
         'pattern' => '#^/admin/delete_post/(?<id>\d+)$#',
         'controller' => 'PostController',
         'method' => 'delete',
-        'middleware' => ['auth','admin']
+        'middleware' => ['auth', 'admin']
     ],
     [
         'pattern' => '#^/admin/manage_users$#',
         'controller' => 'UserController',
         'method' => 'profile', //Je met profile parce que je n'ai pas encore "manageUsers()", à créer si besoin
-        'middleware' => ['auth','admin']
+        'middleware' => ['auth', 'admin']
     ],
     [
         'pattern' => '#^/admin/manage_comments$#',
         'controller' => 'CommentController',
         'method' => 'list', //Je met list parce que je n'ai pas encore "manageComments()", à créer si besoin
-        'middleware' => ['auth','admin']
+        'middleware' => ['auth', 'admin']
     ],
 
     // Erreurs

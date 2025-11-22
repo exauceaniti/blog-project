@@ -2,11 +2,12 @@
 <html lang="fr">
 
 <head>
-    <?php \Src\Core\Render\Fragment::meta(); ?>
+    <?php \Src\Core\Render\Fragment::meta($page_title ?? 'Mon blog-Exau'); ?>
 
 </head>
 
 <body>
+
     <?php \Src\Core\Render\Fragment::header(); ?>
 
     <main>
