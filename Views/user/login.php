@@ -1,111 +1,96 @@
-      <div class="container">
-          <h1>Connexion</h1>
+<!-- Views/user/login.php -->
+<div class="auth-layout">
+    <div class="auth-card">
+        <!-- Header -->
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="fas fa-feather-alt"></i>
+                MonBlog
+            </div>
+            <h1 class="auth-title">Connexion à votre compte</h1>
+        </div>
 
-          <form action="/login" method="post">
-              <label for="email">Email :</label>
-              <input type="email" name="email" id="email" required>
+        <!-- Body -->
+        <!-- Arrangement pour les messages flash -->
+        <div class="auth-body">
+            <?php if ($flash['hasError']): ?>
+                <div class="alert alert-error">
+                    <div class="alert-content">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-text">
+                            <div class="alert-message"><?= $flash['error'] ?></div>
+                        </div>
+                        <button class="alert-close">&times;</button>
+                    </div>
+                </div>
+            <?php endif; ?>
 
-              <label for="password">Mot de passe :</label>
-              <input type="password" name="password" id="password" required>
+            <?php if ($flash['hasSuccess']): ?>
+                <div class="alert alert-success">
+                    <div class="alert-content">
+                        <div class="alert-icon">✓</div>
+                        <div class="alert-text">
+                            <div class="alert-message"><?= $flash['success'] ?></div>
+                        </div>
+                        <button class="alert-close">&times;</button>
+                    </div>
+                </div>
+            <?php endif; ?>
 
-              <button type="submit">Se connecter</button>
-          </form>
 
-          <p>Pas encore inscrit ? <a href="/register">Créer un compte</a></p>
-      </div>
+            <!-- Formulaire -->
+            <form action="/login" method="POST" class="auth-form">
+                <div class="form-group">
+                    <label for="email" class="form-label required">Email</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        class="form-control"
+                        value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                        required
+                        autofocus
+                        placeholder="votre@email.com">
+                </div>
 
+                <div class="form-group">
+                    <label for="password" class="form-label required">Mot de passe</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-control"
+                        required
+                        placeholder="Votre mot de passe">
+                </div>
 
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="remember" name="remember" class="form-check-input" value="1">
+                        <label for="remember" class="form-check-label">Se souvenir de moi</label>
+                    </div>
+                </div>
 
+                <button type="submit" class="btn btn-primary btn-lg w-full">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Se connecter
+                </button>
+            </form>
 
-      <style>
-          * {
-              box-sizing: border-box;
-              margin: 0;
-              padding: 0;
-              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          }
+            <!-- Liens supplémentaires -->
+            <div class="auth-links">
+                <a href="/forgot-password" class="auth-link">
+                    <i class="fas fa-key"></i>
+                    Mot de passe oublié ?
+                </a>
+            </div>
+        </div>
 
-          body {
-              background-color: #f5f5f5;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              min-height: 100vh;
-              padding: 20px;
-          }
-
-          .container {
-              background-color: white;
-              border-radius: 8px;
-              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-              padding: 30px;
-              width: 100%;
-              max-width: 400px;
-          }
-
-          h1 {
-              text-align: center;
-              margin-bottom: 25px;
-              color: #333;
-              font-weight: 600;
-          }
-
-          form {
-              display: flex;
-              flex-direction: column;
-          }
-
-          label {
-              margin-bottom: 8px;
-              color: #555;
-              font-weight: 500;
-          }
-
-          input {
-              padding: 12px;
-              margin-bottom: 20px;
-              border: 1px solid #ddd;
-              border-radius: 4px;
-              font-size: 16px;
-              transition: border-color 0.3s;
-          }
-
-          input:focus {
-              border-color: #4a90e2;
-              outline: none;
-              box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
-          }
-
-          button {
-              background-color: #4a90e2;
-              color: white;
-              border: none;
-              padding: 12px;
-              border-radius: 4px;
-              font-size: 16px;
-              cursor: pointer;
-              transition: background-color 0.3s;
-              font-weight: 600;
-              margin-top: 10px;
-          }
-
-          button:hover {
-              background-color: #3a7bc8;
-          }
-
-          p {
-              text-align: center;
-              margin-top: 20px;
-              color: #666;
-          }
-
-          a {
-              color: #4a90e2;
-              text-decoration: none;
-              font-weight: 500;
-          }
-
-          a:hover {
-              text-decoration: underline;
-          }
-      </style>
+        <!-- Footer -->
+        <div class="auth-footer">
+            <p>Pas encore de compte ?
+                <a href="/register" class="auth-link">Créer un compte</a>
+            </p>
+        </div>
+    </div>
+</div>

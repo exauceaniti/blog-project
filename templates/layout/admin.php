@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-    <?php \Src\Core\Render\Fragment::meta(); ?>
-   
+    <?php \Src\Core\Render\Fragment::meta($page_title ?? 'Admin - Dashboard'); ?>
+
 </head>
+
 <body>
     <?php \Src\Core\Render\Fragment::header(); ?>
-    <?php \Src\Core\Render\Fragment::nav(); ?>
+
+    <aside>
+        <?php \Src\Core\Render\Fragment::sidebar($sidebar_params ?? []); ?>
+    </aside>
 
     <main>
         <?= $page_view ?>
@@ -14,4 +19,5 @@
 
     <?php \Src\Core\Render\Fragment::footer(); ?>
 </body>
+
 </html>

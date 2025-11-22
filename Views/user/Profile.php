@@ -1,133 +1,175 @@
- <div class="container">
-        <h1>Mon Profil</h1>
-        
-        <?php if (!empty($user)): ?>
-            <div class="profile-info">
-                <div class="info-item">
-                    <strong>Nom :</strong>
-                    <span><?= htmlspecialchars($user->nom) ?></span>
-                </div>
-                
-                <div class="info-item">
-                    <strong>Email :</strong>
-                    <span><?= htmlspecialchars($user->email) ?></span>
-                </div>
-                
-                <div class="info-item">
-                    <strong>Rôle :</strong>
-                    <span><?= htmlspecialchars($user->role) ?></span>
-                </div>
-                
-                <div class="info-item">
-                    <strong>Date d'inscription :</strong>
-                    <span><?= htmlspecialchars($user->date_inscription) ?></span>
-                </div>
+<!-- Views/user/profile.php -->
+<div class="container">
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title">Mon Profil</h1>
+            <div class="page-actions">
+                <a href="/profile/edit" class="btn btn-primary">
+                    <i class="fas fa-edit"></i>
+                    Modifier le profil
+                </a>
             </div>
-            
-            <a href="/logout" class="logout-link">Se déconnecter</a>
-        <?php else: ?>
-            <div class="error-message">
-                <p>Utilisateur introuvable.</p>
-            </div>
-        <?php endif; ?>
+        </div>
     </div>
 
+    <div class="content-area">
+        <!-- Messages Flash -->
+        <!-- Body -->
+        <!-- Arrangement pour les messages flash -->
+        <div class="auth-body">
+            <?php if ($flash['hasError']): ?>
+                <div class="alert alert-error">
+                    <div class="alert-content">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-text">
+                            <div class="alert-message"><?= $flash['error'] ?></div>
+                        </div>
+                        <button class="alert-close">&times;</button>
+                    </div>
+                </div>
+            <?php endif; ?>
 
-<style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            width: 100%;
-            max-width: 500px;
-        }
-        
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-            font-weight: 600;
-            border-bottom: 2px solid #4a90e2;
-            padding-bottom: 10px;
-        }
-        
-        .profile-info {
-            margin-bottom: 25px;
-        }
-        
-        .info-item {
-            margin-bottom: 15px;
-            padding: 12px;
-            background-color: #f9f9f9;
-            border-radius: 6px;
-            border-left: 4px solid #4a90e2;
-        }
-        
-        .info-item strong {
-            color: #333;
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .info-item span {
-            color: #555;
-            font-size: 16px;
-        }
-        
-        .logout-link {
-            display: inline-block;
-            background-color: #e74c3c;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: background-color 0.3s;
-            text-align: center;
-            width: 100%;
-            margin-top: 10px;
-        }
-        
-        .logout-link:hover {
-            background-color: #c0392b;
-        }
-        
-        .error-message {
-            text-align: center;
-            color: #e74c3c;
-            padding: 20px;
-            background-color: #fdf2f2;
-            border-radius: 6px;
-            border: 1px solid #f5c6cb;
-        }
-        
-        @media (max-width: 480px) {
-            .container {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 24px;
-            }
-        }
-    </style>
+            <?php if ($flash['hasSuccess']): ?>
+                <div class="alert alert-success">
+                    <div class="alert-content">
+                        <div class="alert-icon">✓</div>
+                        <div class="alert-text">
+                            <div class="alert-message"><?= $flash['success'] ?></div>
+                        </div>
+                        <button class="alert-close">&times;</button>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+
+            <div class="grid grid-1 lg:grid-3 gap-6">
+                <!-- Carte Informations -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-user"></i>
+                            Informations personnelles
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="profile-info">
+                            <div class="info-item">
+                                <label class="info-label">Nom d'utilisateur</label>
+                                <div class="info-value"><?= htmlspecialchars($user->username) ?></div>
+                            </div>
+                            <div class="info-item">
+                                <label class="info-label">Email</label>
+                                <div class="info-value"><?= htmlspecialchars($user->email) ?></div>
+                            </div>
+                            <div class="info-item">
+                                <label class="info-label">Rôle</label>
+                                <div class="info-value">
+                                    <span class="badge badge-<?= $user->role === 'admin' ? 'success' : 'info' ?>">
+                                        <?= ucfirst($user->role) ?>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <label class="info-label">Membre depuis</label>
+                                <div class="info-value">
+                                    <?= date('d/m/Y', strtotime($user->created_at)) ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carte Statistiques -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-bar"></i>
+                            Mes statistiques
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="stats-grid">
+                            <div class="stat-card secondary">
+                                <div class="stat-icon">📝</div>
+                                <div class="stat-content">
+                                    <div class="stat-value">12</div>
+                                    <div class="stat-label">Articles publiés</div>
+                                </div>
+                            </div>
+                            <div class="stat-card success">
+                                <div class="stat-icon">💬</div>
+                                <div class="stat-content">
+                                    <div class="stat-value">47</div>
+                                    <div class="stat-label">Commentaires</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carte Actions rapides -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-bolt"></i>
+                            Actions rapides
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="action-grid">
+                            <a href="/articles/create" class="action-card">
+                                <div class="action-icon">✏️</div>
+                                <div class="action-title">Nouvel article</div>
+                                <div class="action-description">Rédiger un nouvel article</div>
+                            </a>
+                            <a href="/profile/settings" class="action-card">
+                                <div class="action-icon">⚙️</div>
+                                <div class="action-title">Paramètres</div>
+                                <div class="action-description">Gérer vos préférences</div>
+                            </a>
+                            <a href="/logout" class="action-card" onclick="return confirm('Êtes-vous sûr de vouloir vous déconnecter ?')">
+                                <div class="action-icon">🚪</div>
+                                <div class="action-title">Déconnexion</div>
+                                <div class="action-description">Quitter votre session</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dernières activités -->
+            <div class="card mt-6">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-history"></i>
+                        Activités récentes
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="activities-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">📝</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Vous avez publié un article</div>
+                                <div class="activity-meta">Il y a 2 heures</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">💬</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Vous avez commenté un article</div>
+                                <div class="activity-meta">Il y a 1 jour</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">👍</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Vous avez aimé un article</div>
+                                <div class="activity-meta">Il y a 3 jours</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

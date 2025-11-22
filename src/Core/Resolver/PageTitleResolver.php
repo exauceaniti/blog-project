@@ -44,48 +44,78 @@ class PageTitleResolver
             // Pages publiques
             case 'PostController@index':
                 return "Accueil - Mon Blog";
+
+                //titre de page qui contiens tout les aeticles 
             case 'PostController@articles':
                 return "Tous les articles";
+
+                //titre de page qui contiens les articles avec parametre.
             case 'PostController@show':
                 return isset($params['id'])
                     ? "Article #{$params['id']}"
                     : "Article - Mon Blog";
 
                 // Authentification et utilisateur
+                //titre pour la page de connexion
             case 'UserController@login':
                 return "Connexion";
+
+                //titre pour la page d'inscription 
             case 'UserController@register':
                 return "Inscription";
+
+                //titre du profile de l'utilisateur.
             case 'UserController@profile':
                 return "Mon Profil";
 
                 // Gestion des commentaires
+                //titre d'un commentaire avec parametre
             case 'CommentController@list':
                 return isset($params['articleId'])
                     ? "Commentaires de l'article #{$params['articleId']}"
                     : "Liste des commentaires";
+
+                //titre de la paage pour ajouter un commentaire. 
+                //celui ci est une partie a revoir.
+                //l'ajout du commentaire se fait juste avec de slabels.
             case 'CommentController@add':
                 return "Ajouter un commentaire";
+
+                //titre de page par defaut pour modifire un commentaire. 
             case 'CommentController@update':
                 return "Modifier un commentaire";
+
+                //titre par defaut pour supprimer un comentaire
             case 'CommentController@delete':
                 return "Supprimer un commentaire";
 
                 // Administration
+                //titre du tableua de bord de l'admin 
             case 'AdminController@dashboard':
                 return "Tableau de bord";
+
+                //page pour cree un nouvel articles.
             case 'PostController@create':
                 return "Créer un article";
+
+                //par defaut pour modifier un articles.
             case 'PostController@update':
                 return "Modifier un article";
+
+                //par defaut pour supprimer un articles. 
+                //mais je fairais ici juste que ca puisse se faire avec un simple clic sur le bouton.
             case 'PostController@delete':
                 return "Supprimer un article";
+
+                //Page pour la gestions des utilisateurs.
             case 'UserController@manageUsers':
                 return "Gestion des utilisateurs";
+
+                //Page pour la gestions des commentaires.
             case 'CommentController@manageComments':
                 return "Gestion des commentaires";
 
-                // Pages d'erreur
+                // Pages d'erreurs 
             case 'ErrorController@unauthorized':
                 return "Accès non autorisé";
             case 'ErrorController@notFound':

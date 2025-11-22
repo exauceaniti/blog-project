@@ -65,6 +65,21 @@ class Fragment
     }
 
     /**
+     * Inclut le fragment Sidebar.php avec les parametres donnees
+     * 
+     * @param array $params parametres a extraires dans le tamplates sidebar 
+     * @return void
+     * 
+     * @example
+     * Fragment::Sidebar();
+     */
+    public static function sidebar(array $params = []): void
+    {
+        extract($params);
+        include self::$basePath . 'Sidebar.php';
+    }
+
+    /**
      * Inclut un composant personnalisé avec ses paramètres
      * 
      * @param string $name Nom du composant (sans extension)
