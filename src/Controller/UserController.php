@@ -5,199 +5,142 @@ namespace Src\Controller;
 use Src\Service\UserService;
 use Src\Validator\UserValidator;
 use Src\Core\Session\FlashManager;
-use Src\Core\Http\Redirector;
 use Src\Core\Lang\MessageBag;
-use Src\Controller\BaseController;
+// ATTENTION : On n'importe plus FlashManager ni Redirector, on utilise les méthodes du BaseController
 
-/**
- * Contrôleur utilisateur - Gère l'authentification et le profil
- * 
- * RESPONSABILITÉS :
- * - Authentification (login/logout)
- * - Inscription des nouveaux utilisateurs
- * - Gestion du profil utilisateur
- * - Redirections contextuelles
- * 
- * FLOW TYPIQUE :
- * 1. Validation des données → 2. Appel Service → 3. Gestion Session → 4. Redirection
- * 
- * @package Src\Controller
- */
 class UserController extends BaseController
 {
-    /**
-     * Service de gestion des utilisateurs
-     * @var UserService
-     */
     private UserService $userService;
+    private UserValidator $validator;
 
-    /**
-     * Constructeur avec injection de dépendance
-     * 
-     * @param UserService $userService Service utilisateur injecté
-     */
-    public function __construct(UserService $userService)
+    public function __construct()
     {
-        $this->userService = $userService;
+        // Initialisation des dépendances
+        $this->userService = new UserService();
+        $this->validator = new UserValidator();
     }
 
     /**
-     * Affiche ou traite le formulaire de connexion
-     * 
-     * FLOW :
-     * GET → Affiche le formulaire
-     * POST → Valide → Authentifie → Redirige
-     * 
-     * @return void
-     * 
-     * @example
-     * // Connexion réussie (user)
-     * → Redirection vers /profile ou URL précédente
-     * 
-     * // Connexion réussie (admin)  
-     * → Redirection vers /admin/dashboard
-     * 
-     * // Échec connexion
-     * → Message d'erreur + retour formulaire
+     * Affiche et gère le formulaire d'inscription.
      */
-    public function login(): void
+    public function register()
     {
-        // 📝 AFFICHAGE DU FORMULAIRE
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $this->render('user/login', [], 'layout/public');
-            return;
-        }
+        $data = ['nom' => '', 'email' => '', 'password' => ''];
+        $errors = [];
 
-        // 🔐 TRAITEMENT DE LA CONNEXION
-        $data = $_POST;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        // 🛡️ VALIDATION
-        $errors = UserValidator::validateLogin($data);
-        if (!empty($errors)) {
-            FlashManager::error(MessageBag::get('form.invalid'));
-            Redirector::back();
-            return;
-        }
+            // Récupération et nettoyage des données POST
+            $data['nom'] = trim($_POST['nom'] ?? '');
+            $data['email'] = trim($_POST['email'] ?? '');
+            $data['password'] = $_POST['password'] ?? '';
 
-        // 🔑 AUTHENTIFICATION
-        $user = $this->userService->login($data['email'], $data['password']);
+            // 1. Validation des champs
+            $errors = $this->validator::validate($data, true);
 
-        if ($user) {
-            // ✅ CONNEXION RÉUSSIE
-            session_regenerate_id(true); // Sécurité
-            $_SESSION['user_id'] = $user->id;
-            $_SESSION['role'] = $user->role;
-            $_SESSION['user_name'] = $user->username; // 👈 IMPORTANT pour l'affichage
+            if (empty($errors)) {
 
-            FlashManager::success(MessageBag::get('auth.login_success'));
+                // 2. Enregistrement via le Service
+                if ($this->userService->register($data)) {
 
-            // 🧭 REDIRECTION INTELLIGENTE
-            if ($user->role === 'admin') {
-                Redirector::to('/admin/dashboard');
-            } else {
-                $redirectUrl = $_SESSION['redirect_after_login'] ?? '/profile';
-                unset($_SESSION['redirect_after_login']);
-                Redirector::to($redirectUrl);
+                    // SUCCÈS : Utilisation de la méthode FlashManager::success (héritée ou accédée via la composition)
+                    FlashManager::success(MessageBag::get('user.register_success'));
+
+
+                    $this->redirect('/login');
+                } else {
+                    // ERREUR : Email déjà utilisé
+                    $errors['global'] = MessageBag::get('user.email_taken');
+                }
             }
-        } else {
-            // ❌ ÉCHEC AUTHENTIFICATION
-            FlashManager::error(MessageBag::get('auth.failed'));
-            Redirector::back();
+            $data['password'] = '';
         }
+
+        // Rendu de la vue dans le layout public
+        $this->render('user/register', [
+            'errors' => $errors,
+            'old' => $data
+        ], 'layout/public');
     }
 
     /**
-     * Affiche ou traite le formulaire d'inscription
-     * 
-     * FLOW :
-     * GET → Affiche le formulaire  
-     * POST → Valide → Crée utilisateur → Redirige vers login
-     * 
-     * @return void
+     * Affiche et gère le formulaire de connexion.
      */
-    public function register(): void
+    public function login()
     {
-        // 📝 AFFICHAGE DU FORMULAIRE
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $this->render('user/register', [], 'layout/public');
-            return;
+        $data = ['email' => '', 'password' => ''];
+        $errors = [];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $data['email'] = trim($_POST['email'] ?? '');
+            $data['password'] = $_POST['password'] ?? '';
+
+            // 1. Validation des champs
+            $errors = $this->validator::validateLogin($data);
+
+            if (empty($errors)) {
+
+                // 2. Authentification via le Service
+                $user = $this->userService->login($data['email'], $data['password']);
+
+                if ($user) {
+
+                    // Connexion réussie : Stockage Session
+                    if (session_status() === PHP_SESSION_NONE) {
+                        session_start();
+                    }
+                    $_SESSION['user_id'] = $user->id;
+                    $_SESSION['user_role'] = $user->role;
+                    $_SESSION['user_nom'] = $user->nom;
+
+                    // 3. Logique de Redirection Intentionnelle
+                    if (isset($_SESSION['redirect_after_login'])) {
+                        $target_url = $_SESSION['redirect_after_login'];
+                        unset($_SESSION['redirect_after_login']);
+                    } else {
+                        // Redirection par défaut : Admin vers Dashboard, User vers Accueil
+                        $target_url = ($user->role === 'admin') ? '/admin/dashboard' : '/';
+                    }
+
+                    // ✅ SUCCÈS : Message de bienvenue
+                    $welcomeMessage = MessageBag::get('auth.login_success');
+                    FlashManager::success("{$welcomeMessage} Bienvenue, {$user->nom} !");
+
+                    // 🚀 REDIRECTION PROPRE : Utilisation de $this->redirect()
+                    $this->redirect($target_url);
+                } else {
+                    // ÉCHEC : Message d'erreur
+                    $errors['global'] = MessageBag::get('auth.failed');
+                }
+            }
+            $data['password'] = '';
         }
 
-        // 👤 TRAITEMENT DE L'INSCRIPTION
-        $data = $_POST;
-
-        // 🛡️ VALIDATION
-        $errors = UserValidator::validate($data);
-        if (!empty($errors)) {
-            FlashManager::error(MessageBag::get('form.invalid')); // 👈 CORRIGÉ : 'form.invalid' au lieu de 'fort.invalid'
-            Redirector::back();
-            return;
-        }
-
-        // 📝 CRÉATION UTILISATEUR
-        $success = $this->userService->register($data);
-
-        if ($success) {
-            // ✅ INSCRIPTION RÉUSSIE
-            FlashManager::success(MessageBag::get('user.register_success'));
-            Redirector::to('/login');
-        } else {
-            // ❌ EMAIL DÉJÀ UTILISÉ
-            FlashManager::error(MessageBag::get('user.email_taken'));
-            Redirector::back();
-        }
+        // 🎯 Rendu de la vue dans le layout public
+        $this->render('user/login', [
+            'errors' => $errors,
+            'old' => $data
+        ], 'layout/public'); // <-- Utilisation explicite du layout 'public'
     }
 
     /**
-     * Déconnecte l'utilisateur et nettoie la session
-     * 
-     * @return void
+     * Déconnecte l'utilisateur.
      */
-    public function logout(): void
+    public function logout()
     {
-        // 🧹 NETTOYAGE SESSION
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Détruire la session et les données
         session_unset();
         session_destroy();
 
-        // 👋 MESSAGE DE DÉCONNEXION
-        FlashManager::success(MessageBag::get('auth.logout_success'));
-        Redirector::to('/login');
-    }
+        // SUCCÈS : Message de déconnexion
+        FlashManager::info(MessageBag::get('auth.logout_success'));
 
-    /**
-     * Affiche le profil de l'utilisateur connecté
-     * 
-     * SÉCURITÉ :
-     * - Vérifie que l'user est connecté
-     * - Récupère ses infos depuis la BDD
-     * - Affiche uniquement si trouvé
-     * 
-     * @return void
-     */
-    public function profile(): void
-    {
-        // 🔐 VÉRIFICATION AUTHENTIFICATION
-        $userId = $_SESSION['user_id'] ?? null;
-        if (!$userId) {
-            FlashManager::error(MessageBag::get('auth.required'));
-            $this->render('errors/unauthorized', [], 'layout/public');
-            return;
-        }
-
-        // 👤 RÉCUPÉRATION PROFIL
-        $user = $this->userService->getUserById($userId);
-        if (!$user) {
-            FlashManager::error(MessageBag::get('user.not_found'));
-            Redirector::to('/login');
-            return;
-        }
-
-        // 📊 AFFICHAGE PROFIL
-        $this->render('user/profile', [
-            'user' => $user,
-            'user_connected' => true, // 👈 IMPORTANT pour header/footer
-            'user_role' => $_SESSION['role'] ?? null,
-            'user_name' => $_SESSION['user_name'] ?? $user->username
-        ], 'layout/public');
+        // REDIRECTION PROPRE : Utilisation de $this->redirect()
+        $this->redirect('/');
     }
 }

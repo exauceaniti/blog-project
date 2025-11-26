@@ -8,7 +8,7 @@ $user_role = $user_role ?? null;
         <!-- Logo -->
         <a href="/" class="logo">
             <i class="fas fa-feather-alt logo-icon"></i>
-            <span>MonBlog</span>
+            <span>Exau-Blog</span>
         </a>
 
         <!-- Navigation principale -->

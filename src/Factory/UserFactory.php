@@ -12,7 +12,7 @@ class UserFactory
      * -Role par defaut = user
      */
 
-    public static function createFromForm(array $data): User
+    public static function createFromFormuler(array $data): User
     {
         $user = new User();
         $user->nom = $data['nom'] ?? '';
@@ -42,11 +42,11 @@ class UserFactory
     }
 
     /**
-     * Cree directement unadministrateur.
+     * Cree directement un administrateur.
      */
     public static function creatAdmin(array $data): User
     {
         $data['role'] = 'admin';
-        return self::creatAdmin($data);
+        return self::createFromFormuler($data);
     }
 }

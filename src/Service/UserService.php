@@ -1,14 +1,17 @@
 <?php
+
 namespace Src\Service;
 
 use Src\Factory\UserFactory;
 use Src\DAO\UserDAO;
 use Src\Entity\User;
 
-class UserService {
+class UserService
+{
     private UserDAO $userDAO;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->userDAO = new UserDAO();
     }
 
@@ -18,7 +21,8 @@ class UserService {
      * @param array $data Données brutes (ex. $_POST)
      * @return bool
      */
-    public function register(array $data): bool {
+    public function register(array $data): bool
+    {
         // Validation minimale
         if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             return false;
@@ -28,7 +32,7 @@ class UserService {
             return false; // Email déjà utilisé
         }
 
-        $user = UserFactory::create($data);
+        $user = UserFactory::createFromFormuler($data);
         return $this->userDAO->save($user);
     }
 
@@ -39,7 +43,8 @@ class UserService {
      * @param string $password
      * @return ?User
      */
-    public function login(string $email, string $password): ?User {
+    public function login(string $email, string $password): ?User
+    {
         $user = $this->userDAO->findByEmail($email);
 
         if ($user && password_verify($password, $user->password)) {
@@ -55,7 +60,8 @@ class UserService {
      * @param int $id
      * @return bool
      */
-    public function promoteToAdmin(int $id): bool {
+    public function promoteToAdmin(int $id): bool
+    {
         $user = $this->userDAO->findById($id);
 
         if (!$user) {
@@ -72,7 +78,8 @@ class UserService {
      * @param int $id
      * @return bool
      */
-    public function deleteUser(int $id): bool {
+    public function deleteUser(int $id): bool
+    {
         return $this->userDAO->delete($id);
     }
 
@@ -82,7 +89,8 @@ class UserService {
      * @param int $id
      * @return ?User
      */
-    public function getUserById(int $id): ?User {
+    public function getUserById(int $id): ?User
+    {
         return $this->userDAO->findById($id);
     }
 
@@ -91,7 +99,8 @@ class UserService {
      *
      * @return array Liste d'objets User
      */
-    public function getAllUsers(): array {
+    public function getAllUsers(): array
+    {
         return $this->userDAO->findAll();
     }
 
@@ -102,7 +111,8 @@ class UserService {
      * @param array $data
      * @return bool
      */
-    public function updateUser(int $id, array $data): bool {
+    public function updateUser(int $id, array $data): bool
+    {
         $user = $this->userDAO->findById($id);
 
         if (!$user) {
