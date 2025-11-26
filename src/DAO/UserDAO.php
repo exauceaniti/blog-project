@@ -1,21 +1,30 @@
 <?php
+
 namespace Src\DAO;
 
 use Src\Core\Database\Database;
 use Src\Entity\User;
 use PDO;
 
-class UserDAO {
+/**
+ * Classe qui gcomminuque directement avec la base de donee.  
+ * cette classe execute les requettes sql et recupere les informations dans la base de donnee
+ * le transforme sous formes des object pour les utiliser apres.
+ */
+class UserDAO
+{
     private PDO $db;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = Database::getConnection();
     }
 
     /**
      * Récupère tous les utilisateurs
      */
-    public function findAll(): array {
+    public function findAll(): array
+    {
         $stmt = $this->db->query("SELECT * FROM utilisateurs");
         $stmt->setFetchMode(PDO::FETCH_CLASS, User::class);
         return $stmt->fetchAll();
@@ -24,7 +33,8 @@ class UserDAO {
     /**
      * Récupère un utilisateur par son ID
      */
-    public function findById(int $id): ?User {
+    public function findById(int $id): ?User
+    {
         $stmt = $this->db->prepare("SELECT * FROM utilisateurs WHERE id = ?");
         $stmt->execute([$id]);
         $stmt->setFetchMode(PDO::FETCH_CLASS, User::class);
@@ -34,7 +44,8 @@ class UserDAO {
     /**
      * Récupère un utilisateur par son email
      */
-    public function findByEmail(string $email): ?User {
+    public function findByEmail(string $email): ?User
+    {
         $stmt = $this->db->prepare("SELECT * FROM utilisateurs WHERE email = ?");
         $stmt->execute([$email]);
         $stmt->setFetchMode(PDO::FETCH_CLASS, User::class);
@@ -44,7 +55,8 @@ class UserDAO {
     /**
      * Enregistre un nouvel utilisateur
      */
-    public function save(User $user): bool {
+    public function save(User $user): bool
+    {
         $stmt = $this->db->prepare("
             INSERT INTO utilisateurs (nom, email, password, role)
             VALUES (:nom, :email, :password, :role)
@@ -58,26 +70,35 @@ class UserDAO {
     }
 
     /**
-     * Met à jour les informations d’un utilisateur
+     * Met à jour les informations d’un utilisateur et son mot de passe aussi bien sur. 
      */
-    public function update(User $user): bool {
-        $stmt = $this->db->prepare("
-            UPDATE utilisateurs SET nom = :nom, email = :email, password = :password, role = :role
-            WHERE id = :id
-        ");
-        return $stmt->execute([
+    public function update(User $user): bool
+    {
+        $sql = "UPDATE utilisateurs SET nom = :nom, email = :email, role = :role";
+        $params = [
             'nom' => $user->nom,
             'email' => $user->email,
-            'password' => $user->password,
             'role' => $user->role,
             'id' => $user->id
-        ]);
+        ];
+
+        // Si un mot de passe est défini, on l’ajoute à la requête
+        if (!empty($user->password)) {
+            $sql .= ", password = :password";
+            $params['password'] = $user->password;
+        }
+
+        $sql .= " WHERE id = :id";
+
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($params);
     }
 
     /**
      * Supprime un utilisateur par son ID
      */
-    public function delete(int $id): bool {
+    public function delete(int $id): bool
+    {
         $stmt = $this->db->prepare("DELETE FROM utilisateurs WHERE id = ?");
         return $stmt->execute([$id]);
     }

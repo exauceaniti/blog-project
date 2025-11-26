@@ -1,14 +1,17 @@
 <?php
+
 namespace Src\Service;
 
 use Src\DAO\PostDAO;
-use Src\Entity\Post;
+use Src\Entity\post;
 use Src\Factory\PostFactory;
 
-class PostService {
+class PostService
+{
     private PostDAO $postDAO;
 
-    public function __construct(PostDAO $postDAO) {
+    public function __construct(PostDAO $postDAO)
+    {
         $this->postDAO = $postDAO;
     }
 
@@ -17,7 +20,8 @@ class PostService {
      *
      * @return Post[]
      */
-    public function getAllPosts(): array {
+    public function getAllPosts(): array
+    {
         return $this->postDAO->findAll();
     }
 
@@ -27,7 +31,8 @@ class PostService {
      * @param int $id
      * @return ?Post
      */
-    public function getPostById(int $id): ?Post {
+    public function getPostById(int $id): ?Post
+    {
         return $this->postDAO->findById($id);
     }
 
@@ -37,7 +42,8 @@ class PostService {
      * @param array $data Données brutes (ex: $_POST)
      * @return bool
      */
-    public function createPost(array $data): bool {
+    public function createPost(array $data): bool
+    {
         // Validation minimale côté service
         if (empty($data['titre']) || empty($data['contenu']) || empty($data['auteur_id'])) {
             return false;
@@ -56,7 +62,8 @@ class PostService {
      * @param array $data
      * @return bool
      */
-    public function updatePost(int $id, array $data): bool {
+    public function updatePost(int $id, array $data): bool
+    {
         $post = $this->postDAO->findById($id);
         if (!$post) {
             return false;
@@ -77,7 +84,8 @@ class PostService {
      * @param int $id
      * @return bool
      */
-    public function deletePost(int $id): bool {
+    public function deletePost(int $id): bool
+    {
         return $this->postDAO->delete($id);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Entity;
 
 /**
@@ -6,18 +7,20 @@ namespace Src\Entity;
  * --------------
  * Représente un commentaire lié à un article.
  */
-class Comment {
+class Comment
+{
     public int $id;
     public string $contenu;
     public int $auteur_id;
     public int $article_id;
     public string $date_commentaire;
 
-    public function __construct(array $data = []) {
+    public function __construct(array $data = [])
+    {
         $this->id              = $data['id'] ?? 0;
         $this->contenu         = $data['contenu'] ?? '';
         $this->auteur_id       = $data['auteur_id'] ?? 0;
         $this->article_id      = $data['article_id'] ?? 0;
-        $this->date_commentaire= $data['date_commentaire'] ?? '';
+        $this->date_commentaire = $data['date_commentaire'] ?? '';
     }
 }

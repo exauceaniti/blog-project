@@ -1,7 +1,9 @@
 <?php
+
 namespace Src\Entity;
 
-class Post {
+class Post
+{
     public int $id;
     public string $titre;
     public string $contenu;
@@ -13,7 +15,8 @@ class Post {
     /** @var int Nombre de commentaires (calculé, non persistant) */
     public int $comment_count = 0;
 
-    public function __construct(array $data = []) {
+    public function __construct(array $data = [])
+    {
         $this->id = (int)($data['id'] ?? 0);
         $this->titre = $data['titre'] ?? '';
         $this->contenu = $data['contenu'] ?? '';

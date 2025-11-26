@@ -11,11 +11,13 @@ use Src\Core\Lang\MessageBag;
 use Src\Controller\BaseController;
 use Src\Service\CommentService;
 
-class PostController extends BaseController {
+class PostController extends BaseController
+{
     private PostService $postService;
     private CommentService $commentService;
 
-    public function __construct(PostService $postService, CommentService $commentService) {
+    public function __construct(PostService $postService, CommentService $commentService)
+    {
         $this->postService = $postService;
         $this->commentService = $commentService;
     }
@@ -23,7 +25,8 @@ class PostController extends BaseController {
     /**
      * Liste des articles
      */
-    public function index(): void {
+    public function index(): void
+    {
         $posts = $this->postService->getAllPosts();
 
         // Ajouter le nombre de commentaires pour chaque article
@@ -38,7 +41,8 @@ class PostController extends BaseController {
     /**
      * Affiche un article
      */
-    public function show(int $id): void {
+    public function show(int $id): void
+    {
         $post = $this->postService->getPostById($id);
         if (!$post) {
             FlashManager::error(MessageBag::get('article.not_found'));
@@ -50,7 +54,8 @@ class PostController extends BaseController {
     /**
      * Crée un nouvel article
      */
-    public function create(): void {
+    public function create(): void
+    {
         $data = $_POST;
         $data['auteur_id'] = $_SESSION['user_id'] ?? null;
 
@@ -79,7 +84,8 @@ class PostController extends BaseController {
     /**
      * Met à jour un article
      */
-    public function update(int $id): void {
+    public function update(int $id): void
+    {
         $data = $_POST;
 
         $errors = PostValidator::validate($data);
@@ -103,7 +109,8 @@ class PostController extends BaseController {
     /**
      * Supprime un article
      */
-    public function delete(int $id): void {
+    public function delete(int $id): void
+    {
         $success = $this->postService->deletePost($id);
 
         if ($success) {
