@@ -6,20 +6,37 @@ use Src\Factory\UserFactory;
 use Src\DAO\UserDAO;
 use Src\Entity\User;
 
+/**
+ * Service de gestion des utilisateurs
+ * 
+ * Cette classe contient la logique métier pour les opérations liées aux utilisateurs
+ * Elle fait le lien entre les contrôleurs, la factory et le DAO
+ */
 class UserService
 {
+    /**
+     * @var UserDAO Instance du DAO pour l'accès aux données des utilisateurs
+     */
     private UserDAO $userDAO;
 
+    /**
+     * Constructeur de la classe UserService
+     * Initialise l'instance du UserDAO
+     */
     public function __construct()
     {
         $this->userDAO = new UserDAO();
     }
 
     /**
-     * Enregistre ou cree un nouvel utilisateur
+     * Enregistre ou crée un nouvel utilisateur
+     * - Valide l'email
+     * - Vérifie l'unicité de l'email
+     * - Crée l'utilisateur via la factory
+     * - Sauvegarde en base de données
      *
      * @param array $data Données brutes (ex. $_POST)
-     * @return bool
+     * @return bool True si l'enregistrement a réussi, false sinon
      */
     public function register(array $data): bool
     {
@@ -38,10 +55,12 @@ class UserService
 
     /**
      * Authentifie un utilisateur
+     * - Recherche l'utilisateur par email
+     * - Vérifie le mot de passe avec password_verify
      *
-     * @param string $email
-     * @param string $password
-     * @return ?User
+     * @param string $email Email de l'utilisateur
+     * @param string $password Mot de passe en clair
+     * @return User|null Instance de User si authentification réussie, null sinon
      */
     public function login(string $email, string $password): ?User
     {
@@ -56,9 +75,12 @@ class UserService
 
     /**
      * Promeut un utilisateur au rôle admin
+     * - Recherche l'utilisateur par ID
+     * - Modifie son rôle en 'admin'
+     * - Met à jour en base de données
      *
-     * @param int $id
-     * @return bool
+     * @param int $id ID de l'utilisateur à promouvoir
+     * @return bool True si la promotion a réussi, false sinon
      */
     public function promoteToAdmin(int $id): bool
     {
@@ -75,8 +97,8 @@ class UserService
     /**
      * Supprime un utilisateur
      *
-     * @param int $id
-     * @return bool
+     * @param int $id ID de l'utilisateur à supprimer
+     * @return bool True si la suppression a réussi, false sinon
      */
     public function deleteUser(int $id): bool
     {
@@ -86,8 +108,8 @@ class UserService
     /**
      * Récupère un utilisateur par son ID
      *
-     * @param int $id
-     * @return ?User
+     * @param int $id ID de l'utilisateur à récupérer
+     * @return User|null Instance de User si trouvé, null sinon
      */
     public function getUserById(int $id): ?User
     {
@@ -105,11 +127,15 @@ class UserService
     }
 
     /**
-     * Met à jour les informations d’un utilisateur
+     * Met à jour les informations d'un utilisateur
+     * - Recherche l'utilisateur par ID
+     * - Met à jour les champs modifiés
+     * - Hash le nouveau mot de passe si fourni
+     * - Sauvegarde les modifications
      *
-     * @param int $id
-     * @param array $data
-     * @return bool
+     * @param int $id ID de l'utilisateur à modifier
+     * @param array $data Données à mettre à jour
+     * @return bool True si la mise à jour a réussi, false sinon
      */
     public function updateUser(int $id, array $data): bool
     {

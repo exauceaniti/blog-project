@@ -4,10 +4,19 @@ namespace Src\Validator;
 
 use Src\Core\Lang\MessageBag;
 
+/**
+ * Validateur pour les données utilisateur
+ * 
+ * Cette classe contient les règles de validation pour les opérations
+ * liées aux utilisateurs (inscription, connexion, mise à jour)
+ */
 class UserValidator
 {
     /**
      * Valide les données d'inscription ou de mise à jour utilisateur
+     * - Vérifie le nom (minimum 2 caractères)
+     * - Valide le format de l'email
+     * - Optionnellement vérifie le mot de passe (6 caractères minimum)
      *
      * @param array $data Données brutes (ex. $_POST)
      * @param bool $checkPassword Indique si le mot de passe doit être validé
@@ -27,7 +36,7 @@ class UserValidator
             $errors['email'] = MessageBag::get('user.email_invalid');
         }
 
-        // Mot de passe doit etre superieur a 6 caracteres
+        // Mot de passe doit être supérieur à 6 caractères
         if ($checkPassword) {
             if (empty($data['password']) || strlen($data['password']) < 6) {
                 $errors['password'] = MessageBag::get('user.password_short');
@@ -39,9 +48,11 @@ class UserValidator
 
     /**
      * Valide uniquement les données de connexion
+     * - Vérifie la présence et le format de l'email
+     * - Vérifie la présence du mot de passe
      *
-     * @param array $data
-     * @return array
+     * @param array $data Données de connexion (email et password)
+     * @return array Liste des messages d'erreur
      */
     public static function validateLogin(array $data): array
     {

@@ -2,57 +2,50 @@
 
 namespace Src\Core\Middleware;
 
+// Importation essentielle du service de session
+use Src\Core\Session\SessionService;
 use Src\Core\Http\Redirector;
 use Src\Core\Session\FlashManager;
 use Src\Core\Lang\MessageBag;
 
+/**
+ * Middleware d'authentification et d'autorisation
+ * * Gère la vérification des sessions utilisateur et les contrôles d'accès
+ */
 class AuthMiddleware
 {
-    /**
-     * Vérifie si l'utilisateur est connecté.
-     * On verifie si la sessions est demarree et que l'idee est bien present.
-     */
-    private static function checkAuth(): bool
-    {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        return isset($_SESSION['user_id']);
-    }
-
+    // On retire checkAuth() et hasRole() car SessionService le fait
 
     /**
-     * Vérifie le rôle de l'utilisateur (on utilise la clé standardisée 'user_role').
-     * La clef de sessions doit etre la meme que ce qui se trouve dans 
-     * le Controller.
-     */
-    private static function hasRole(string $role): bool
-    {
-        return ($_SESSION['user_role'] ?? '') === $role;
-    }
-
-    /**
-     * Middleware générique : vérifie l'authentification et éventuellement le rôle.
+     * Middleware générique : vérifie l'authentification et éventuellement le rôle
+     * * @param string|null $requiredRole Rôle requis (null pour simple authentification)
+     * @return void Redirige vers la page de login ou unauthorized si échec
      */
     public static function handle(?string $requiredRole = null): void
     {
-        if (!self::checkAuth()) {
-            // 1. Capture l'URL actuelle pour redirection après login
-            // On s'assure de ne pas capturer les pages de connexion/inscription elles-mêmes
+        // On s'assure que la session est démarrée avant toute vérification ou écriture
+        SessionService::startIfNotStarted();
+
+        // 1. VÉRIFICATION DE L'AUTHENTIFICATION (Utilisation de SessionService)
+        if (!SessionService::isLoggedIn()) {
+
+            // Capture l'URL actuelle pour redirection après login
             if (
-                $_SERVER['REQUEST_URI'] !== '/user/login'
-                && $_SERVER['REQUEST_URI'] !== '/user/register'
+                $_SERVER['REQUEST_URI'] !== '/login'
+                && $_SERVER['REQUEST_URI'] !== '/register'
             ) {
                 $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
             }
 
-            // 2. Message d'erreur et redirection vers la page de login
+            // Message d'erreur et redirection vers la page de login
             FlashManager::error(MessageBag::get('auth.required'));
-            Redirector::to('/user/login');
+            Redirector::to('/login'); // Utilisez le bon chemin ici (probablement /login)
             exit;
         }
 
-        if ($requiredRole && !self::hasRole($requiredRole)) {
+        // 2. VÉRIFICATION DU RÔLE (Utilisation de SessionService)
+        if ($requiredRole && SessionService::getRole() !== $requiredRole) {
+
             // L'utilisateur est connecté mais n'a pas le bon rôle (ex: n'est pas admin)
             $key = $requiredRole === 'admin' ? 'auth.admin_only' : 'auth.forbidden';
             FlashManager::error(MessageBag::get($key));
@@ -63,12 +56,19 @@ class AuthMiddleware
         }
     }
 
-    // Alias pratiques (inchangés)
+    /**
+     * Alias pour exiger une authentification simple
+     * * @return void
+     */
     public static function requireAuth(): void
     {
         self::handle();
     }
 
+    /**
+     * Alias pour exiger le rôle administrateur
+     * * @return void
+     */
     public static function requireAdmin(): void
     {
         self::handle('admin');
