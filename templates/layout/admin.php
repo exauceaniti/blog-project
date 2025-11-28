@@ -15,6 +15,10 @@
     <main>
         <?= $page_view ?>
     </main>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 532b8d6 (mise a jour css)
 </body>
 
 </html>

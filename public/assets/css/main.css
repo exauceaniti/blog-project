@@ -1,0 +1,44 @@
+/* 1. Base et utilitaires */
+@import url("base/_reset.css");
+@import url("base/_variables.css");
+@import url("base/_typography.css");
+@import url("base/_utilities.css");
+
+/* 2. Composants */
+@import url("components/_buttons.css");
+@import url("components/_cards.css");
+@import url("components/_forms.css");
+@import url("components/_navigation.css");
+@import url("components/_alerts.css");
+
+/* 3. Layouts de structure */
+@import url("layout/_grid.css");
+@import url("layout/_header.css");
+@import url("layout/_footer.css");
+@import url("layout/_sidebar.css");
+
+/* 4. Pages spécifiques (Doivent être en dernier pour une spécificité accrue) */
+@import url("pages/_home.css");
+@import url("pages/_blog.css");
+@import url("pages/_auth.css");
+@import url("pages/_admin.css");
+
+/* Fix pour le footer en bas de page */
+html,
+body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+}
+
+.site-footer {
+    margin-top: auto;
+}

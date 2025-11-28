@@ -1,5 +1,9 @@
+<<<<<<< HEAD:assets/css/core/reset.css
 /* assets/css/core/reset.css */
 /* Modern CSS Reset avec améliorations */
+=======
+/* Modern CSS Reset */
+>>>>>>> 532b8d6 (mise a jour css):public/assets/css/base/_reset.css
 *,
 *::before,
 *::after {
@@ -9,14 +13,18 @@
 }
 
 html {
+<<<<<<< HEAD:assets/css/core/reset.css
     /* Améliore le rendu du texte */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     /* Smooth scrolling */
+=======
+>>>>>>> 532b8d6 (mise a jour css):public/assets/css/base/_reset.css
     scroll-behavior: smooth;
 }
 
 body {
+<<<<<<< HEAD:assets/css/core/reset.css
     /* Base typographique */
     font-family: var(--font-sans);
     font-size: var(--text-base);
@@ -25,6 +33,13 @@ body {
     background-color: var(--bg-primary);
 
     /* Améliore le rendu */
+=======
+    font-family: var(--font-primary);
+    font-size: var(--text-base);
+    line-height: 1.6;
+    color: var(--gray-800);
+    background-color: var(--white);
+>>>>>>> 532b8d6 (mise a jour css):public/assets/css/base/_reset.css
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeSpeed;
@@ -126,6 +141,7 @@ ol {
     list-style: none;
 }
 
+<<<<<<< HEAD:assets/css/core/reset.css
 /* Citations */
 blockquote {
     border-left: 4px solid var(--secondary-300);
@@ -178,6 +194,19 @@ hr {
 }
 
 /* Remove animations for reduced motion */
+=======
+/* Focus visible pour l'accessibilité */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Réduction des animations pour les préférences utilisateur */
+>>>>>>> 532b8d6 (mise a jour css):public/assets/css/base/_reset.css
 @media (prefers-reduced-motion: reduce) {
     html {
         scroll-behavior: auto;

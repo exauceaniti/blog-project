@@ -1,7 +1,11 @@
+<<<<<<< HEAD:assets/css/core/utilities.css
 /* assets/css/core/utilities.css */
 /* ===== UTILITAIRES D'ESPACEMENT ===== */
 
 /* Marges */
+=======
+/* Espacements - Margin */
+>>>>>>> 532b8d6 (mise a jour css):public/assets/css/base/_utilities.css
 .m-0 {
     margin: var(--space-0);
 }
@@ -106,6 +110,7 @@
     margin-bottom: var(--space-8);
 }
 
+<<<<<<< HEAD:assets/css/core/utilities.css
 .mb-auto {
     margin-bottom: auto;
 }
@@ -273,6 +278,9 @@
 }
 
 /* Paddings */
+=======
+/* Espacements - Padding */
+>>>>>>> 532b8d6 (mise a jour css):public/assets/css/base/_utilities.css
 .p-0 {
     padding: var(--space-0);
 }
@@ -369,6 +377,7 @@
     padding-bottom: var(--space-8);
 }
 
+<<<<<<< HEAD:assets/css/core/utilities.css
 .pl-0 {
     padding-left: var(--space-0);
 }
@@ -754,18 +763,74 @@
     justify-content: flex-start;
 }
 
+=======
+/* Display */
+.d-block {
+    display: block;
+}
+
+.d-inline {
+    display: inline;
+}
+
+.d-inline-block {
+    display: inline-block;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.d-grid {
+    display: grid;
+}
+
+.d-none {
+    display: none;
+}
+
+/* Flexbox */
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.items-start {
+    align-items: flex-start;
+}
+
+.items-end {
+    align-items: flex-end;
+}
+
+>>>>>>> 532b8d6 (mise a jour css):public/assets/css/base/_utilities.css
 .justify-center {
     justify-content: center;
 }
 
+<<<<<<< HEAD:assets/css/core/utilities.css
 .justify-end {
     justify-content: flex-end;
 }
 
+=======
+>>>>>>> 532b8d6 (mise a jour css):public/assets/css/base/_utilities.css
 .justify-between {
     justify-content: space-between;
 }
 
+<<<<<<< HEAD:assets/css/core/utilities.css
 .justify-around {
     justify-content: space-around;
 }
@@ -780,6 +845,10 @@
 
 .flex-none {
     flex: none;
+=======
+.justify-end {
+    justify-content: flex-end;
+>>>>>>> 532b8d6 (mise a jour css):public/assets/css/base/_utilities.css
 }
 
 .gap-1 {
@@ -798,6 +867,7 @@
     gap: var(--space-4);
 }
 
+<<<<<<< HEAD:assets/css/core/utilities.css
 .gap-5 {
     gap: var(--space-5);
 }
@@ -821,16 +891,81 @@
 
 .border-dark {
     border: var(--border-dark);
+=======
+/* Visibilité */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Couleurs de texte */
+.text-primary {
+    color: var(--primary-color);
+}
+
+.text-secondary {
+    color: var(--secondary-color);
+}
+
+.text-success {
+    color: #10b981;
+}
+
+.text-warning {
+    color: #f59e0b;
+}
+
+.text-error {
+    color: #ef4444;
+}
+
+.text-white {
+    color: var(--white);
+}
+
+/* Couleurs de fond */
+.bg-primary {
+    background-color: var(--primary-color);
+}
+
+.bg-secondary {
+    background-color: var(--secondary-color);
+}
+
+.bg-light {
+    background-color: var(--gray-50);
+}
+
+.bg-white {
+    background-color: var(--white);
+}
+
+.bg-transparent {
+    background-color: transparent;
+}
+
+/* Bordures */
+.border {
+    border: 1px solid var(--gray-200);
+>>>>>>> 532b8d6 (mise a jour css):public/assets/css/base/_utilities.css
 }
 
 .border-t {
-    border-top: var(--border);
+    border-top: 1px solid var(--gray-200);
 }
 
 .border-b {
-    border-bottom: var(--border);
+    border-bottom: 1px solid var(--gray-200);
 }
 
+<<<<<<< HEAD:assets/css/core/utilities.css
 .border-l {
     border-left: var(--border);
 }
@@ -898,8 +1033,17 @@
 
 .shadow-sm {
     box-shadow: var(--shadow-sm);
+=======
+.rounded {
+    border-radius: var(--border-radius);
+>>>>>>> 532b8d6 (mise a jour css):public/assets/css/base/_utilities.css
 }
 
+.rounded-lg {
+    border-radius: var(--border-radius-lg);
+}
+
+/* Ombres */
 .shadow {
     box-shadow: var(--shadow);
 }
@@ -912,10 +1056,12 @@
     box-shadow: var(--shadow-lg);
 }
 
-.shadow-xl {
-    box-shadow: var(--shadow-xl);
+/* Largeurs */
+.w-full {
+    width: 100%;
 }
 
+<<<<<<< HEAD:assets/css/core/utilities.css
 /* ===== UTILITAIRES DE POSITION ===== */
 .relative {
     position: relative;
@@ -1089,6 +1235,28 @@
 
     .md\\:text-xl {
         font-size: var(--text-xl);
+=======
+.w-auto {
+    width: auto;
+}
+
+.max-w-full {
+    max-width: 100%;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+    .md\:flex {
+        display: flex;
+    }
+
+    .md\:d-none {
+        display: none;
+    }
+
+    .md\:text-left {
+        text-align: left;
+>>>>>>> 532b8d6 (mise a jour css):public/assets/css/base/_utilities.css
     }
 
     .md\\:text-2xl {

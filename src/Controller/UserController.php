@@ -22,6 +22,49 @@ class UserController extends BaseController
         $this->userService = new UserService();
         $this->validator = new UserValidator();
     }
+    /**
+
+     * Affiche et gère le formulaire d'inscription
+     * Méthode : GET (affichage) et POST (traitement)
+     * Validation des données, création du compte et redirection
+     * @return void
+     */
+    public function register()
+    {
+        $data = ['nom' => '', 'email' => '', 'password' => ''];
+        $errors = [];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupération et nettoyage des données POST
+
+            $data['nom'] = trim($_POST['nom'] ?? '');
+
+            $data['email'] = trim($_POST['email'] ?? '');
+
+            $data['password'] = $_POST['password'] ?? '';
+
+            // 1. Validation des champs
+
+            $errors = $this->validator::validate($data, true);
+            if (empty($errors)) {
+
+                // 2. Enregistrement via le Service
+                if ($this->userService->register($data)) {
+                    FlashManager::success(MessageBag::get('user.register_success'));
+                    $this->redirect('/login');
+                } else {
+                    $errors['global'] = MessageBag::get('user.email_taken');
+                }
+            }
+            $data['password'] = '';
+        }
+
+        // Rendu de la vue dans le layout public
+        $this->render('user/register', [
+            'errors' => $errors,
+            'old' => $data
+        ], 'layout/public');
+    }
 
     /**
      * Affiche et gère le formulaire de connexion
