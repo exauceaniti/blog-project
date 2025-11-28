@@ -7,7 +7,6 @@
 </head>
 
 <body>
-    <?php \Src\Core\Render\Fragment::header(); ?>
 
     <aside>
         <?php \Src\Core\Render\Fragment::sidebar($sidebar_params ?? []); ?>
@@ -16,8 +15,6 @@
     <main>
         <?= $page_view ?>
     </main>
-
-    <?php \Src\Core\Render\Fragment::footer(); ?>
 </body>
 
 </html>

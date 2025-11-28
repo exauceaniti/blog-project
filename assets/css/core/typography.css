@@ -1,163 +1,210 @@
 /* assets/css/core/typography.css */
-/* Hiérarchie typographique */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+/* ===== TYPOGRAPHIE RESPONSIVE ET ACCESSIBLE ===== */
+
+/* Hiérarchie typographique cohérente */
+.heading-1 {
+    font-size: var(--text-4xl);
     font-weight: 700;
-    line-height: 1.2;
+    line-height: var(--leading-tight);
+    color: var(--text-primary);
+    margin-bottom: var(--space-6);
+}
+
+.heading-2 {
+    font-size: var(--text-3xl);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    color: var(--text-primary);
+    margin-bottom: var(--space-5);
+}
+
+.heading-3 {
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    color: var(--text-primary);
     margin-bottom: var(--space-4);
+}
+
+.heading-4 {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+}
+
+.heading-5 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+}
+
+.heading-6 {
+    font-size: var(--text-base);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+}
+
+/* Paragraphes et texte */
+.lead {
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-6);
+}
+
+.text-body {
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
     color: var(--text-primary);
 }
 
-h1 {
-    font-size: var(--text-4xl);
-    font-weight: 800;
-    letter-spacing: -0.025em;
-}
-
-h2 {
-    font-size: var(--text-3xl);
-    letter-spacing: -0.025em;
-}
-
-h3 {
-    font-size: var(--text-2xl);
-}
-
-h4 {
-    font-size: var(--text-xl);
-}
-
-h5 {
-    font-size: var(--text-lg);
-}
-
-h6 {
-    font-size: var(--text-base);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-secondary);
-}
-
-p {
-    margin-bottom: var(--space-4);
-    line-height: 1.7;
-}
-
-.lead {
-    font-size: var(--text-lg);
-    color: var(--text-secondary);
-    font-weight: 300;
-}
-
-/* Text utilities */
-.text-xs {
-    font-size: var(--text-xs);
-}
-
-.text-sm {
+.text-muted {
     font-size: var(--text-sm);
+    color: var(--text-tertiary);
+    line-height: var(--leading-normal);
 }
 
-.text-base {
-    font-size: var(--text-base);
-}
-
-.text-lg {
-    font-size: var(--text-lg);
-}
-
-.text-xl {
-    font-size: var(--text-xl);
-}
-
-.text-2xl {
-    font-size: var(--text-2xl);
-}
-
-.text-3xl {
-    font-size: var(--text-3xl);
-}
-
-.text-4xl {
-    font-size: var(--text-4xl);
-}
-
-.text-center {
-    text-align: center;
-}
-
-.text-left {
-    text-align: left;
-}
-
-.text-right {
-    text-align: right;
-}
-
-.font-light {
-    font-weight: 300;
-}
-
-.font-normal {
-    font-weight: 400;
-}
-
-.font-medium {
-    font-weight: 500;
-}
-
-.font-semibold {
-    font-weight: 600;
-}
-
-.font-bold {
-    font-weight: 700;
-}
-
-.font-extrabold {
-    font-weight: 800;
-}
-
-.text-primary {
+/* Liens stylisés */
+.link-primary {
     color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
 }
 
-.text-secondary {
+.link-primary:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+}
+
+.link-secondary {
+    color: var(--color-secondary);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.link-secondary:hover {
+    color: var(--secondary-700);
+    text-decoration: underline;
+}
+
+/* Listes stylisées */
+.list-unstyled {
+    list-style: none;
+    padding-left: 0;
+}
+
+.list-disc {
+    list-style-type: disc;
+    padding-left: var(--space-6);
+}
+
+.list-decimal {
+    list-style-type: decimal;
+    padding-left: var(--space-6);
+}
+
+.list-item {
+    margin-bottom: var(--space-2);
+    line-height: var(--leading-relaxed);
+}
+
+/* Citations */
+.blockquote {
+    border-left: 4px solid var(--color-primary);
+    padding: var(--space-4) var(--space-6);
+    margin: var(--space-8) 0;
+    background-color: var(--bg-secondary);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-style: italic;
     color: var(--text-secondary);
 }
 
-.text-light {
-    color: var(--text-light);
+.blockquote-footer {
+    display: block;
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+    margin-top: var(--space-2);
 }
 
-.text-success {
-    color: var(--color-success);
-}
-
-.text-warning {
-    color: var(--color-warning);
-}
-
-.text-error {
-    color: var(--color-error);
-}
-
-/* Code blocks */
-code,
-pre {
-    font-family: var(--font-mono);
-    background: var(--bg-secondary);
+/* Code */
+.code-inline {
+    background-color: var(--bg-secondary);
     padding: var(--space-1) var(--space-2);
     border-radius: var(--radius-sm);
-    font-size: 0.875em;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--error-500);
 }
 
-pre {
-    padding: var(--space-4);
+.code-block {
+    background-color: var(--bg-dark);
+    color: var(--text-inverse);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
     overflow-x: auto;
-    margin: var(--space-6) 0;
+    margin: var(--space-8) 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+}
+
+/* Text utilities avancées */
+.text-gradient {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-balance {
+    text-wrap: balance;
+}
+
+.text-pretty {
+    text-wrap: pretty;
+}
+
+/* Responsive typography */
+@media (min-width: 768px) {
+    .heading-1 {
+        font-size: var(--text-5xl);
+    }
+
+    .heading-2 {
+        font-size: var(--text-4xl);
+    }
+
+    .heading-3 {
+        font-size: var(--text-3xl);
+    }
+
+    .lead {
+        font-size: var(--text-xl);
+    }
+}
+
+/* Print styles */
+@media print {
+
+    .heading-1,
+    .heading-2,
+    .heading-3 {
+        color: #000000;
+    }
+
+    .text-muted {
+        color: #666666;
+    }
+
+    .link-primary {
+        color: #0000ff;
+        text-decoration: underline;
+    }
 }

@@ -1,4 +1,5 @@
 /* assets/css/core/reset.css */
+/* Modern CSS Reset avec améliorations */
 *,
 *::before,
 *::after {
@@ -8,19 +9,82 @@
 }
 
 html {
-    scroll-behavior: smooth;
+    /* Améliore le rendu du texte */
     -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Smooth scrolling */
+    scroll-behavior: smooth;
 }
 
 body {
+    /* Base typographique */
     font-family: var(--font-sans);
-    line-height: 1.6;
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
     color: var(--text-primary);
     background-color: var(--bg-primary);
+
+    /* Améliore le rendu */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
 }
 
+/* Éléments de base */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+}
+
+h1 {
+    font-size: var(--text-4xl);
+}
+
+h2 {
+    font-size: var(--text-3xl);
+}
+
+h3 {
+    font-size: var(--text-2xl);
+}
+
+h4 {
+    font-size: var(--text-xl);
+}
+
+h5 {
+    font-size: var(--text-lg);
+}
+
+h6 {
+    font-size: var(--text-base);
+}
+
+p {
+    margin-bottom: var(--space-4);
+    line-height: var(--leading-relaxed);
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+a:hover,
+a:focus {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+}
+
+/* Images responsives */
 img,
 picture,
 video,
@@ -28,43 +92,102 @@ canvas,
 svg {
     display: block;
     max-width: 100%;
+    height: auto;
 }
 
+/* Formulaires */
 input,
 button,
 textarea,
 select {
     font: inherit;
+    color: inherit;
 }
 
 button {
-    background: none;
-    border: none;
     cursor: pointer;
+    border: none;
+    background: none;
 }
 
-a {
-    color: inherit;
-    text-decoration: none;
+/* Focus visible pour l'accessibilité */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 
+/* Lists */
 ul,
 ol {
     list-style: none;
 }
 
-/* Focus styles */
-:focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
+/* Citations */
+blockquote {
+    border-left: 4px solid var(--secondary-300);
+    padding-left: var(--space-4);
+    margin: var(--space-6) 0;
+    font-style: italic;
+    color: var(--text-secondary);
 }
 
-/* Reduce motion for accessibility */
+/* Code */
+code,
+pre {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    background-color: var(--bg-secondary);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius);
+}
+
+pre {
+    padding: var(--space-4);
+    overflow-x: auto;
+    margin: var(--space-6) 0;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--space-6) 0;
+}
+
+th,
+td {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    border-bottom: var(--border-light);
+}
+
+th {
+    background-color: var(--bg-secondary);
+    font-weight: 600;
+}
+
+/* Règle horizontale */
+hr {
+    border: none;
+    border-top: var(--border);
+    margin: var(--space-8) 0;
+}
+
+/* Remove animations for reduced motion */
 @media (prefers-reduced-motion: reduce) {
-    * {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
     }
 }

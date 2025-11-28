@@ -1,91 +1,223 @@
 /* assets/css/core/variables.css */
 :root {
-    /* Couleurs principales - Palette professionnelle */
+    /* ===== COULEURS PRINCIPALES - Palette étendue ===== */
+    /* Primaire - Bleu professionnel */
     --primary-50: #eff6ff;
     --primary-100: #dbeafe;
+    --primary-200: #bfdbfe;
+    --primary-300: #93c5fd;
+    --primary-400: #60a5fa;
     --primary-500: #3b82f6;
     --primary-600: #2563eb;
     --primary-700: #1d4ed8;
+    --primary-800: #1e40af;
+    --primary-900: #1e3a8a;
 
+    /* Secondaire - Gris sophistiqué */
     --secondary-50: #f8fafc;
     --secondary-100: #f1f5f9;
+    --secondary-200: #e2e8f0;
+    --secondary-300: #cbd5e1;
+    --secondary-400: #94a3b8;
     --secondary-500: #64748b;
     --secondary-600: #475569;
     --secondary-700: #334155;
+    --secondary-800: #1e293b;
+    --secondary-900: #0f172a;
 
+    /* Accent - Orange dynamique */
+    --accent-100: #fef3c7;
+    --accent-300: #fcd34d;
     --accent-500: #f59e0b;
-    --success-500: #10b981;
-    --warning-500: #f59e0b;
-    --error-500: #ef4444;
+    --accent-700: #d97706;
+    --accent-900: #92400e;
 
-    /* Sémantique */
+    /* États sémantiques */
+    --success-100: #dcfce7;
+    --success-500: #10b981;
+    --success-700: #047857;
+
+    --warning-100: #fef3c7;
+    --warning-500: #f59e0b;
+    --warning-700: #d97706;
+
+    --error-100: #fee2e2;
+    --error-500: #ef4444;
+    --error-700: #dc2626;
+
+    /* ===== COULEURS SÉMANTIQUES ===== */
     --color-primary: var(--primary-600);
+    --color-primary-hover: var(--primary-700);
     --color-secondary: var(--secondary-600);
     --color-accent: var(--accent-500);
+
     --color-success: var(--success-500);
     --color-warning: var(--warning-500);
     --color-error: var(--error-500);
 
-    --text-primary: var(--secondary-700);
-    --text-secondary: var(--secondary-500);
-    --text-light: #94a3b8;
+    /* Texte */
+    --text-primary: var(--secondary-900);
+    --text-secondary: var(--secondary-700);
+    --text-tertiary: var(--secondary-500);
+    --text-light: var(--secondary-400);
+    --text-inverse: #ffffff;
 
+    /* Arrière-plans */
     --bg-primary: #ffffff;
-    --bg-secondary: #f8fafc;
-    --bg-dark: var(--secondary-700);
-    --bg-overlay: rgba(0, 0, 0, 0.5);
+    --bg-secondary: var(--secondary-50);
+    --bg-tertiary: var(--secondary-100);
+    --bg-dark: var(--secondary-900);
+    --bg-overlay: rgba(15, 23, 42, 0.6);
 
-    /* Espacements - Scale 1.25 */
-    --space-1: 0.25rem;
-    --space-2: 0.5rem;
-    --space-3: 0.75rem;
-    --space-4: 1rem;
-    --space-5: 1.25rem;
-    --space-6: 1.5rem;
-    --space-8: 2rem;
-    --space-10: 2.5rem;
-    --space-12: 3rem;
-    --space-16: 4rem;
+    /* Bordures */
+    --border-light: 1px solid var(--secondary-200);
+    --border: 1px solid var(--secondary-300);
+    --border-dark: 1px solid var(--secondary-400);
+    --border-focus: 2px solid var(--primary-500);
 
-    /* Typographie - System Font Stack */
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    /* ===== TYPOGRAPHIE RESPONSIVE ===== */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     --font-serif: 'Georgia', 'Times New Roman', serif;
     --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
 
+    /* Échelle mobile-first */
     --text-xs: 0.75rem;
+    /* 12px */
     --text-sm: 0.875rem;
+    /* 14px */
     --text-base: 1rem;
+    /* 16px */
     --text-lg: 1.125rem;
+    /* 18px */
     --text-xl: 1.25rem;
+    /* 20px */
     --text-2xl: 1.5rem;
+    /* 24px */
     --text-3xl: 1.875rem;
+    /* 30px */
     --text-4xl: 2.25rem;
+    /* 36px */
+    --text-5xl: 3rem;
+    /* 48px */
 
-    /* Bordures */
-    --radius-sm: 0.375rem;
-    --radius: 0.5rem;
+    /* Échelle desktop (sera écrasée par media queries) */
+    --text-xl-desktop: 1.5rem;
+    --text-2xl-desktop: 2rem;
+    --text-3xl-desktop: 2.5rem;
+    --text-4xl-desktop: 3rem;
+
+    /* Line heights */
+    --leading-tight: 1.25;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.75;
+
+    /* ===== ESPACEMENTS - Scale 8pt ===== */
+    --space-0: 0;
+    --space-1: 0.25rem;
+    /* 4px */
+    --space-2: 0.5rem;
+    /* 8px */
+    --space-3: 0.75rem;
+    /* 12px */
+    --space-4: 1rem;
+    /* 16px */
+    --space-5: 1.25rem;
+    /* 20px */
+    --space-6: 1.5rem;
+    /* 24px */
+    --space-8: 2rem;
+    /* 32px */
+    --space-10: 2.5rem;
+    /* 40px */
+    --space-12: 3rem;
+    /* 48px */
+    --space-16: 4rem;
+    /* 64px */
+    --space-20: 5rem;
+    /* 80px */
+    --space-24: 6rem;
+    /* 96px */
+
+    /* ===== BORDRES ET RAYONS ===== */
+    --radius-none: 0;
+    --radius-sm: 0.125rem;
+    /* 2px */
+    --radius: 0.375rem;
+    /* 6px */
+    --radius-md: 0.5rem;
+    /* 8px */
     --radius-lg: 0.75rem;
+    /* 12px */
     --radius-xl: 1rem;
+    /* 16px */
+    --radius-2xl: 1.5rem;
+    /* 24px */
+    --radius-full: 9999px;
 
-    --border: 1px solid #e2e8f0;
-    --border-dark: 1px solid #cbd5e1;
+    /* ===== OMBRES ===== */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
 
-    /* Ombres - Material Design */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-
-    /* Animations */
-    --transition: all 0.2s ease-in-out;
+    /* ===== ANIMATIONS ET TRANSITIONS ===== */
+    --transition-fast: all 0.15s ease-in-out;
+    --transition: all 0.25s ease-in-out;
     --transition-slow: all 0.3s ease-in-out;
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-    /* Z-index */
+    /* ===== Z-INDEX ===== */
+    --z-auto: auto;
+    --z-negative: -1;
+    --z-0: 0;
+    --z-10: 10;
+    --z-20: 20;
+    --z-30: 30;
+    --z-40: 40;
+    --z-50: 50;
     --z-dropdown: 1000;
     --z-sticky: 1020;
     --z-fixed: 1030;
     --z-modal: 1040;
     --z-popover: 1050;
     --z-tooltip: 1060;
+    --z-toast: 1070;
+
+    /* ===== BREAKPOINTS (pour JavaScript si nécessaire) ===== */
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+
+    /* ===== DIMENSIONS DE LAYOUT ===== */
+    --header-height: 4rem;
+    --sidebar-width: 16rem;
+    --sidebar-width-collapsed: 5rem;
+    --content-max-width: 80rem;
+    --container-padding: var(--space-4);
+}
+
+/* Media Queries pour typographie responsive */
+@media (min-width: 768px) {
+    :root {
+        --text-xl: var(--text-xl-desktop);
+        --text-2xl: var(--text-2xl-desktop);
+        --text-3xl: var(--text-3xl-desktop);
+        --text-4xl: var(--text-4xl-desktop);
+    }
+}
+
+/* Mode sombre (préparation) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: var(--secondary-900);
+        --bg-secondary: var(--secondary-800);
+        --text-primary: var(--secondary-100);
+        --text-secondary: var(--secondary-300);
+        --border: 1px solid var(--secondary-700);
+    }
 }

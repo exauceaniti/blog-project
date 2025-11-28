@@ -18,3 +18,14 @@
         <link rel="stylesheet" href="/assets/css/<?= $css_file ?>">
     <?php endforeach; ?>
 <?php endif; ?>
+
+<!-- JavaScript Modulaire (ES6 modules) -->
+<script type="module" src="/assets/js/main.js"></script>
+
+<!-- Fallback pour les vieux navigateurs -->
+<script nomodule>
+    console.warn('Votre navigateur ne supporte pas les modules ES6. Veuillez le mettre à jour.');
+    // Charger une version bundle si nécessaire
+    // <script src="/assets/js/bundle.js">
+</script>
+</script>

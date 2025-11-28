@@ -1,150 +1,110 @@
 /* assets/css/layout/grid.css */
+/* ===== SYSTÈME DE GRILLE RESPONSIVE ===== */
+
+.container {
+    width: 100%;
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+}
+
+.container-fluid {
+    width: 100%;
+    padding: 0 var(--container-padding);
+}
+
 /* Grid System */
 .grid {
     display: grid;
     gap: var(--space-6);
 }
 
-.grid-1 {
-    grid-template-columns: 1fr;
+.grid--2 {
+    grid-template-columns: repeat(1, 1fr);
 }
 
-.grid-2 {
-    grid-template-columns: repeat(2, 1fr);
+.grid--3 {
+    grid-template-columns: repeat(1, 1fr);
 }
 
-.grid-3 {
-    grid-template-columns: repeat(3, 1fr);
-}
-
-.grid-4 {
-    grid-template-columns: repeat(4, 1fr);
-}
-
-.grid-5 {
-    grid-template-columns: repeat(5, 1fr);
-}
-
-.grid-6 {
-    grid-template-columns: repeat(6, 1fr);
-}
-
-.grid-auto {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-}
-
-.grid-auto-sm {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-}
-
-.grid-auto-lg {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-}
-
-/* Main Layout */
-.main-with-sidebar {
-    display: flex;
-    min-height: calc(100vh - 70px);
-}
-
-.main-content {
-    flex: 1;
-    background: var(--bg-secondary);
-    min-height: 100%;
-}
-
-.content-area {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: var(--space-6);
-}
-
-/* Page Header */
-.page-header {
-    background: var(--bg-primary);
-    border-bottom: var(--border);
-    margin-bottom: var(--space-6);
-    padding: var(--space-6) 0;
-}
-
-.page-header-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--space-6);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.page-title {
-    margin: 0;
-    color: var(--text-primary);
-}
-
-.page-actions {
-    display: flex;
-    gap: var(--space-3);
-}
-
-/* Card Grid */
-.cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--space-6);
+.grid--4 {
+    grid-template-columns: repeat(1, 1fr);
 }
 
 /* Responsive Grid */
-@media (max-width: 1024px) {
-    .grid-4 {
+@media (min-width: 640px) {
+    .grid--2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid--3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid--4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    .grid--3 {
         grid-template-columns: repeat(3, 1fr);
     }
 
-    .grid-5 {
+    .grid--4 {
         grid-template-columns: repeat(4, 1fr);
     }
-
-    .grid-6 {
-        grid-template-columns: repeat(3, 1fr);
-    }
 }
 
-@media (max-width: 768px) {
+/* Layout avec sidebar */
+.layout-with-sidebar {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    min-height: 100vh;
+}
 
-    .grid-2,
-    .grid-3,
-    .grid-4,
-    .grid-5,
-    .grid-6 {
+.layout-content {
+    margin-left: var(--sidebar-width);
+    padding: var(--space-6);
+    background: var(--bg-secondary);
+    min-height: 100vh;
+}
+
+/* Responsive layout */
+@media (max-width: 1024px) {
+    .layout-with-sidebar {
         grid-template-columns: 1fr;
     }
 
-    .grid-auto,
-    .grid-auto-sm,
-    .grid-auto-lg {
-        grid-template-columns: 1fr;
-    }
-
-    .page-header-content {
-        flex-direction: column;
-        gap: var(--space-4);
-        align-items: stretch;
-    }
-
-    .page-actions {
-        justify-content: stretch;
-    }
-
-    .page-actions .btn {
-        flex: 1;
-    }
-}
-
-@media (max-width: 640px) {
-    .content-area {
+    .layout-content {
+        margin-left: 0;
         padding: var(--space-4);
     }
+}
 
-    .cards-grid {
-        grid-template-columns: 1fr;
-    }
+/* Main content area */
+.main-content {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Page header */
+.page-header {
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-6);
+    border-bottom: var(--border-light);
+}
+
+.page-title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.page-subtitle {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    margin: 0;
 }

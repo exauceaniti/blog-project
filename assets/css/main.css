@@ -9,6 +9,8 @@
 @import url('core/reset.css');
 @import url('core/typography.css');
 @import url('core/utilities.css');
+@import url('core/mixins.css');
+@import url('core/helpers.css');
 
 /* Layout Components */
 @import url('layout/header.css');
@@ -31,3 +33,4 @@
  * UTILISATION DANS TON META.PHP :
  * <link rel="stylesheet" href="/assets/css/main.css">
  */
+ 
