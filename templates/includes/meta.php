@@ -12,6 +12,12 @@
 <!-- CSS Principal -->
 <link rel="stylesheet" href="/public/assets/css/main.css">
 <script type="module" src="/public/assets/js/main.js"></script>
+<script src="/public/assets/js/layout/header.js"></script>
+<script src="/public/assets/js/layout/sidebar.js"></script>
+<script src="/public/assets/js/pages/auth_ui.js"></script>
+
+
+
 
 <!-- CSS additionnel si besoin -->
 <?php if (isset($additional_css)): ?>
