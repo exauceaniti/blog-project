@@ -99,7 +99,7 @@
                     <?php endif; ?>
                 </div>
 
-                <div class="form-group floating-group">
+                <!-- <div class="form-group floating-group">
                     <input type="password"
                         id="register-password-confirm"
                         name="password_confirm"
@@ -113,7 +113,7 @@
                     <button type="button" class="password-toggle" aria-label="Afficher le mot de passe">
                         <i class="fa-solid fa-eye"></i>
                     </button>
-                </div>
+                </div> -->
 
                 <div class="form-terms">
                     <label class="checkbox-wrapper">

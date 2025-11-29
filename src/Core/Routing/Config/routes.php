@@ -1,153 +1,213 @@
 <?php
 
 /**
- * Configuration des routes de l'application
+ * Configuration complète des routes de l'application (MVC)
  * Chaque route est définie par :
- * - 'pattern'    : regex pour matcher l'URI
- * - 'controller' : contrôleur à instancier
- * - 'method'     : méthode du contrôleur
- * - 'middleware' : middlewares éventuels (auth, admin, etc.)
+ * - 'http_method' : Méthode HTTP (GET, POST, etc.). ESSENTIEL pour le CRUD.
+ * - 'pattern'     : Regex pour matcher l'URI.
+ * - 'controller'  : Contrôleur à instancier.
+ * - 'method'      : Méthode du contrôleur à exécuter.
+ * - 'middleware'  : Middlewares éventuels (auth, admin, etc.).
  */
 
 return [
 
-    // ----------------------------------------------------
-    // ROUTES PUBLIQUES (LECTURE)
-    // ----------------------------------------------------
+    // =================================================================
+    // 🌐 ROUTES PUBLIQUES (LECTURE)
+    // =================================================================
 
-    // Page d'accueil (/)
+    // Page d'accueil : Affiche les 5 derniers articles (méthode optimisée)
     [
         'http_method' => 'GET',
         'pattern' => '#^/$#',
-        'controller' => 'PostController',
+        'controller' => 'HomeController',
         'method' => 'accueil'
     ],
 
-    // Liste complète des articles (/articles)
+    // Liste complète des articles : Affiche tous les articles
     [
         'http_method' => 'GET',
         'pattern' => '#^/articles$#',
-        'controller' => 'PostController',
+        'controller' => 'HomeController',
         'method' => 'articles'
     ],
 
-    // Détail de l'article (/articles/12)
+    // Détail d'un article unique (ex: /articles/12)
     [
         'http_method' => 'GET',
         'pattern' => '#^/articles/(?<id>\d+)$#',
-        'controller' => 'PostController',
+        'controller' => 'HomeController',
         'method' => 'show',
     ],
 
+    // =================================================================
+    // 🚪 AUTHENTIFICATION (USER)
+    // =================================================================
 
-    // Authentification (UserController)
+    // Affichage et traitement du formulaire de connexion
     [
+        'http_method' => 'GET|POST', // Permet de gérer GET (afficher) et POST (soumettre)
         'pattern' => '#^/login$#',
         'controller' => 'UserController',
         'method' => 'login'
     ],
+
+    // Affichage et traitement du formulaire d'inscription
     [
+        'http_method' => 'GET|POST',
         'pattern' => '#^/register$#',
         'controller' => 'UserController',
         'method' => 'register'
     ],
+
+    // Déconnexion
     [
+        'http_method' => 'GET',
         'pattern' => '#^/logout$#',
         'controller' => 'UserController',
         'method' => 'logout',
         'middleware' => ['auth']
     ],
+
+    // Profil utilisateur
     [
+        'http_method' => 'GET',
         'pattern' => '#^/profile$#',
         'controller' => 'UserController',
         'method' => 'profile',
         'middleware' => ['auth']
     ],
 
+    // =================================================================
+    // 💬 COMMENTAIRES (CRUD)
+    // =================================================================
 
-
-
-
-    // Commentaires (CommentController)
+    // Ajout d'un commentaire (via formulaire POST)
     [
-        'pattern' => '#^/comments/list/(?<articleId>\d+)$#',
-        'controller' => 'CommentController',
-        'method' => 'list'
-    ],
-    [
+        'http_method' => 'POST',
         'pattern' => '#^/comments/add$#',
         'controller' => 'CommentController',
         'method' => 'add',
         'middleware' => ['auth']
     ],
+
+    // Mise à jour d'un commentaire (GET pour form, POST pour traitement)
     [
+        'http_method' => 'GET|POST',
         'pattern' => '#^/comments/update/(?<id>\d+)$#',
         'controller' => 'CommentController',
         'method' => 'update',
         'middleware' => ['auth']
     ],
+
+    // Suppression d'un commentaire (Action POST pour sécurité)
     [
+        'http_method' => 'POST',
         'pattern' => '#^/comments/delete/(?<id>\d+)$#',
         'controller' => 'CommentController',
         'method' => 'delete',
-        'middleware' => ['auth', 'admin']
+        'middleware' => ['auth', 'admin'] // Admin peut supprimer n'importe quel commentaire
     ],
 
+    // =================================================================
+    // 🛡️ ADMINISTRATION (POSTS CRUD - NOUVEAUX CONVENTIONS)
+    // =================================================================
 
-
-
-
-    // Administration
+    // Dashboard Admin
     [
+        'http_method' => 'GET',
         'pattern' => '#^/admin/dashboard$#',
         'controller' => 'AdminController',
         'method' => 'dashboard',
         'middleware' => ['auth', 'admin']
     ],
+
+    // AFFICHER la liste de gestion des articles pour l'admin
     [
-        'pattern' => '#^/admin/manage_posts$#',
-        'controller' => 'PostController',
-        'method' => 'index',
+        'http_method' => 'GET',
+        'pattern' => '#^/admin/posts$#',
+        'controller' => 'AdminController',
+        'method' => 'managePosts',
         'middleware' => ['auth', 'admin']
     ],
+
+    // AFFICHER le formulaire de création d'un article
     [
-        'pattern' => '#^/admin/create_post$#',
+        'http_method' => 'GET',
+        'pattern' => '#^/admin/forme_post$#',
+        'controller' => 'AdminController',
+        'method' => 'displayCreateForm',
+        'middleware' => ['auth', 'admin']
+    ],
+
+    // TRAITER la soumission du formulaire de création (Action POST)
+    [
+        'http_method' => 'POST',
+        'pattern' => '#^/post/create$#', // URL de traitement standard
         'controller' => 'PostController',
         'method' => 'create',
         'middleware' => ['auth', 'admin']
     ],
+
+
+
+    // AFFICHER le formulaire de modification
     [
-        'pattern' => '#^/admin/update_post/(?<id>\d+)$#',
+        'http_method' => 'GET',
+        'pattern' => '#^/admin/posts/edit/(?<id>\d+)$#',
+        'controller' => 'PostController',
+        'method' => 'displayUpdateForm',
+        'middleware' => ['auth', 'admin']
+    ],
+
+    // TRAITER la modification (Action POST ou PUT)
+    [
+        'http_method' => 'POST',
+        'pattern' => '#^/post/update/(?<id>\d+)$#', // URL de traitement standard
         'controller' => 'PostController',
         'method' => 'update',
         'middleware' => ['auth', 'admin']
     ],
+
+    // TRAITER la suppression (Action POST ou DELETE)
     [
-        'pattern' => '#^/admin/delete_post/(?<id>\d+)$#',
+        'http_method' => 'POST',
+        'pattern' => '#^/post/delete/(?<id>\d+)$#', // URL de traitement standard
         'controller' => 'PostController',
         'method' => 'delete',
         'middleware' => ['auth', 'admin']
     ],
+
+    // Gestion des Utilisateurs (à implémenter)
     [
-        'pattern' => '#^/admin/manage_users$#',
+        'http_method' => 'GET',
+        'pattern' => '#^/admin/users$#',
         'controller' => 'UserController',
-        'method' => 'profile', //Je met profile parce que je n'ai pas encore "manageUsers()", à créer si besoin
-        'middleware' => ['auth', 'admin']
-    ],
-    [
-        'pattern' => '#^/admin/manage_comments$#',
-        'controller' => 'CommentController',
-        'method' => 'list', //Je met list parce que je n'ai pas encore "manageComments()", à créer si besoin
+        'method' => 'manageUsers', // Nécessite la création de cette méthode
         'middleware' => ['auth', 'admin']
     ],
 
-    // Erreurs
+    // Gestion des Commentaires (à implémenter)
     [
+        'http_method' => 'GET',
+        'pattern' => '#^/admin/comments$#',
+        'controller' => 'CommentController',
+        'method' => 'manageComments', // Nécessite la création de cette méthode
+        'middleware' => ['auth', 'admin']
+    ],
+
+    // =================================================================
+    // 🛑 ERREURS
+    // =================================================================
+
+    [
+        'http_method' => 'GET',
         'pattern' => '#^/unauthorized$#',
         'controller' => 'ErrorController',
         'method' => 'unauthorized',
     ],
     [
+        'http_method' => 'GET',
         'pattern' => '#^/404$#',
         'controller' => 'ErrorController',
         'method' => 'notFound',

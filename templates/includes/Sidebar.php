@@ -29,8 +29,8 @@
                 <li class="nav-item <?= ($_SESSION['current_page'] ?? '') === 'posts' ? 'active' : '' ?>">
                     <a href="/admin/posts" class="nav-link">
                         <i class="fas fa-newspaper nav-icon"></i>
-                        <span>Articles</span>
-                        <span class="nav-badge">12</span>
+                        <span>Gestion des articles </span>
+                        <!-- <span class="nav-badge">12</span> -->
                     </a>
                 </li>
                 <li class="nav-item <?= ($_SESSION['current_page'] ?? '') === 'categories' ? 'active' : '' ?>">

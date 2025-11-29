@@ -9,88 +9,113 @@ use Src\Core\Http\Redirector;
 use Src\Core\Lang\MessageBag;
 use Src\Controller\BaseController;
 
+/**
+ * PostController
+ * Gère uniquement les actions de mutation (CREATE, UPDATE, DELETE) pour les articles.
+ */
 class PostController extends BaseController
 {
     private PostService $postService;
 
-    // Suppression de CommentService car les comptes sont maintenant gérés par PostDAO
     public function __construct(PostService $postService)
     {
         $this->postService = $postService;
     }
 
-    // --- Actions pour les Vues ---
+
+    // --- 1. CREATE NEW POST---
 
     /**
-     * Affiche la page d'accueil (avec les 5 derniers articles)
-     */
-    public function accueil(): void
-    {
-        // Utilisation de la nouvelle méthode optimisée
-        $latest_posts = $this->postService->getLatestPosts(5);
-
-        // Rendu de la vue 'home/index' (Votre index.php principal)
-        $this->render('home/index', ['latest_articles_list' => $latest_posts], 'layout/public');
-    }
-
-    /**
-     * Liste de tous les articles (pour la page /articles.php)
-     */
-    public function articles(): void
-    {
-        // Le DAO fait le travail lourd (jointure Auteur + COUNT commentaires)
-        $posts = $this->postService->getAllPosts();
-
-        // Rendu de la vue 'article/list' (Votre articles.php complet)
-        $this->render('home/articles', ['articles_list' => $posts], 'layout/public');
-    }
-
-
-    /**
-     * Affiche un article
-     */
-    public function show(int $id): void
-    {
-        $post = $this->postService->getPostById($id);
-        if (!$post) {
-            FlashManager::error(MessageBag::get('article.not_found'));
-            Redirector::to('/articles'); // Redirection vers la liste
-        }
-        $this->render('articles/article_detail', ['article' => $post], 'layout/public');
-    }
-
-    // --- Actions de Mutateurs (CREATE, UPDATE, DELETE) ---
-
-    /**
-     * Crée un nouvel article
+     * Crée un nouvel article à partir des données POST.
+     * Route de traitement: POST /post/create
      */
     public function create(): void
     {
-        // On suppose que l'utilisateur est logué
+        // 1. Préparation des données
         $data = $_POST;
-        $data['auteur_id'] = $_SESSION['user_id'] ?? null;
+        // L'auteur est l'utilisateur connecté (middleware 'auth' doit garantir la session)
+        // $data['auteur_id'] = $_SESSION['user_id'] ?? null;
 
-        // 1. Validation
+        // 2. Validation
         $errors = PostValidator::validate($data);
 
         if (!empty($errors)) {
-            FlashManager::error(implode('<br>', $errors));
+            FlashManager::error(MessageBag::get('form.validation_errors') . '<br>' . implode('<br>', $errors));
             Redirector::back();
             return;
         }
 
-        // 2. Appel au Service
-        // Le service gère l'hydratation et l'upload de média
+        // 3. Appel au Service (gestion de l'upload et de la DB)
         $success = $this->postService->createPost($data);
 
         if ($success) {
             FlashManager::success(MessageBag::get('article.create_success'));
-            Redirector::to('/articles');
+            Redirector::to('/url'); // Redirige vers la liste publique
         } else {
             FlashManager::error(MessageBag::get('system.action_failed'));
             Redirector::back();
         }
     }
+    
+    // --- 2. UPDATE ---
 
-    // ... (update et delete suivent le même modèle de correction)
+    /**
+     * Met à jour un article existant.
+     * Route de traitement: POST /post/update/{id}
+     *
+     * @param int $id ID de l'article à mettre à jour.
+     */
+    public function update(int $id): void
+    {
+        $data = $_POST;
+
+        // Note: La validation doit être adaptée en mode UPDATE. 
+        // Par exemple, si le média n'est pas remplacé, $_FILES est vide, 
+        // mais les autres champs sont vérifiés.
+        $errors = PostValidator::validate($data);
+
+        if (!empty($errors)) {
+            FlashManager::error(MessageBag::get('form.validation_errors') . '<br>' . implode('<br>', $errors));
+            Redirector::back();
+            return;
+        }
+
+        // 1. Appel au Service
+        // Le service gère la recherche par ID, l'upload de remplacement, et la mise à jour des champs.
+        $success = $this->postService->updatePost($id, $data);
+
+        if ($success) {
+            FlashManager::success(MessageBag::get('article.update_success'));
+            // Redirige vers la vue détaillée de l'article mis à jour
+            Redirector::to("/articles/{$id}");
+        } else {
+            // L'échec peut signifier ID non trouvé ou échec DB/Média
+            FlashManager::error(MessageBag::get('system.action_failed'));
+            Redirector::back();
+        }
+    }
+    
+    // --- 3. DELETE ---
+
+    /**
+     * Supprime un article par son ID.
+     * Route de traitement: POST /post/delete/{id}
+     *
+     * @param int $id ID de l'article à supprimer.
+     */
+    public function delete(int $id): void
+    {
+        // 1. Appel au Service
+        // Le service gère la suppression du fichier média, puis l'enregistrement DB.
+        $success = $this->postService->deletePost($id);
+
+        if ($success) {
+            FlashManager::success(MessageBag::get('article.delete_success'));
+        } else {
+            FlashManager::error(MessageBag::get('system.action_failed'));
+        }
+
+        // 2. Redirige toujours vers la page d'administration des articles après la suppression
+        Redirector::to('/url');
+    }
 }
