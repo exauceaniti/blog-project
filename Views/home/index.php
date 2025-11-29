@@ -1,53 +1,47 @@
-<h1>Bienvenue sur Exau-Blog</h1>
-<p class="subtitle">Découvrez nos derniers articles :</p>
+<?php
 
-<?php if (!empty($articles_list)): ?>
-    <div class="articles-grid">
-        <?php foreach ($articles_list as $article): ?>
-            <div class="article-card">
-                <h2><?= htmlspecialchars($article->titre) ?></h2>
+/**
+ * views/home/index.php
+ * Page d'accueil principale.
+ * Reçoit $latest_articles_list du PostController::home().
+ */
 
-                <div class="article-content">
-                    <p><?= substr(htmlspecialchars($article->contenu), 0, 150) ?>...</p>
-                </div>
+// Assurez-vous que $latest_articles_list est défini
+$articles_list = $latest_articles_list ?? [];
+?>
 
-                <!-- Média si présent -->
-                <?php if (!empty($article->media_path)): ?>
-                    <div class="article-media">
-                        <?php if ($article->media_type === 'image'): ?>
-                            <img src="/uploads/<?= htmlspecialchars($article->media_path) ?>"
-                                alt="Illustration de l'article">
-                        <?php elseif ($article->media_type === 'video'): ?>
-                            <video controls>
-                                <source src="/uploads/<?= htmlspecialchars($article->media_path) ?>" type="video/mp4">
-                                Votre navigateur ne supporte pas la vidéo.
-                            </video>
-                        <?php endif; ?>
-                    </div>
-                <?php endif; ?>
+<section class="hero-section">
+    <h1>Bienvenue sur Exau-Blog : Le Savoir à Portée de Main.</h1>
+    <p>Votre source d'information et d'inspiration sur le développement web, la technologie et bien plus.</p>
+    <a href="/articles" class="btn-primary">Voir tous les Articles</a>
+</section>
 
-                <!-- Infos supplémentaires -->
-                <div class="article-meta">
-                    Publié le <?= date('d/m/Y H:i', strtotime($article->date_publication)) ?>
-                    | Auteur #<?= $article->auteur_id ?>
-                </div>
+<section class="latest-articles-section">
+    <h2>🔥 Nos 5 derniers articles</h2>
+    <p class="subtitle">Ne manquez pas les nouveautés !</p>
 
-                <!-- Nombre de commentaires -->
-                <div class="article-comments">
-                    💬 <?= $article->comment_count ?? 0 ?> commentaire(s)
-                </div>
-
-                <!-- Bouton Voir plus -->
-                <div class="article-actions">
-                    <a href="/articles/<?= $article->id ?>" class="btn-view">
-                        Voir plus →
-                    </a>
-                </div>
+    <?php if (!empty($articles_list)): ?>
+        <div class="carousel-container">
+            <div class="articles-carousel" id="latest-articles-carousel">
+                <?php
+                // Boucle sur les 5 articles et inclut le fragment
+                foreach ($articles_list as $article):
+                    // Le fragment a besoin de la variable $article
+                    require __DIR__ . '/../fragments/article_card.php';
+                endforeach;
+                ?>
             </div>
-        <?php endforeach; ?>
-    </div>
-<?php else: ?>
-    <div class="no-articles">
-        <p>Aucun article disponible pour le moment.</p>
-    </div>
-<?php endif; ?>
+            <button class="carousel-btn prev-btn">←</button>
+            <button class="carousel-btn next-btn">→</button>
+        </div>
+    <?php else: ?>
+        <p class="no-articles">Aucun article récent n'est encore disponible.</p>
+    <?php endif; ?>
+</section>
+
+<section class="ambitions-section">
+    <h2>💡 Nos Ambitions</h2>
+    <p>Nous sommes dédiés à éduquer, inspirer et connecter la communauté tech.</p>
+</section>
+
+<script src="/js/carousel.js"></script>

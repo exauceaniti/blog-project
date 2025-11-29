@@ -11,22 +11,34 @@
 
 return [
 
-    // Routes publiques (PostController)
+    // ----------------------------------------------------
+    // ROUTES PUBLIQUES (LECTURE)
+    // ----------------------------------------------------
+
+    // Page d'accueil (/)
     [
-        'pattern' => '#^/(home)?$#',
+        'http_method' => 'GET',
+        'pattern' => '#^/$#',
         'controller' => 'PostController',
-        'method' => 'index'
+        'method' => 'accueil'
     ],
+
+    // Liste complète des articles (/articles)
     [
+        'http_method' => 'GET',
         'pattern' => '#^/articles$#',
         'controller' => 'PostController',
-        'method' => 'index' // Je vais cree une methode articles() plus tard si necessaire
+        'method' => 'articles'
     ],
+
+    // Détail de l'article (/articles/12)
     [
-        'pattern' => '#^/article/(?<id>\d+)$#',
+        'http_method' => 'GET',
+        'pattern' => '#^/articles/(?<id>\d+)$#',
         'controller' => 'PostController',
         'method' => 'show',
     ],
+
 
     // Authentification (UserController)
     [
@@ -52,6 +64,10 @@ return [
         'middleware' => ['auth']
     ],
 
+
+
+
+
     // Commentaires (CommentController)
     [
         'pattern' => '#^/comments/list/(?<articleId>\d+)$#',
@@ -76,6 +92,10 @@ return [
         'method' => 'delete',
         'middleware' => ['auth', 'admin']
     ],
+
+
+
+
 
     // Administration
     [

@@ -12,22 +12,20 @@ class Post
     public ?string $media_path = null;
     public ?string $media_type = null;
 
-    /** @var int Nombre de commentaires (calculé, non persistant) */
+    // NOUVEAUX CHAMPS CALCULÉS/JOINTÉS
+    public string $auteur_nom;
     public int $comment_count = 0;
+    // FIN NOUVEAUX CHAMPS
 
-    public function __construct(array $data = [])
+    public function __construct(array $data)
     {
-        $this->id = (int)($data['id'] ?? 0);
-        $this->titre = $data['titre'] ?? '';
-        $this->contenu = $data['contenu'] ?? '';
-        $this->auteur_id = (int)($data['auteur_id'] ?? 0);
-        $this->date_publication = $data['date_publication'] ?? '';
-        $this->media_path = $data['media_path'] ?? null;
-        $this->media_type = $data['media_type'] ?? null;
-
-        // Optionnel: hydrater si fourni
-        if (isset($data['comment_count'])) {
-            $this->comment_count = (int)$data['comment_count'];
+        // Hydratation de l'objet à partir du tableau de données
+        foreach ($data as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->$key = $value;
+            }
         }
+        // Conversion de $comment_count en int (Entier)
+        $this->comment_count = (int) ($this->comment_count ?? 0);
     }
 }
