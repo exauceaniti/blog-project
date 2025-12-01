@@ -49,7 +49,7 @@ class AdminController extends BaseController
         $posts = $this->postService->getAllPosts();
 
         // 2. Rendu de la vue de gestion (qui contient le tableau HTML)
-        $this->render('admin/posts', [
+        $this->render('admin/post_manager', [
             'title' => 'Gestion des Articles',
             'articles_list' => $posts,
         ], 'layout/admin');
@@ -59,10 +59,10 @@ class AdminController extends BaseController
      * Affiche le formulaire pour créer un nouvel article.
      * (C'est la méthode "displayCreateForm" du routing)
      */
-    public function displayCreateForm(): void
+    public function ajouterArticle(): void
     {
         // Le formulaire d'ajout n'a pas besoin de données d'article initiales.
-        $this->render('admin/form_post', [ // Assurez-vous d'avoir une vue admin/form_post.php
+        $this->render('admin/ajouter', [
             'title' => 'Créer un Article',
             'article' => null, // Pas d'objet article pour l'ajout
         ], 'layout/admin');
@@ -74,7 +74,7 @@ class AdminController extends BaseController
      *
      * @param int $id ID de l'article à modifier
      */
-    public function displayUpdateForm(int $id): void
+    public function modifierArticle(int $id): void
     {
         // 1. Récupérer l'article à modifier
         $post = $this->postService->getPostById($id);
@@ -87,7 +87,7 @@ class AdminController extends BaseController
         }
 
         // 2. Rendu du formulaire (le fragment form_article sera inclus dans cette vue)
-        $this->render('admin/form_post', [
+        $this->render('admin/modifer', [
             'title' => 'Modification Article #' . $id,
             'article' => $post, // Passe l'objet Post pour pré-remplir le formulaire
         ], 'layout/admin');

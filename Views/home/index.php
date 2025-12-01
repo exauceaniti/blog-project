@@ -27,7 +27,7 @@ $articles_list = $latest_articles_list ?? [];
                 // Boucle sur les 5 articles et inclut le fragment
                 foreach ($articles_list as $article):
                     // Le fragment a besoin de la variable $article
-                    require __DIR__ . '/../fragments/article_card.php';
+                    require __DIR__ . '/../../templates/includes/article_card.php';
                 endforeach;
                 ?>
             </div>

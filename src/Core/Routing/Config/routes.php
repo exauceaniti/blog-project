@@ -134,9 +134,9 @@ return [
     // AFFICHER le formulaire de création d'un article
     [
         'http_method' => 'GET',
-        'pattern' => '#^/admin/forme_post$#',
+        'pattern' => '#^/admin/ajouter$#',
         'controller' => 'AdminController',
-        'method' => 'displayCreateForm',
+        'method' => 'ajouterArticle',
         'middleware' => ['auth', 'admin']
     ],
 
@@ -197,7 +197,7 @@ return [
     ],
 
     // =================================================================
-    // 🛑 ERREURS
+    // ERREURS
     // =================================================================
 
     [

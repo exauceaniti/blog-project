@@ -9,9 +9,9 @@ $articles_list = $articles_list ?? [];
 ?>
 
 <h2> Bien venue pour la Gestion des Articles</h2>
-<p> <a href="/admin/forme_post" class="nav-link">
+<p> <a href="/admin/ajouter" class="nav-link">
         <i class="fas fa-tachometer-alt nav-icon"></i>
-        <span>Gestions Articles</span>
+        <span>New Artricles</span>
 
         <?php if (!empty($articles_list)): ?>
             <table class="data-table">
@@ -40,7 +40,7 @@ $articles_list = $articles_list ?? [];
                             <td><?= !empty($article->media_path) ? '✅' : '❌' ?></td>
                             <td><?= $article->comment_count ?></td>
                             <td class="action-buttons">
-                                <a href="/admin/posts/edit/<?= $article->id ?>" class="btn-edit">Modifier</a>
+                                <a href="/admin/modifier/<?= $article->id ?>" class="btn-edit">Modifier</a>
 
                                 <form action="/post/delete/<?= $article->id ?>" method="POST"
                                     style="display:inline;"

@@ -78,6 +78,17 @@ class Fragment
         extract($params);
         include self::$basePath . 'Sidebar.php';
     }
+    /**
+     * Inclu le fragment article_card.php avec les parametres donnes
+     * 
+     * @param array $params parametres a extraires dans le tamplates article_card
+     * @return void
+     */
+    public static function articleCard(array $params = []): void
+    {
+        extract($params);
+        include self::$basePath . 'article_card.php';
+    }
 
     /**
      * Inclut un composant personnalisé avec ses paramètres

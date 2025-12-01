@@ -50,7 +50,7 @@ class PostController extends BaseController
 
         if ($success) {
             FlashManager::success(MessageBag::get('article.create_success'));
-            Redirector::to('/url'); // Redirige vers la liste publique
+            // Redirector::to(''); 
         } else {
             FlashManager::error(MessageBag::get('system.action_failed'));
             Redirector::back();
