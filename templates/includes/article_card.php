@@ -20,7 +20,7 @@ if (!isset($article) || !is_object($article) || !($article instanceof \Src\Entit
     <?php if (!empty($article->media_path)): ?>
         <div class="article-media">
             <?php if ($article->media_type === 'image'): ?>
-                <img src="/uploads/<?= htmlspecialchars($article->media_path) ?>"
+                <img src="/public/uploads/<?= htmlspecialchars($article->media_path) ?>"
                     alt="Illustration de l'article : <?= htmlspecialchars($article->titre) ?>">
             <?php elseif ($article->media_type === 'video'): ?>
                 <video controls preload="metadata">
@@ -36,12 +36,12 @@ if (!isset($article) || !is_object($article) || !($article instanceof \Src\Entit
     </div>
 
     <div class="article-meta">
-        Publié le **<?= date('d/m/Y H:i', strtotime($article->date_publication)) ?>**
-        | Par **<?= htmlspecialchars($article->auteur_nom) ?>**
+        Publié le <strong> <?= date('d/m/Y H:i', strtotime($article->date_publication)) ?> </strong>
+        | Par <strong> <?= htmlspecialchars($article->auteur_nom) ?> </strong>
     </div>
 
     <div class="article-comments">
-        💬 **<?= $article->comment_count ?>** commentaire(s)
+        💬 <strong> <?= $article->comment_count ?> commentaire(s) </strong>
     </div>
 
     <div class="article-actions">

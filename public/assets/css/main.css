@@ -22,6 +22,7 @@
 @import url("pages/_blog.css");
 @import url("pages/_auth.css");
 @import url("pages/_admin.css");
+@import url('pages/articles_card.css');
 
 /* Fix pour le footer en bas de page */
 html,

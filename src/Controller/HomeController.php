@@ -56,6 +56,6 @@ class HomeController extends BaseController
             FlashManager::error(MessageBag::get('article.not_found'));
             Redirector::to('/articles'); // Redirection vers la liste
         }
-        $this->render('articles/article_detail', ['article' => $post], 'layout/public');
+        $this->render('home/articles_detail', ['article' => $post], 'layout/public');
     }
 }
