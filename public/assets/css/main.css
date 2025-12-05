@@ -1,45 +1,30 @@
-/* 1. Base et utilitaires */
-@import url("base/_reset.css");
-@import url("base/_variables.css");
-@import url("base/_typography.css");
-@import url("base/_utilities.css");
 
-/* 2. Composants */
-@import url("components/_buttons.css");
-@import url("components/_cards.css");
-@import url("components/_forms.css");
-@import url("components/_navigation.css");
-@import url("components/_alerts.css");
+/* 1. ABSTRACTION : Variables et configurations globales */
+@import url("./abstract/_variables.css");
 
-/* 3. Layouts de structure */
-@import url("layout/_grid.css");
-@import url("layout/_header.css");
-@import url("layout/_footer.css");
-@import url("layout/_sidebar.css");
+/* 2. BASE : Styles bruts des éléments HTML */
+@import url("./base/_reset.css");
+@import url("./base/_typography.css");
+@import url("./base/_forms.css");
+@import url("./base/_tables.css");
 
-/* 4. Pages spécifiques (Doivent être en dernier pour une spécificité accrue) */
-@import url("pages/_home.css");
-@import url("pages/_blog.css");
-@import url("pages/_auth.css");
-@import url("pages/_admin.css");
-@import url('pages/articles_card.css');
+/* 3. LAYOUT : Structure globale (Admin et Public) */
+@import url("./layout/_admin.css");
+@import url("./layout/_public.css");
 
-/* Fix pour le footer en bas de page */
-html,
-body {
-    height: 100%;
-}
+/* 4. COMPONENTS : Éléments d'interface réutilisables */
+@import url("./components/_header.css");
+@import url("./components/_footer.css");
+@import url("./components/_sidebar.css");
+@import url("./components/_button.css");
+@import url("./components/_flash-message.css");
+@import url("./components/_navigation.css");
 
-body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
+/* 5. MODULES (Groupes de composants complexes) */
+@import url("./modules/card/_articles_card.css");
+@import url("./modules/form/_login.css");
+@import url("./modules/form/_register.css");
 
-.main-content {
-    flex: 1;
-}
-
-.site-footer {
-    margin-top: auto;
-}
+/* 6. PAGES : Styles très spécifiques (peu d'overrides ici) */
+@import url("./pages/_dashboard.css");
+@import url("./pages/_login.css");

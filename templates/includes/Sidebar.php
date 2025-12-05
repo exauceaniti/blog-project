@@ -120,3 +120,143 @@
         </div>
     </div>
 </aside>
+<style>
+    .admin-sidebar {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background-color: #2c3e50;
+        color: #ecf0f1;
+    }
+
+    .sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid #34495e;
+    }
+
+    .sidebar-brand {
+        font-size: 1.5em;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+    }
+
+    .sidebar-brand i {
+        margin-right: 10px;
+    }
+
+    .sidebar-nav {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 20px 0;
+    }
+
+    .nav-section {
+        margin-bottom: 20px;
+    }
+
+    .nav-section-title {
+        padding: 10px 20px;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        color: #bdc3c7;
+    }
+
+    .nav-item {
+        list-style: none;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 10px 20px;
+        color: #ecf0f1;
+        text-decoration: none;
+    }
+
+    .nav-link:hover,
+    .nav-item.active .nav-link {
+        background-color: #34495e;
+    }
+
+    .nav-icon {
+        margin-right: 10px;
+    }
+
+    .nav-badge {
+        background-color: #e74c3c;
+        color: #fff;
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 0.8em;
+        margin-left: auto;
+    }
+
+    .sidebar-footer {
+        padding: 20px;
+        border-top: 1px solid #34495e;
+    }
+
+    .user-profile {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        background-color: #2980b9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2em;
+        margin-right: 10px;
+    }
+
+    .user-info .user-name {
+        font-weight: bold;
+    }
+
+    .user-info .user-role {
+        font-size: 0.85em;
+        color: #bdc3c7;
+    }
+
+    .sidebar-actions .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 0.9em;
+        cursor: pointer;
+    }
+
+    .sidebar-actions .btn i {
+        margin-right: 8px;
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid #ecf0f1;
+        color: #ecf0f1;
+    }
+
+    .btn-outline:hover {
+        background-color: #34495e;
+    }
+
+    .btn-logout {
+        background-color: #e74c3c;
+        color: #ecf0f1;
+    }
+
+    .btn-logout:hover {
+        background-color: #c0392b;
+    }
+</style>

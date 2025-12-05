@@ -4,10 +4,10 @@
             <!-- Brand Section -->
             <div class="footer-section">
                 <div class="footer-brand">
-                    <div class="logo">
-                        <i class="fas fa-feather-alt"></i>
-                        MonBlog
-                    </div>
+                    <a href="/" class="logo">
+                        <i class="fas fa-feather-alt logo-icon"></i>
+                        <span class="logo-text">Exau-Blog</span>
+                    </a>
                     <p class="footer-description">
                         Partager mes passions et découvertes à travers des articles
                         sur le développement web et les technologies modernes.
@@ -29,86 +29,91 @@
                 </div>
             </div>
 
-
             <!-- Quick Links avec icônes -->
             <div class="footer-section">
-                <h3>Navigation</h3>
-
-                <?php
-                $user_connected = $user_connected ?? false;
-                $user_role = $user_role ?? null;
-                ?>
-
+                <h3 class="footer-title">Navigation</h3>
                 <div class="footer-links">
                     <!-- Liens de base -->
                     <a href="/" class="footer-link">
                         <i class="fas fa-home footer-icon"></i>
-                        Accueil
+                        <span>Accueil</span>
                     </a>
                     <a href="/articles" class="footer-link">
                         <i class="fas fa-newspaper footer-icon"></i>
-                        Articles
+                        <span>Articles</span>
                     </a>
                     <a href="/about" class="footer-link">
                         <i class="fas fa-info-circle footer-icon"></i>
-                        À propos
+                        <span>À propos</span>
                     </a>
 
-                    <?php if ($user_connected): ?>
+                    <?php if ($user_connected ?? false): ?>
                         <!-- Section utilisateur connecté -->
-                        <?php if ($user_role === 'admin'): ?>
+                        <?php if (($user_role ?? null) === 'admin'): ?>
                             <a href="/admin/dashboard" class="footer-link">
                                 <i class="fas fa-user-shield footer-icon"></i>
-                                Administration
+                                <span>Administration</span>
                             </a>
                         <?php else: ?>
                             <a href="/profile" class="footer-link">
                                 <i class="fas fa-user footer-icon"></i>
-                                Mon Profil
+                                <span>Mon Profil</span>
                             </a>
                         <?php endif; ?>
-                        <a href="/logout" class="footer-link">
+                        <a href="/logout" class="footer-link logout">
                             <i class="fas fa-sign-out-alt footer-icon"></i>
-                            Déconnexion
+                            <span>Déconnexion</span>
                         </a>
                     <?php else: ?>
                         <!-- Section visiteur -->
                         <a href="/login" class="footer-link">
                             <i class="fas fa-sign-in-alt footer-icon"></i>
-                            Connexion
+                            <span>Connexion</span>
                         </a>
                         <a href="/register" class="footer-link">
                             <i class="fas fa-user-plus footer-icon"></i>
-                            Inscription
+                            <span>Inscription</span>
                         </a>
                     <?php endif; ?>
 
                     <!-- Contact toujours visible -->
                     <a href="/contact" class="footer-link">
                         <i class="fas fa-envelope footer-icon"></i>
-                        Contact
+                        <span>Contact</span>
                     </a>
                 </div>
             </div>
 
             <!-- Categories -->
             <div class="footer-section">
-                <h3>Catégories</h3>
+                <h3 class="footer-title">Catégories</h3>
                 <div class="footer-links">
-                    <a href="/category/php" class="footer-link">PHP</a>
-                    <a href="/category/javascript" class="footer-link">JavaScript</a>
-                    <a href="/category/css" class="footer-link">CSS</a>
-                    <a href="/category/tutorials" class="footer-link">Tutoriels</a>
+                    <a href="/category/php" class="footer-link">
+                        <i class="fab fa-php footer-icon"></i>
+                        <span>PHP</span>
+                    </a>
+                    <a href="/category/javascript" class="footer-link">
+                        <i class="fab fa-js footer-icon"></i>
+                        <span>JavaScript</span>
+                    </a>
+                    <a href="/category/css" class="footer-link">
+                        <i class="fab fa-css3-alt footer-icon"></i>
+                        <span>CSS</span>
+                    </a>
+                    <a href="/category/tutorials" class="footer-link">
+                        <i class="fas fa-graduation-cap footer-icon"></i>
+                        <span>Tutoriels</span>
+                    </a>
                 </div>
             </div>
 
             <!-- Contact -->
             <div class="footer-section">
-                <h3>Contact</h3>
+                <h3 class="footer-title">Contact</h3>
                 <div class="contact-info">
                     <div class="contact-item">
                         <i class="fas fa-envelope contact-icon"></i>
-                        <span>contact@monblog.com</span>
+                        <span>contact@exaublog.com</span>
                     </div>
                     <div class="contact-item">
                         <i class="fas fa-phone contact-icon"></i>
@@ -125,13 +130,17 @@
         <!-- Footer Bottom -->
         <div class="footer-bottom">
             <div class="footer-copyright">
-                <p>&copy; <?= date('Y') ?> MonBlog. Tous droits réservés.</p>
+                <p>&copy; <?= date('Y') ?> Exau-Blog. Tous droits réservés.</p>
             </div>
             <div class="footer-legal">
-                <a href="/privacy" class="footer-link">Politique de confidentialité</a>
-                <a href="/terms" class="footer-link">Conditions d'utilisation</a>
-                <a href="/sitemap" class="footer-link">Plan du site</a>
+                <a href="/privacy" class="footer-legal-link">Politique de confidentialité</a>
+                <a href="/terms" class="footer-legal-link">Conditions d'utilisation</a>
+                <a href="/sitemap" class="footer-legal-link">Plan du site</a>
             </div>
         </div>
     </div>
 </footer>
+
+<style>
+
+</style>
