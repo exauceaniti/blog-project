@@ -10,6 +10,7 @@
 
 /* 3. LAYOUT : Structure globale (Admin et Public) */
 @import url("./layout/_admin.css");
+@import url("./layout/_admin-layout.css");
 @import url("./layout/_public.css");
 @import url("./layout/_articles-section.css");
 
@@ -31,4 +32,7 @@
 
 /* 6. PAGES : Styles très spécifiques (peu d'overrides ici) */
 @import url("./pages/_dashboard.css");
+@import url("./pages/_admin-dashboard.css");
+@import url("./pages/_admin-posts.css");
+@import url("./pages/_admin-create.css");
 @import url("./pages/index.css");
