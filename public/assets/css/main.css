@@ -1,6 +1,6 @@
 
 /* 1. ABSTRACTION : Variables et configurations globales */
-@import url("./abstract/_variables.css");
+@import url("./abstract/variables.css");
 
 /* 2. BASE : Styles bruts des éléments HTML */
 @import url("./base/_reset.css");
@@ -11,20 +11,24 @@
 /* 3. LAYOUT : Structure globale (Admin et Public) */
 @import url("./layout/_admin.css");
 @import url("./layout/_public.css");
+@import url("./layout/_articles-section.css");
 
 /* 4. COMPONENTS : Éléments d'interface réutilisables */
 @import url("./components/_header.css");
 @import url("./components/_footer.css");
 @import url("./components/_sidebar.css");
-@import url("./components/_button.css");
-@import url("./components/_flash-message.css");
 @import url("./components/_navigation.css");
+@import url("./components/flash-message.css");
+@import url("./components/_button.css");
+@import url("./components/_card.css");
+@import url("./components/Articles_card.css ");
+@import url("./components/Articles_details.css ");
 
 /* 5. MODULES (Groupes de composants complexes) */
 @import url("./modules/card/_articles_card.css");
-@import url("./modules/form/_login.css");
+@import url("./modules/form/login.css ");
 @import url("./modules/form/_register.css");
 
 /* 6. PAGES : Styles très spécifiques (peu d'overrides ici) */
 @import url("./pages/_dashboard.css");
-@import url("./pages/_login.css");
+@import url("./pages/index.css");

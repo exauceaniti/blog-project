@@ -1,0 +1,168 @@
+/* public/css/articles.css */
+
+/* Styles pour les cartes d'articles */
+.article-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-width: 280px;
+    /* Important pour le carousel */
+    flex: 0 0 auto;
+    /* Empêche le rétrécissement dans le carousel */
+}
+
+.article-title {
+    font-size: 1.5em;
+    margin-bottom: 12px;
+}
+
+.article-title a {
+    text-decoration: none;
+    color: #333;
+}
+
+.article-title a:hover {
+    color: #007BFF;
+}
+
+.article-media img,
+.article-media video {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    object-fit: cover;
+}
+
+.article-content p {
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.article-meta {
+    font-size: 0.9em;
+    color: #888;
+    margin-bottom: 12px;
+}
+
+.article-comments {
+    font-size: 0.9em;
+    color: #888;
+    margin-bottom: 12px;
+}
+
+.article-actions .btn-view {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #007BFF;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    font-weight: 500;
+}
+
+.article-actions .btn-view:hover {
+    background-color: #0056b3;
+}
+
+/* Styles pour la section des derniers articles */
+.latest-articles-section {
+    margin: 40px 0;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.latest-articles-section h2 {
+    font-size: 2em;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.latest-articles-section .subtitle {
+    color: #666666;
+    margin-bottom: 20px;
+    font-size: 1em;
+}
+
+.carousel-container {
+    position: relative;
+}
+
+.articles-carousel {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 16px;
+    padding: 10px 0;
+    /* Cache la barre de défilement */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+}
+
+.articles-carousel::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 123, 255, 0.8);
+    color: #ffffff;
+    border: none;
+    padding: 12px 16px;
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 1.2em;
+    z-index: 10;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.carousel-btn:hover {
+    background-color: rgba(0, 86, 179, 0.9);
+}
+
+.prev-btn {
+    left: -25px;
+}
+
+.next-btn {
+    right: -25px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .article-card {
+        min-width: 250px;
+        margin-bottom: 16px;
+    }
+
+    .carousel-btn {
+        padding: 10px 14px;
+        font-size: 1em;
+    }
+
+    .prev-btn {
+        left: -15px;
+    }
+
+    .next-btn {
+        right: -15px;
+    }
+
+    .latest-articles-section h2 {
+        font-size: 1.5em;
+    }
+}

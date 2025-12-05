@@ -1,0 +1,30 @@
+/* base/_forms.css - styles de base pour formulaires */
+
+label { display: block; margin-bottom: calc(var(--spacing-1) / 2); font-weight: var(--font-weight-medium); }
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  width: 100%;
+  padding: var(--spacing-3);
+  border: var(--border-width-1) solid rgba(16,24,40,0.06);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  color: var(--color-dark);
+  transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+  border-color: var(--color-primary);
+}
+
+button[type="submit"], button[type="button"] {
+  cursor: pointer;
+  border: none;
+}
+
+fieldset { border: 0; padding: 0; margin: 0; }

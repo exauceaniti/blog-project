@@ -1,0 +1,6 @@
+/* base/_tables.css - styles de base pour tables */
+
+table { width: 100%; border-collapse: collapse; border-spacing: 0; }
+th, td { padding: var(--spacing-3); text-align: left; border-bottom: 1px solid rgba(16,24,40,0.04); }
+thead th { background: var(--color-light); font-weight: var(--font-weight-semibold); }
+tbody tr:hover { background: rgba(59,130,246,0.02); }

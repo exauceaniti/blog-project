@@ -6,7 +6,7 @@
  */
 
 if (!isset($article) || !is_object($article) || !($article instanceof \Src\Entity\Post)) {
-    return; // Sécurité si la variable n'est pas passée
+    return;
 }
 ?>
 
@@ -50,62 +50,3 @@ if (!isset($article) || !is_object($article) || !($article instanceof \Src\Entit
         </a>
     </div>
 </div>
-<style>
-    .article-card {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 16px;
-        margin-bottom: 24px;
-        background-color: #fff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .article-title {
-        font-size: 1.5em;
-        margin-bottom: 12px;
-    }
-
-    .article-title a {
-        text-decoration: none;
-        color: #333;
-    }
-
-    .article-media img,
-    .article-media video {
-        max-width: 100%;
-        border-radius: 4px;
-        margin-bottom: 12px;
-    }
-
-    .article-content p {
-        font-size: 1em;
-        color: #555;
-        margin-bottom: 12px;
-    }
-
-    .article-meta {
-        font-size: 0.9em;
-        color: #888;
-        margin-bottom: 12px;
-    }
-
-    .article-comments {
-        font-size: 0.9em;
-        color: #888;
-        margin-bottom: 12px;
-    }
-
-    .article-actions .btn-view {
-        display: inline-block;
-        padding: 8px 16px;
-        background-color: #007BFF;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 4px;
-        transition: background-color 0.3s ease;
-    }
-
-    .article-actions .btn-view:hover {
-        background-color: #0056b3;
-    }
-</style>
