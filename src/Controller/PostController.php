@@ -8,6 +8,7 @@ use Src\Core\Session\FlashManager;
 use Src\Core\Http\Redirector;
 use Src\Core\Lang\MessageBag;
 use Src\Controller\BaseController;
+use Src\Core\Auth\Authentification;
 
 /**
  * PostController
@@ -22,6 +23,29 @@ class PostController extends BaseController
         $this->postService = $postService;
     }
 
+    /**
+     * Affiche le formulaire de modification pour un article (GET /admin/posts/edit/{id})
+     */
+    public function displayUpdateForm(int $id): void
+    {
+        // NOTE: Ici, il faudrait idéalement vérifier si l'utilisateur connecté 
+        // est autorisé à modifier cet article (middleware ou vérification interne).
+
+        $post = $this->postService->getPostById($id);
+
+        if (!$post) {
+            FlashManager::error('Article introuvable.');
+            Redirector::to('/admin/posts');
+            return;
+        }
+
+        // Rendu de la vue d'édition (Views/admin/modifier.php)
+        $this->render('admin/modifier', [
+            'title' => 'Modifier l\'article #' . $id,
+            'article' => $post,
+        ], 'layout/admin');
+    }
+
 
     // --- 1. CREATE NEW POST---
 
@@ -31,10 +55,25 @@ class PostController extends BaseController
      */
     public function create(): void
     {
+        // 0. Vérification de sécurité (Si le middleware 'Auth' n'a pas déjà bloqué)
+        if (!Authentification::isLoggedIn()) {
+            FlashManager::error(MessageBag::get('auth.forbidden') ?? "Accès non autorisé. Veuillez vous connecter.");
+            Redirector::to('/login');
+            return;
+        }
+
         // 1. Préparation des données
         $data = $_POST;
-        // L'auteur est l'utilisateur connecté (middleware 'auth' doit garantir la session)
-        // $data['auteur_id'] = $_SESSION['user_id'] ?? null;
+
+        // RECUPERATION DE L'ID DE L'AUTEUR VIA LA CLASSE AUTHENTIFICATION
+        $data['auteur_id'] = Authentification::getUserId();
+
+        // Double vérification si getUserId retourne null (impossible si isLoggedIn() est vrai, mais bonne pratique)
+        if ($data['auteur_id'] === null) {
+            FlashManager::error(MessageBag::get('system.unknown_user') ?? "Erreur: Auteur non identifié.");
+            Redirector::back();
+            return;
+        }
 
         // 2. Validation
         $errors = PostValidator::validate($data);
@@ -49,10 +88,11 @@ class PostController extends BaseController
         $success = $this->postService->createPost($data);
 
         if ($success) {
-            FlashManager::success(MessageBag::get('article.create_success'));
-            // Redirector::to(''); 
+            FlashManager::success(MessageBag::get('article.create_success') ?? "Article créé avec succès.");
+            // Redirige vers la liste des articles admin ou la page de l'article créé
+            Redirector::to('/admin/posts');
         } else {
-            FlashManager::error(MessageBag::get('system.action_failed'));
+            FlashManager::error(MessageBag::get('system.action_failed') ?? "Échec de la création de l'article.");
             Redirector::back();
         }
     }
@@ -61,17 +101,18 @@ class PostController extends BaseController
 
     /**
      * Met à jour un article existant.
-     * Route de traitement: POST /post/update/{id}
-     *
-     * @param int $id ID de l'article à mettre à jour.
      */
     public function update(int $id): void
     {
+        // NOTE: Il est crucial ici d'ajouter une vérification d'autorisation (user_id du post == user_id connecté)
+        // si l'article n'appartient pas à l'admin.
+
         $data = $_POST;
 
-        // Note: La validation doit être adaptée en mode UPDATE. 
-        // Par exemple, si le média n'est pas remplacé, $_FILES est vide, 
-        // mais les autres champs sont vérifiés.
+        // On récupère l'ID de l'utilisateur pour le passer au Service si nécessaire pour la vérification des droits
+        $data['current_user_id'] = Authentification::getUserId();
+
+        // Validation
         $errors = PostValidator::validate($data);
 
         if (!empty($errors)) {
@@ -81,16 +122,14 @@ class PostController extends BaseController
         }
 
         // 1. Appel au Service
-        // Le service gère la recherche par ID, l'upload de remplacement, et la mise à jour des champs.
         $success = $this->postService->updatePost($id, $data);
 
         if ($success) {
-            FlashManager::success(MessageBag::get('article.update_success'));
+            FlashManager::success(MessageBag::get('article.update_success') ?? "Article mis à jour avec succès.");
             // Redirige vers la vue détaillée de l'article mis à jour
             Redirector::to("/articles/{$id}");
         } else {
-            // L'échec peut signifier ID non trouvé ou échec DB/Média
-            FlashManager::error(MessageBag::get('system.action_failed'));
+            FlashManager::error(MessageBag::get('system.action_failed') ?? "Échec de la mise à jour de l'article.");
             Redirector::back();
         }
     }
@@ -99,23 +138,23 @@ class PostController extends BaseController
 
     /**
      * Supprime un article par son ID.
-     * Route de traitement: POST /post/delete/{id}
-     *
-     * @param int $id ID de l'article à supprimer.
      */
     public function delete(int $id): void
     {
-        // 1. Appel au Service
-        // Le service gère la suppression du fichier média, puis l'enregistrement DB.
-        $success = $this->postService->deletePost($id);
+        // NOTE: Même remarque: Vérification d'autorisation est nécessaire ici.
+
+        $currentUserId = Authentification::getUserId();
+
+        // 1. Appel au Service (le service peut effectuer la vérification des droits si vous ne le faites pas ici)
+        $success = $this->postService->deletePost($id, $currentUserId);
 
         if ($success) {
-            FlashManager::success(MessageBag::get('article.delete_success'));
+            FlashManager::success(MessageBag::get('article.delete_success') ?? "Article supprimé avec succès.");
         } else {
-            FlashManager::error(MessageBag::get('system.action_failed'));
+            FlashManager::error(MessageBag::get('system.action_failed') ?? "Échec de la suppression de l'article.");
         }
 
         // 2. Redirige toujours vers la page d'administration des articles après la suppression
-        Redirector::to('/url');
+        Redirector::to('/admin/posts');
     }
 }

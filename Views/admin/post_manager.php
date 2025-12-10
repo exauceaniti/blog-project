@@ -102,7 +102,7 @@ $articles_list = $articles_list ?? [];
                                         title="Voir l'article" target="_blank">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="/admin/modifier/ <?= $article->id ?>/edit"
+                                    <a href="/admin/posts/edit/<?= htmlspecialchars($article->id) ?>"
                                         class="c-btn c-btn--primary c-btn--sm"
                                         title="Éditer">
                                         <i class="fas fa-edit"></i>
@@ -136,7 +136,7 @@ $articles_list = $articles_list ?? [];
                 <div class="l-empty-state-icon">📝</div>
                 <h3>Aucun article trouvé</h3>
                 <p>Commencez par créer votre premier article!</p>
-                <a href="/admin/posts/create" class="c-btn c-btn--primary" style="margin-top: var(--spacing-4);">
+                <a href="/admin/ajouter" class="c-btn c-btn--primary" style="margin-top: var(--spacing-4);">
                     <i class="fas fa-plus"></i> Créer un article
                 </a>
             </div>
@@ -184,11 +184,12 @@ $articles_list = $articles_list ?? [];
     function confirmDelete() {
         if (!postToDelete) return;
 
-        // TODO: Appel AJAX pour supprimer
+        // Submit a POST to the server route that handles deletion
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/admin/posts/${postToDelete}/delete`;
+        form.action = `/post/delete/${postToDelete}`;
 
+        // keep compatibility with servers that rely on _method override
         const methodInput = document.createElement('input');
         methodInput.type = 'hidden';
         methodInput.name = '_method';

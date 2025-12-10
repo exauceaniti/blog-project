@@ -122,7 +122,7 @@
                 <?php else: ?>
                     <div class="l-empty-state">
                         <p>📝 Aucun article récemment publié.</p>
-                        <a href="/admin/posts/create" class="c-btn c-btn--primary">Créer un article</a>
+                        <a href="/admin/ajouter" class="c-btn c-btn--primary">Créer un article</a>
                     </div>
                 <?php endif; ?>
             </div>

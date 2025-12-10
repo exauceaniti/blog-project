@@ -4,7 +4,6 @@ namespace Src\Service;
 
 use Src\DAO\PostDAO;
 use Src\Entity\Post;
-// Importation de la nouvelle dépendance
 use Src\Service\MediaUploader;
 
 class PostService

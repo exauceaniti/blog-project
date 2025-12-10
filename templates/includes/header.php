@@ -1,17 +1,24 @@
 <?php
+
+/**
+ * templates/includes/header.php
+ * * Variables attendues (définies par le LayoutController ou le BaseController) :
+ * - $user_connected : bool (Authentification::isLoggedIn())
+ * - $user_role : string (Authentification::getUserRole() ou $_SESSION['user']['role'])
+ * - $user_name : string (Nom de l'utilisateur connecté)
+ */
 $user_connected = $user_connected ?? false;
 $user_role = $user_role ?? null;
+$user_name = $user_name ?? 'Utilisateur';
 ?>
 
 <header class="site-header">
     <div class="header-container">
-        <!-- Logo -->
         <a href="/" class="logo">
             <i class="fas fa-feather-alt logo-icon"></i>
             <span class="logo-text">Exau-Blog</span>
         </a>
 
-        <!-- Navigation principale -->
         <nav class="nav-main">
             <ul class="nav-list">
                 <li class="nav-item">
@@ -28,13 +35,12 @@ $user_role = $user_role ?? null;
                 </li>
 
                 <?php if ($user_connected): ?>
-                    <!-- Menu utilisateur connecté -->
                     <li class="nav-item user-dropdown">
                         <a href="#" class="nav-link user-trigger">
                             <div class="user-avatar">
                                 <?= strtoupper(substr($user_name ?? 'U', 0, 1)) ?>
                             </div>
-                            <span class="user-name"><?= htmlspecialchars($user_name ?? 'User') ?></span>
+                            <span class="user-name"><?= htmlspecialchars($user_name) ?></span>
                             <i class="fas fa-chevron-down dropdown-arrow"></i>
                         </a>
 
@@ -63,7 +69,6 @@ $user_role = $user_role ?? null;
                         </div>
                     </li>
                 <?php else: ?>
-                    <!-- Menu visiteur -->
                     <li class="nav-item">
                         <a href="/login" class="btn btn-outline btn-sm">
                             <i class="fas fa-sign-in-alt"></i>
@@ -80,7 +85,6 @@ $user_role = $user_role ?? null;
             </ul>
         </nav>
 
-        <!-- Menu mobile -->
         <button class="mobile-menu-btn" aria-label="Menu mobile">
             <span class="menu-line"></span>
             <span class="menu-line"></span>

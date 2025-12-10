@@ -2,12 +2,13 @@
 
 namespace Src\Controller;
 
+use Src\Core\Auth\Authentification;
 use Src\Service\UserService;
 use Src\Validator\UserValidator;
 use Src\Core\Session\FlashManager;
-use Src\Core\Session\SessionService;
 use Src\Core\Lang\MessageBag;
 use Src\Entity\User;
+use Src\Controller\BaseController;
 
 /**
  * Contrôleur de gestion des utilisateurs
@@ -17,11 +18,15 @@ class UserController extends BaseController
     private UserService $userService;
     private UserValidator $validator;
 
-    public function __construct()
+    // Code IDEAL avec un Conteneur qui gère les dépendances
+
+    // Les paramètres NE SONT PAS nullables et n'ont PAS de valeur par défaut de null
+    public function __construct(UserService $userService, UserValidator $validator)
     {
-        $this->userService = new UserService();
-        $this->validator = new UserValidator();
+        $this->userService = $userService;
+        $this->validator = $validator;
     }
+
     /**
 
      * Affiche et gère le formulaire d'inscription
@@ -66,16 +71,22 @@ class UserController extends BaseController
         ], 'layout/public');
     }
 
+
     /**
      * Affiche et gère le formulaire de connexion
      */
     public function login()
     {
+        // 1. Redirection si déjà connecté
+        if (Authentification::isLoggedIn()) {
+            $this->redirect('/'); // Rediriger l'utilisateur s'il tente d'accéder à la page de connexion
+            return;
+        }
+
         $data = ['email' => '', 'password' => ''];
         $errors = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
             $data['email'] = trim($_POST['email'] ?? '');
             $data['password'] = $_POST['password'] ?? '';
 
@@ -84,18 +95,16 @@ class UserController extends BaseController
 
             if (empty($errors)) {
 
-                // Authentification via le Service
-                $user = $this->userService->login($data['email'], $data['password']);
+                // 2. Authentification via Authentification (qui utilise le Service)
+                $user = Authentification::login($this->userService, $data['email'], $data['password']); // <--- CORRECTION
 
                 if ($user) {
-                    // Connexion réussie : Utilisation du SessionService
-                    SessionService::setUser($user);
-
-                    // Gestion de la redirection et message flash
+                    // Connexion réussie : la session est gérée par Authentification::login
                     $this->handlePostLoginRedirect($user);
+                    return; // Fin de l'exécution après la redirection
                 } else {
                     // ÉCHEC : Message d'erreur
-                    $errors['global'] = MessageBag::get('auth.failed');
+                    $errors['global'] = MessageBag::get('auth.failed') ?? "Email ou mot de passe incorrect.";
                 }
             }
             $data['password'] = '';
@@ -113,16 +122,17 @@ class UserController extends BaseController
      */
     public function logout()
     {
-        SessionService::destroy();
-        FlashManager::info(MessageBag::get('auth.logout_success'));
+        Authentification::logout(); // Utilise la classe centrale pour la déconnexion
+        session_destroy(); // Détruit la session complète (si approprié pour votre setup)
+
+        FlashManager::info(MessageBag::get('auth.logout_success') ?? "Vous avez été déconnecté.");
         $this->redirect('/');
     }
 
 
-    // NOUVEAU : Méthode privée pour encapsuler la logique de redirection post-connexion
+    // Méthode privée pour encapsuler la logique de redirection post-connexion
     private function handlePostLoginRedirect(User $user): void
     {
-
         $targetUrl = $_SESSION['redirect_after_login']
             ?? ($user->role === 'admin' ? '/admin/dashboard' : '/');
 
@@ -132,7 +142,7 @@ class UserController extends BaseController
         }
 
         // SUCCÈS : Message de bienvenue
-        $welcomeMessage = MessageBag::get('auth.login_success');
+        $welcomeMessage = MessageBag::get('auth.login_success') ?? "Connexion réussie !";
         FlashManager::success("{$welcomeMessage} Bienvenue, {$user->nom} !");
 
         $this->redirect($targetUrl);

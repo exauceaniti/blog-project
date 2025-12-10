@@ -1,33 +1,61 @@
 <?php
 
-namespace Core\Auth;
+namespace Src\Core\Auth;
 
-use models\User;
-
-require_once dirname(__DIR__, 2) . '/models/User.php';
+use Src\Service\UserService;
+use Src\Entity\User; // Import pour le type-hinting
 
 class Authentification
 {
     /**
      * Tente de connecter l’utilisateur
+     * * Cette méthode utilise le UserService pour vérifier les identifiants.
+     * Si succès, elle enregistre l'utilisateur en session.
      */
-    public static function login(string $email, string $password): bool
+    public static function login(UserService $userService, string $email, string $password): ?User
     {
-        $userModel = new User();
-        $user = $userModel->findByEmail($email);
+        // Le Service gère la recherche et la vérification du mot de passe
+        $user = $userService->login($email, $password);
 
-        if (!$user || !password_verify($password, $user['password'])) {
-            return false;
+        if ($user instanceof User) {
+            self::setConnectedUser($user); // Enregistre l'Entité en session
+            return $user;
         }
 
-        $_SESSION['user'] = [
-            'id' => $user['id'],
-            'nom' => $user['nom'],
-            'email' => $user['email'],
-            'role' => $user['role'] ?? 'user'
-        ];
+        return null;
+    }
 
-        return true;
+    /**
+     * Enregistre l'objet User en session pour marquer l'utilisateur comme connecté.
+     */
+    public static function setConnectedUser(User $user): void
+    {
+        // Stockage des informations essentielles
+        $_SESSION['user'] = [
+            'id'    => $user->id,
+            'nom'   => $user->nom,
+            'email' => $user->email,
+            'role'  => $user->role ?? 'user'
+        ];
+    }
+
+    /**
+     * Vérifie si l'utilisateur est actuellement connecté.
+     */
+    public static function isLoggedIn(): bool
+    {
+        return isset($_SESSION['user']) && is_array($_SESSION['user']) && isset($_SESSION['user']['id']);
+    }
+
+    /**
+     * Récupère l'ID de l'utilisateur connecté
+     */
+    public static function getUserId(): ?int
+    {
+        if (self::isLoggedIn()) {
+            return $_SESSION['user']['id'];
+        }
+        return null;
     }
 
     /**
@@ -36,7 +64,7 @@ class Authentification
     public static function logout(): void
     {
         unset($_SESSION['user']);
-        session_destroy();
+        // session_destroy() est souvent appelé au niveau du contrôleur ou du front controller
+        // pour s'assurer que toutes les sessions sont nettoyées.
     }
-
 }
