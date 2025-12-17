@@ -1,11 +1,11 @@
 <?php
 
-namespace Src\Controller;
+namespace App\Controller;
 
-use Src\Service\PostService;
-use Src\Controller\BaseController;
-use Src\Core\Session\FlashManager;
-use Src\Core\Lang\MessageBag;
+use App\Service\PostService;
+use App\Controller\BaseController;
+use App\Core\Session\FlashManager;
+use App\Core\Lang\MessageBag;
 
 /**
  * AdminController

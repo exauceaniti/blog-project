@@ -1,6 +1,6 @@
 <?php
 
-namespace Src\Entity;
+namespace App\Entity;
 
 /**
  * Classe User représentant l'entité utilisateur dans le système

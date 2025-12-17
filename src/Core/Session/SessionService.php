@@ -1,8 +1,8 @@
 <?php
 
-namespace Src\Core\Session;
+namespace App\Core\Session;
 
-use Src\Entity\User;
+use App\Entity\User;
 
 class SessionService
 {

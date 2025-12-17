@@ -1,9 +1,9 @@
 <?php
 
-namespace Src\DAO;
+namespace App\DAO;
 
-use Src\Core\Database\Database;
-use Src\Entity\User;
+use App\Core\Database\Database;
+use App\Entity\User;
 use PDO;
 
 /**

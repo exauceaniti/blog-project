@@ -1,14 +1,14 @@
 <?php
 
-namespace Src\Controller;
+namespace App\Controller;
 
-use Src\Core\Auth\Authentification;
-use Src\Service\UserService;
-use Src\Validator\UserValidator;
-use Src\Core\Session\FlashManager;
-use Src\Core\Lang\MessageBag;
-use Src\Entity\User;
-use Src\Controller\BaseController;
+use App\Core\Auth\Authentification;
+use App\Service\UserService;
+use App\Validator\UserValidator;
+use App\Core\Session\FlashManager;
+use App\Core\Lang\MessageBag;
+use App\Entity\User;
+use App\Controller\BaseController;
 
 /**
  * Contrôleur de gestion des utilisateurs

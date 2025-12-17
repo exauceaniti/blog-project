@@ -1,10 +1,10 @@
 <?php
 
-namespace Src\Core\Routing;
+namespace App\Core\Routing;
 
-use Src\Core\Container;
-use Src\Core\Middleware\AuthMiddleware;
-use Src\Core\Routing\RouteContext;
+use App\Core\Container;
+use App\Core\Middleware\AuthMiddleware;
+use App\Core\Routing\RouteContext;
 
 /**
  * Routeur principal de l'application - Gestionnaire du cycle de requête HTTP
@@ -15,7 +15,7 @@ use Src\Core\Routing\RouteContext;
  * - La gestion du contexte de route
  * - L'injection de dépendances via Container
  * 
- * @package Src\Core\Routing
+ * @package App\Core\Routing
  */
 class Router
 {
@@ -149,9 +149,9 @@ class Router
     private function call(string $controllerName, string $method, array $params): void
     {
         // Construction du FQCN (Fully Qualified Class Name)
-        $controllerClass = str_starts_with($controllerName, 'Src\\')
+        $controllerClass = str_starts_with($controllerName, 'App\\')
             ? $controllerName
-            : "Src\\Controller\\{$controllerName}";
+            : "App\\Controller\\{$controllerName}";
 
         // Instanciation via container (autowiring magique!)
         $controller = $this->container->get($controllerClass);

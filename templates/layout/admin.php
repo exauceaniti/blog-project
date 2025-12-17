@@ -2,12 +2,12 @@
 <html lang="fr">
 
 <head>
-    <?php \Src\Core\Render\Fragment::meta($page_title ?? 'Admin - Dashboard'); ?>
+    <?php \App\Core\Render\Fragment::meta($page_title ?? 'Admin - Dashboard'); ?>
 </head>
 
 <body class="l-admin-layout">
     <aside class="l-admin-sidebar">
-        <?php \Src\Core\Render\Fragment::sidebar($sidebar_params ?? []); ?>
+        <?php \App\Core\Render\Fragment::sidebar($sidebar_params ?? []); ?>
     </aside>
 
     <main class="l-admin-main-content">

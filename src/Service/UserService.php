@@ -1,10 +1,10 @@
 <?php
 
-namespace Src\Service;
+namespace App\Service;
 
-use Src\Factory\UserFactory;
-use Src\DAO\UserDAO;
-use Src\Entity\User;
+use App\Factory\UserFactory;
+use App\DAO\UserDAO;
+use App\Entity\User;
 
 /**
  * Service de gestion des utilisateurs

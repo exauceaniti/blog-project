@@ -1,5 +1,6 @@
 <?php
-namespace Src\Core\Routing;
+
+namespace App\Core\Routing;
 
 class RouteParser
 {

@@ -212,4 +212,14 @@ return [
         'controller' => 'ErrorController',
         'method' => 'notFound',
     ],
+
+
+
+    // Téléchargement du PDF des 5 derniers articles
+    [
+        'http_method' => 'GET',
+        'pattern' => '#^/articles/latest-pdf$#',
+        'controller' => 'HomeController',
+        'method' => 'exportLatestPdf',
+    ],
 ];

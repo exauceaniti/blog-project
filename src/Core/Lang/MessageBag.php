@@ -1,6 +1,6 @@
 <?php
 
-namespace Src\Core\Lang;
+namespace App\Core\Lang;
 
 /**
  * MessageBag - Gestionnaire centralisé des messages de l'application
@@ -96,6 +96,10 @@ class MessageBag
         'system.permission_denied' => "Permission refusée.",
         'system.action_success' => "Action effectuée avec succès.",
         'system.action_failed' => "Échec de l'action demandée.",
+
+        //Generation de pdf
+        'generation_pdf_error' => "Oups ! Une erreur est survenue lors de la génération du PDF.",
+        'generation_pdf_success' => "Le PDF a été généré avec succès.",
 
     ];
 

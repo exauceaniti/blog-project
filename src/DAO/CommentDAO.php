@@ -1,7 +1,8 @@
 <?php
-namespace Src\DAO;
 
-use Src\Entity\Comment;
+namespace App\DAO;
+
+use App\Entity\Comment;
 use PDO;
 
 /**
@@ -9,10 +10,12 @@ use PDO;
  * ----------
  * Gère les opérations CRUD sur la table `commentaires`.
  */
-class CommentDAO {
+class CommentDAO
+{
     private PDO $db;
 
-    public function __construct(PDO $db) {
+    public function __construct(PDO $db)
+    {
         $this->db = $db;
     }
 
@@ -22,7 +25,8 @@ class CommentDAO {
      * @param int $articleId
      * @return Comment[]
      */
-    public function findByArticle(int $articleId): array {
+    public function findByArticle(int $articleId): array
+    {
         $sql = "SELECT * FROM commentaires WHERE article_id = :article_id ORDER BY date_commentaire DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['article_id' => $articleId]);
@@ -37,7 +41,8 @@ class CommentDAO {
      * @param int $id
      * @return ?Comment
      */
-    public function findById(int $id): ?Comment {
+    public function findById(int $id): ?Comment
+    {
         $sql = "SELECT * FROM commentaires WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id' => $id]);
@@ -52,7 +57,8 @@ class CommentDAO {
      * @param Comment $comment
      * @return bool
      */
-    public function save(Comment $comment): bool {
+    public function save(Comment $comment): bool
+    {
         $sql = "INSERT INTO commentaires (contenu, auteur_id, article_id, date_commentaire)
                 VALUES (:contenu, :auteur_id, :article_id, NOW())";
 
@@ -70,7 +76,8 @@ class CommentDAO {
      * @param Comment $comment
      * @return bool
      */
-    public function update(Comment $comment): bool {
+    public function update(Comment $comment): bool
+    {
         $sql = "UPDATE commentaires 
                 SET contenu = :contenu 
                 WHERE id = :id";
@@ -88,7 +95,8 @@ class CommentDAO {
      * @param int $id
      * @return bool
      */
-    public function delete(int $id): bool {
+    public function delete(int $id): bool
+    {
         $sql = "DELETE FROM commentaires WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute(['id' => $id]);

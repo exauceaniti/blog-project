@@ -1,9 +1,9 @@
 <?php
 
-namespace Src\Controller;
+namespace App\Controller;
 
-use Src\Core\Render\RenderViews;
-use Src\Core\Session\FlashManager;
+use App\Core\Render\RenderViews;
+use App\Core\Session\FlashManager;
 
 class BaseController extends RenderViews
 {

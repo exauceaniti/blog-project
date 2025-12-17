@@ -4,10 +4,6 @@
  * views/fragments/article_card.php
  * Affiche un article unique (Doit recevoir $article comme Entité Post).
  */
-
-if (!isset($article) || !is_object($article) || !($article instanceof \Src\Entity\Post)) {
-    return;
-}
 ?>
 
 <div class="article-card">

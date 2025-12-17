@@ -1,8 +1,9 @@
 <?php
-namespace Src\Controller;
 
-use Src\Controller\BaseController;
-use Src\Core\Lang\MessageBag;
+namespace App\Controller;
+
+use App\Controller\BaseController;
+use App\Core\Lang\MessageBag;
 
 class ErrorController extends BaseController
 {

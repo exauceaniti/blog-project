@@ -1,8 +1,8 @@
 <?php
 
-namespace Src\DAO;
+namespace App\DAO;
 
-use Src\Entity\Post;
+use App\Entity\Post;
 use PDO;
 
 class PostDAO

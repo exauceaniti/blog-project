@@ -1,14 +1,14 @@
 <?php
 
-namespace Src\Controller;
+namespace App\Controller;
 
-use Src\Core\Auth\Authentification;
-use Src\Service\CommentService;
-use Src\Validator\CommentValidator;
-use Src\Core\Session\FlashManager;
-use Src\Core\Http\Redirector;
-use Src\Core\Lang\MessageBag;
-use Src\Controller\BaseController;
+use App\Core\Auth\Authentification;
+use App\Service\CommentService;
+use App\Validator\CommentValidator;
+use App\Core\Session\FlashManager;
+use App\Core\Http\Redirector;
+use App\Core\Lang\MessageBag;
+use App\Controller\BaseController;
 
 class CommentController extends BaseController
 {

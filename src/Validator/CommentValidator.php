@@ -1,16 +1,19 @@
 <?php
-namespace Src\Validator;
 
-use Src\Core\Lang\MessageBag;
+namespace App\Validator;
 
-class CommentValidator {
+use App\Core\Lang\MessageBag;
+
+class CommentValidator
+{
     /**
      * Valide les données d’un commentaire
      *
      * @param array $data
      * @return array Liste des erreurs (vide si OK)
      */
-    public static function validate(array $data): array {
+    public static function validate(array $data): array
+    {
         $errors = [];
 
         // Vérification du contenu

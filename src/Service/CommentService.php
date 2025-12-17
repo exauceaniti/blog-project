@@ -1,14 +1,17 @@
 <?php
-namespace Src\Service;
 
-use Src\DAO\CommentDAO;
-use Src\Entity\Comment;
-use Src\Factory\CommentFactory;
+namespace App\Service;
 
-class CommentService {
+use App\DAO\CommentDAO;
+use App\Entity\Comment;
+use App\Factory\CommentFactory;
+
+class CommentService
+{
     private CommentDAO $commentDAO;
 
-    public function __construct(CommentDAO $commentDAO) {
+    public function __construct(CommentDAO $commentDAO)
+    {
         $this->commentDAO = $commentDAO;
     }
 
@@ -18,7 +21,8 @@ class CommentService {
      * @param int $articleId
      * @return Comment[]
      */
-    public function getCommentsByArticle(int $articleId): array {
+    public function getCommentsByArticle(int $articleId): array
+    {
         return $this->commentDAO->findByArticle($articleId);
     }
 
@@ -28,7 +32,8 @@ class CommentService {
      * @param int $id
      * @return ?Comment
      */
-    public function getCommentById(int $id): ?Comment {
+    public function getCommentById(int $id): ?Comment
+    {
         return $this->commentDAO->findById($id);
     }
 
@@ -38,7 +43,8 @@ class CommentService {
      * @param array $data Données brutes ($_POST)
      * @return bool
      */
-    public function addComment(array $data): bool {
+    public function addComment(array $data): bool
+    {
         // Ici on délègue la construction à la Factory
         $comment = CommentFactory::create($data);
         return $this->commentDAO->save($comment);
@@ -51,7 +57,8 @@ class CommentService {
      * @param array $data
      * @return bool
      */
-    public function updateComment(int $id, array $data): bool {
+    public function updateComment(int $id, array $data): bool
+    {
         $comment = $this->commentDAO->findById($id);
         if (!$comment) {
             return false;
@@ -69,7 +76,8 @@ class CommentService {
      * @param int $id
      * @return bool
      */
-    public function deleteComment(int $id): bool {
+    public function deleteComment(int $id): bool
+    {
         return $this->commentDAO->delete($id);
     }
 
@@ -79,8 +87,8 @@ class CommentService {
      * @param int $articleId
      * @return int
      */
-    public function getCommentsCountByArticle(int $articleId): int {
-    return count($this->commentDAO->findByArticle($articleId));
-}
-
+    public function getCommentsCountByArticle(int $articleId): int
+    {
+        return count($this->commentDAO->findByArticle($articleId));
+    }
 }

@@ -1,12 +1,12 @@
 <?php
 
-namespace Src\Controller;
+namespace App\Controller;
 
-use Src\Service\PostService;
-use Src\Controller\BaseController;
-use Src\Core\Session\FlashManager;
-use Src\Core\Lang\MessageBag;
-use Src\Core\Http\Redirector;
+use App\Service\PostService;
+use App\Controller\BaseController;
+use App\Core\Session\FlashManager;
+use App\Core\Lang\MessageBag;
+use App\Core\Http\Redirector;
 
 /**
  * HomeController
@@ -57,5 +57,33 @@ class HomeController extends BaseController
             Redirector::to('/articles'); // Redirection vers la liste
         }
         $this->render('home/articles_detail', ['article' => $post], 'layout/public');
+    }
+
+    // Export des 5 derniers
+    public function exportLatestPdf(): void
+    {
+        $posts = $this->postService->getLatestPosts(5);
+        $this->sendPdfResponse($posts, "top-5-articles.pdf");
+    }
+
+    // Export de TOUS les articles
+    public function exportAllPdf(): void
+    {
+        // Appel à ta méthode existante qui récupère tout
+        $posts = $this->postService->getAllPosts(); 
+        $this->sendPdfResponse($posts, "archive-complete.pdf");
+    }
+
+    // Méthode privée pour éviter la répétition (DRY)
+    private function sendPdfResponse(array $posts, string $filename): void
+    {
+        $pdfContent = $this->postService->generatePdfFromPosts($posts);
+
+        if (ob_get_length()) ob_end_clean();
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        echo $pdfContent;
+        exit;
     }
 }

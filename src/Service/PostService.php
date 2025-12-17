@@ -1,10 +1,12 @@
 <?php
 
-namespace Src\Service;
+namespace App\Service;
 
-use Src\DAO\PostDAO;
-use Src\Entity\Post;
-use Src\Service\MediaUploader;
+use App\DAO\PostDAO;
+use App\Entity\Post;
+use App\Service\MediaUploader;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class PostService
 {
@@ -133,4 +135,43 @@ class PostService
         // Le CASCADE DELETE de la DB s'occupera des commentaires
         return $this->postDAO->delete($id);
     }
+
+public function generatePdfFromPosts(array $posts): string
+{
+    $options = new \Dompdf\Options();
+    $options->set('isHtml5ParserEnabled', true);
+    $options->set('defaultFont', 'Helvetica');
+    $dompdf = new \Dompdf\Dompdf($options);
+
+    // On définit la racine du projet de manière hyper précise
+    $projectRoot = realpath(__DIR__ . '/../../'); 
+    $publicFolder = $projectRoot . '/public/uploads';
+
+    foreach ($posts as $post) {
+        // On nettoie le chemin : on enlève le slash au début s'il y en a un
+        $cleanPath = ltrim($post->media_path, '/');
+        $fullPath = $publicFolder . '/' . $cleanPath;
+
+        if (!empty($post->media_path) && file_exists($fullPath)) {
+            $type = pathinfo($fullPath, PATHINFO_EXTENSION);
+            $data = file_get_contents($fullPath);
+            $post->image_base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        } else {
+            // Si l'image n'est pas trouvée, on met une image par défaut ou rien
+            $post->image_base64 = null;
+            // Décommenter la ligne suivante pour DEBUGGER si besoin :
+            // die("Le fichier n'existe pas ici : " . $fullPath);
+        }
+    }
+
+    ob_start();
+    require __DIR__ . '/../../templates/pdf/post_pdf_template.php';
+    $html = ob_get_clean();
+
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+
+    return $dompdf->output();
+}
 }

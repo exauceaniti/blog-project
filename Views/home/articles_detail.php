@@ -8,11 +8,6 @@
  * - $comments : array d'Entity\Comment
  * - $is_logged_in : bool (devrait venir du Controller en utilisant Authentification::isLoggedIn())
  */
-
-$comments = $comments ?? [];
-// IMPORTANT : La variable $is_logged_in DOIT être passée par le Controller.
-// Si elle n'est pas passée, on suppose que l'utilisateur n'est pas connecté.
-$is_logged_in = $is_logged_in ?? false;
 ?>
 
 <section class="article-details-section">

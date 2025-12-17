@@ -1,0 +1,20 @@
+{
+    "name": "exauce-aniti/blog-project",
+    "description": "Mon project de Blog develloper en PHP procedural avec architecture MVC",
+    "type": "project",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Exauce Aniti",
+            "email": "exauceaniti@gmail.com"
+        }
+    ],
+    "require": {
+        "dompdf/dompdf": "^3.1"
+    }
+}

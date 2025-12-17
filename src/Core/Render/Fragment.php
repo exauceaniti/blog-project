@@ -1,6 +1,6 @@
 <?php
 
-namespace Src\Core\Render;
+namespace App\Core\Render;
 
 /**
  * Classe Fragment - Gestionnaire de fragments de templates
@@ -8,7 +8,7 @@ namespace Src\Core\Render;
  * Cette classe fournit des méthodes statiques pour inclure des fragments de templates
  * réutilisables dans l'application (meta, header, footer, composants)
  * 
- * @package Src\Core\Render
+ * @package App\Core\Render
  */
 class Fragment
 {

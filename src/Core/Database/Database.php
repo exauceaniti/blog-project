@@ -1,6 +1,6 @@
 <?php
 // core/Database/Database.php
-namespace Src\Core\Database;
+namespace App\Core\Database;
 
 use PDO;
 use PDOException;
@@ -10,7 +10,8 @@ use PDOException;
  * Classe Database pour gérer la connexion à la base de données en utilisant PDO.
  * Fournit des méthodes pour obtenir la connexion, gérer les transactions et enregistrer les erreurs.
  */
-class Database {
+class Database
+{
 
     /**
      * Summary of pdo
@@ -18,7 +19,7 @@ class Database {
      * Instance statique de PDO -null si non initialisé
      */
     private static ?PDO $pdo = null;
-    
+
     /**
      * Obtient l'instance de connexion à la base de données
      * Crée la connexion si elle n'existe pas encore (Lazy Loading)
@@ -26,13 +27,14 @@ class Database {
      * @return PDO Instance de PDO configurée
      * @throws PDOException Si la connexion échoue
      */
-    public static function getConnection(): PDO {
+    public static function getConnection(): PDO
+    {
         //verifie si la connexion n'existe pas encore
         if (self::$pdo === null) {
 
             //charge le fichier de configuration de connexion
             $config = require __DIR__ . '/../../../config/connexion.php';
-            
+
             //Creation d'une nouvelle Instance ou connexion PDO
             try {
                 self::$pdo = new PDO(
@@ -54,7 +56,7 @@ class Database {
         //Retourne l'Instance existant ou nouvellement créée
         return self::$pdo;
     }
-    
+
     /**
      * Summary of logError
      * @param \PDOException $e
@@ -62,8 +64,9 @@ class Database {
      * Ici je logge les erreurs de connexion à un fichier de log
      * pour faciliter le debugage sans afficher cela à l'utilisateur final.
      */
-    
-    private static function logError(PDOException $e): void {
+
+    private static function logError(PDOException $e): void
+    {
         $message = "[" . date('Y-m-d H:i:s') . "] " . $e->getMessage() . PHP_EOL;
         error_log($message, 3, __DIR__ . '/../../../var/logs/db_errors.log');
     }

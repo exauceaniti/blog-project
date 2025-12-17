@@ -1,6 +1,6 @@
 <?php
 
-namespace Src\Entity;
+namespace App\Entity;
 
 /**
  * Entité Comment

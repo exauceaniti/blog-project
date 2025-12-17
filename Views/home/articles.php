@@ -10,6 +10,13 @@ $articles_list = $articles_list ?? [];
 
 <h2>📚 La Bibliothèque Complète des Articles</h2>
 
+<a href="/articles/latest-pdf" class="btn-pdf-top">
+    <span style="margin-right: 8px;">📄</span> Télécharger le Top 5 (PDF)
+</a>
+</div>
+
+</div>
+
 <?php if (!empty($articles_list)): ?>
     <div class="articles-grid">
         <?php

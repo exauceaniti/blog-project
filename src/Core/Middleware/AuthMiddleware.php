@@ -1,12 +1,12 @@
 <?php
 
-namespace Src\Core\Middleware;
+namespace App\Core\Middleware;
 
 // Importation essentielle du service de session
-use Src\Core\Session\SessionService;
-use Src\Core\Http\Redirector;
-use Src\Core\Session\FlashManager;
-use Src\Core\Lang\MessageBag;
+use App\Core\Session\SessionService;
+use App\Core\Http\Redirector;
+use App\Core\Session\FlashManager;
+use App\Core\Lang\MessageBag;
 
 /**
  * Middleware d'authentification et d'autorisation

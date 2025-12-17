@@ -1,8 +1,8 @@
 <?php
 
-namespace Src\Validator;
+namespace App\Validator;
 
-use Src\Core\Lang\MessageBag;
+use App\Core\Lang\MessageBag;
 
 /**
  * Validateur pour les données utilisateur

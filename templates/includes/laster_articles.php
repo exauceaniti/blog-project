@@ -1,4 +1,9 @@
 <?php
+/**
+ * templates/includes/laster_articles.php
+ * Fragment pour afficher les 5 derniers articles.
+ * Reçoit $latest_articles_list du HomeController::accueil().
+ */
 if (empty($latest_articles_list) || !is_array($latest_articles_list)):
 ?>
     <p>Aucun article récent à afficher.</p>

@@ -1,9 +1,9 @@
 <?php
 
-namespace Src\Core\Render;
+namespace App\Core\Render;
 
-use Src\Core\Resolver\PageTitleResolver;
-use Src\Core\Routing\RouteContext;
+use App\Core\Resolver\PageTitleResolver;
+use App\Core\Routing\RouteContext;
 
 /**
  * Moteur de rendu de vues - Gestionnaire de templates et layouts
@@ -11,7 +11,7 @@ use Src\Core\Routing\RouteContext;
  * Cette classe gère le rendu des vues avec système de templates, injection
  * de variables et résolution automatique des titres de pages.
  * 
- * @package Src\Core\Render
+ * @package App\Core\Render
  */
 class RenderViews
 {

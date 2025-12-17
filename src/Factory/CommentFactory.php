@@ -1,16 +1,19 @@
 <?php
-namespace Src\Factory;
 
-use Src\Entity\Comment;
+namespace App\Factory;
 
-class CommentFactory {
+use App\Entity\Comment;
+
+class CommentFactory
+{
     /**
      * Crée un objet Comment à partir des données brutes
      *
      * @param array $data
      * @return Comment
      */
-    public static function create(array $data): Comment {
+    public static function create(array $data): Comment
+    {
         return new Comment([
             'id'               => $data['id'] ?? 0,
             'contenu'          => $data['contenu'] ?? '',

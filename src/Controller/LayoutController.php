@@ -1,10 +1,10 @@
 <?php
 
-namespace controllers\layout;
+namespace App\Controller;
 
-use Core\Resolver\LayoutResolver;
-use Core\Resolver\PageTitleResolver;
-use Core\Session\UserContext;
+use App\Core\Resolver\LayoutResolver;
+use App\Core\Resolver\PageTitleResolver;
+use App\Core\Session\UserContext;
 
 /**
  * Class LayoutController
@@ -72,6 +72,5 @@ class LayoutController
     {
         // var_dump($this->layoutData);
         return $this->layoutData;
-
     }
 }

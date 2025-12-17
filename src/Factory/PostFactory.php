@@ -1,8 +1,8 @@
 <?php
 
-namespace Src\Factory;
+namespace App\Factory;
 
-use Src\Entity\Post;
+use App\Entity\Post;
 
 class PostFactory
 {

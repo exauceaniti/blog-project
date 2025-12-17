@@ -1,6 +1,6 @@
 <?php
 
-namespace Src\Service;
+namespace App\Service;
 
 use Exception;
 

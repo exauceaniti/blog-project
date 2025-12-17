@@ -1,16 +1,19 @@
 <?php
-namespace Src\Validator;
 
-use Src\Core\Lang\MessageBag;
+namespace App\Validator;
 
-class PostValidator {
+use App\Core\Lang\MessageBag;
+
+class PostValidator
+{
     /**
      * Valide les données d’un article
      *
      * @param array $data Données brutes ($_POST + $_FILES)
      * @return array Liste des erreurs (vide si OK)
      */
-    public static function validate(array $data): array {
+    public static function validate(array $data): array
+    {
         $errors = [];
 
         // Vérification du titre

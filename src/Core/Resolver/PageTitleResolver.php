@@ -1,6 +1,6 @@
 <?php
 
-namespace Src\Core\Resolver;
+namespace App\Core\Resolver;
 
 /**
  * Résolveur de titres de pages - Système centralisé de gestion des balises <title>
@@ -11,7 +11,7 @@ namespace Src\Core\Resolver;
  * Elle utilise le pattern Resolver et Factory pour générer des titres dynamiques
  * en fonction des paramètres de route et du contexte.
  * 
- * @package Src\Core\Resolver
+ * @package App\Core\Resolver
  */
 class PageTitleResolver
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Src\Core\Routing;
+namespace App\Core\Routing;
 
 /**
  * Classe de contexte de routage - Singleton statique pour la gestion des routes
@@ -11,7 +11,7 @@ namespace Src\Core\Routing;
  * Elle suit le pattern Registry et permet un accès global aux données de routage
  * sans avoir à les passer explicitement entre les différentes couches de l'application.
  * 
- * @package Src\Core\Routing
+ * @package App\Core\Routing
  */
 final class RouteContext
 {

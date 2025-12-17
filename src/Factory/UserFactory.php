@@ -1,8 +1,8 @@
 <?php
 
-namespace Src\Factory;
+namespace App\Factory;
 
-use Src\Entity\User;
+use App\Entity\User;
 
 /**
  * Factory pour la création d'objets User

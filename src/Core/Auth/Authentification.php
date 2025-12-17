@@ -1,9 +1,9 @@
 <?php
 
-namespace Src\Core\Auth;
+namespace App\Core\Auth;
 
-use Src\Service\UserService;
-use Src\Entity\User; // Import pour le type-hinting
+use App\Service\UserService;
+use App\Entity\User; // Import pour le type-hinting
 
 class Authentification
 {
